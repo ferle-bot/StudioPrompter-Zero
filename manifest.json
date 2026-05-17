@@ -2,20 +2,20 @@
   "name": "StudioPrompter Zero",
   "short_name": "PrompterZero",
   "description": "Teleprompter Local-First de Alto Rendimiento",
-  "start_url": "index.html",
+  "start_url": "/StudioPrompter-Zero/",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#121212",
   "orientation": "any",
   "icons": [
     {
-      "src": "assets/images/icon-192.png",
+      "src": "/StudioPrompter-Zero/assets/images/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "assets/images/icon-512.png",
+      "src": "/StudioPrompter-Zero/assets/images/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
