@@ -23,7 +23,6 @@
             --text-present: #FFFFFF;
             --text-future: #888888;
             
-            /* Paleta Semántica Actualizada */
             --theme-studio: #39FF14; 
             --theme-player: #00CCFF; 
             --theme-scripts: #D4AF37; /* Oro Premium */
@@ -89,7 +88,7 @@
 
         #btn-install { display: none; background: linear-gradient(45deg, var(--theme-scripts), #B8860B); color: #000; font-weight: bold; margin: 10px; border-radius: 8px; border: none; justify-content: center; }
 
-        /* Paneles de Configuración en Menú */
+        /* Paneles de Configuración */
         .sidebar-config-panel { padding: 20px; border-bottom: 1px solid #222; display: flex; flex-direction: column; gap: 10px; }
         .config-label { font-size: 12px; color: #888; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
         .settings-controls { display: flex; align-items: center; justify-content: space-between; background: #0A0A0A; border-radius: 8px; padding: 5px; border: 1px solid #333; }
@@ -117,7 +116,7 @@
         .project-card.active-project .btn-select { background: var(--theme-scripts); color: #000; border-color: var(--theme-scripts); }
         .btn-delete { background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 8px 10px; border-radius: 6px; cursor: pointer;}
 
-        /* VISTAS 2 & 3: Teleprompter Core */
+        /* VISTAS 2 & 3: Teleprompter */
         .viewport { position: absolute; top: var(--ui-height-top); bottom: var(--ui-height-bottom); width: 100%; display: flex; justify-content: center; overflow: hidden; background-color: var(--bg-color); }
         .focus-container { position: absolute; top: 50%; left: 0; width: 100%; height: 60px; transform: translateY(-50%); border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 10; pointer-events: none; }
         .indicator-studio { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 4px; height: 40px; background: var(--theme-studio); border-radius: 2px; transition: background 0.3s; }
@@ -158,7 +157,6 @@
 </head>
 <body>
 
-    <!-- OVERLAY CUENTA REGRESIVA -->
     <div id="countdown-overlay">
         <div id="countdown-number">3</div>
     </div>
@@ -215,7 +213,7 @@
         </div>
         <div class="workspace-scripts">
             <div class="editor-card">
-                <input type="text" id="script-title" class="editor-input" placeholder="Título del Proyecto (Ej: Revelaciones)">
+                <input type="text" id="script-title" class="editor-input" placeholder="Título del Proyecto (Ej: Análisis y Doctrina)">
                 <textarea id="script-content" class="editor-input" placeholder="Pega o escribe tu guion aquí..."></textarea>
                 <button class="btn-action" id="btn-save">Guardar Proyecto Local</button>
             </div>
@@ -345,7 +343,7 @@
             [...APP_STATE.projects].sort((a,b) => b.timestamp - a.timestamp).forEach(p => {
                 const isActive = p.id === APP_STATE.activeProjectId;
                 const card = document.createElement('div'); card.className = `project-card ${isActive ? 'active-project' : ''}`;
-                card.innerHTML = `<div class="project-info"><div class="project-title">${p.title}</div><div class="project-meta">${p.paragraphs.length} fragmentos</div></div>
+                card.innerHTML = `<div class="project-info"><div class="project-title">${p.title}</div><div class="project-meta">${p.paragraphs.length} fragmentos | ${p.audioData ? '🎙️ Audio OK' : 'Sin Audio'}</div></div>
                     <div class="card-actions">
                         <button class="btn-delete" onclick="deleteProject('${p.id}')"><svg viewBox="0 0 24 24" style="width:18px;height:18px;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
                         <button class="btn-select" onclick="selectProject('${p.id}')">${isActive ? 'CARGADO' : 'CARGAR'}</button>
@@ -377,12 +375,14 @@
             currentYStudio = 0; scr.style.transform = `translateY(0px)`; scrPlayer.style.transform = `translateY(0px)`;
             reconnectObserver(scr);
 
-            // Cargar audio en Reproductor
+            // Cargar audio en Reproductor desde ArrayBuffer Seguro
             const masterAudio = document.getElementById('master-audio');
             const btnPlayAudio = document.getElementById('btn-play-audio');
             
-            if (p.audioBlob) {
-                masterAudio.src = URL.createObjectURL(p.audioBlob);
+            if (p.audioData) {
+                const mime = p.audioMimeType || 'audio/webm';
+                const blob = new Blob([p.audioData], { type: mime });
+                masterAudio.src = URL.createObjectURL(blob);
                 btnPlayAudio.disabled = false;
                 btnPlayAudio.innerHTML = '▶ ESCUCHAR';
             } else {
@@ -465,7 +465,7 @@
             pr.forEach(p => obs.observe(p));
         };
 
-        // --- 6. MOTOR AUDIO DSP & ENCADENAMIENTO DE GRABACIÓN ---
+        // --- 6. MOTOR AUDIO DSP Y COMPILADOR BINARIO ---
         let isRecording = false;
         let mediaRecorder = null; let audioContext = null; let analyser = null; let dataArray = null; let audioChunks = []; let reqFrameVu = null;
         let recordingSeconds = 0; let timerInterval = null; let globalStream = null;
@@ -492,7 +492,7 @@
                         else { clearInterval(cdInterval); overlay.classList.remove('active'); startAudioEngineAndScroll(); }
                     }, 1000);
                 } else { startAudioEngineAndScroll(); }
-            } catch (err) { alert("Permiso denegado. Revisa configuración de Chrome."); }
+            } catch (err) { alert("Permiso de micrófono denegado."); }
         });
 
         const startAudioEngineAndScroll = () => {
@@ -504,18 +504,45 @@
             source.connect(analyser); dataArray = new Uint8Array(analyser.frequencyBinCount);
             
             audioChunks = [];
-            mediaRecorder = new MediaRecorder(globalStream);
-            mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
             
-            // EL ENSAMBLADOR: Compila y guarda al detener
+            // Detección de MimeType seguro para Móviles
+            let options = {};
+            if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) { options = { mimeType: 'audio/webm;codecs=opus' }; } 
+            else if (MediaRecorder.isTypeSupported('audio/mp4')) { options = { mimeType: 'audio/mp4' }; }
+
+            mediaRecorder = new MediaRecorder(globalStream, options);
+            mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) audioChunks.push(e.data); };
+            
+            // EL COMPILADOR: Convierte el Blob a ArrayBuffer para evitar DataCloneError
             mediaRecorder.onstop = async () => {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' }); 
-                const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
-                if(proj) {
-                    proj.audioBlob = audioBlob;
-                    await dbOps.save(proj);
-                    selectProject(proj.id); // Recarga la UI
-                }
+                setTimeout(async () => {
+                    const mime = mediaRecorder.mimeType || 'audio/webm';
+                    const audioBlob = new Blob(audioChunks, { type: mime }); 
+                    
+                    if(audioBlob.size === 0) {
+                        alert("Error Crítico de Hardware: El micrófono capturó 0 bytes.");
+                        return;
+                    }
+
+                    const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
+                    if(proj) {
+                        try {
+                            const buffer = await audioBlob.arrayBuffer(); // <-- LA MAGIA (ArrayBuffer puro)
+                            proj.audioData = buffer;
+                            proj.audioMimeType = mime;
+                            await dbOps.save(proj);
+                            
+                            // Feedback Visual de Éxito
+                            const titleEl = document.getElementById('studio-active-title');
+                            titleEl.innerText = "¡AUDIO GUARDADO!";
+                            titleEl.style.color = "#FFDD00";
+                            setTimeout(() => selectProject(proj.id), 2000); 
+
+                        } catch (e) {
+                            alert("Error al guardar en memoria local: " + e);
+                        }
+                    }
+                }, 100); // Pequeño delay para asegurar que el último chunk se empujó
             };
 
             mediaRecorder.start(500); 
