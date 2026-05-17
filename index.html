@@ -34,9 +34,16 @@
             
             --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             --font-size-p: 28px; 
-            --ui-height-top: 80px; 
-            --ui-height-bottom: 110px; 
-            --safe-area-bottom: 24px; 
+            
+            /* Safe Areas dinámicas para móviles con "Notch" y bordes curvados */
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-left: env(safe-area-inset-left, 0px);
+            --safe-right: env(safe-area-inset-right, 0px);
+
+            --ui-height-top: calc(80px + var(--safe-top)); 
+            --ui-height-bottom: calc(110px + var(--safe-bottom)); 
+            --safe-area-bottom: calc(24px + var(--safe-bottom)); 
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -45,11 +52,13 @@
         .view-container { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; flex-direction: column; }
         .view-container.active { display: flex; }
 
-        /* Top Bars */
+        /* Top Bars (HUD) */
         .top-bar {
             position: fixed; top: 0; left: 0; width: 100%; height: var(--ui-height-top);
             background-color: var(--surface-color); border-bottom: 1px solid #333;
-            display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 100;
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: var(--safe-top) calc(15px + var(--safe-right)) 0 calc(15px + var(--safe-left)); 
+            z-index: 100;
         }
         .menu-btn { background: none; border: none; color: #FFF; padding: 10px; cursor: pointer; }
         .brand span { font-weight: bold; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;}
@@ -96,7 +105,7 @@
         #sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--surface-color); z-index: 1001; transition: 0.3s cubic-bezier(0.4,0,0.2,1); display: flex; flex-direction: column; overflow-y: auto;}
         #sidebar.active { transform: translateX(280px); }
         
-        .sidebar-header { padding: 25px 20px; border-bottom: 1px solid #333; font-size: 20px; font-weight: bold; color: #FFF; }
+        .sidebar-header { padding: calc(25px + var(--safe-top)) 20px 25px; border-bottom: 1px solid #333; font-size: 20px; font-weight: bold; color: #FFF; }
         .sidebar-item { padding: 20px; border-bottom: 1px solid #222; display: flex; align-items: center; gap: 15px; color: #CCC; transition: 0.2s; cursor: pointer; }
         .sidebar-item.active { background: rgba(255,255,255,0.05); color: #FFF; border-left: 4px solid #FFF; }
         .sidebar-item[data-target="view-scripts"].active { border-left-color: var(--theme-scripts); color: var(--theme-scripts); background: rgba(212,175,55,0.05); }
@@ -114,13 +123,14 @@
 
         /* VISTA 1: Scripts Workspace */
         .workspace-scripts { position: absolute; top: var(--ui-height-top); bottom: 0; width: 100%; display: flex; flex-direction: column; background: var(--bg-color); overflow-y: auto; padding: 20px; gap: 20px; }
-        .editor-card { background: var(--surface-color); border: 1px solid #333; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
+        .editor-card { background: var(--surface-color); border: 1px solid #333; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 15px; max-width: 900px; margin: 0 auto; width: 100%;}
         .editor-input { width: 100%; background: var(--surface-light); border: 1px solid #444; color: #FFF; padding: 15px; border-radius: 8px; font-size: 16px; font-family: var(--font-main); }
         .editor-input:focus { outline: 1px solid var(--theme-scripts); border-color: var(--theme-scripts); }
         textarea.editor-input { resize: none; height: 180px; user-select: text; }
         .btn-action { background: var(--theme-scripts); color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; text-transform: uppercase; }
         
-        .project-list-header { font-size: 14px; color: var(--text-future); text-transform: uppercase; font-weight: bold; margin-top: 10px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .project-list-header { font-size: 14px; color: var(--text-future); text-transform: uppercase; font-weight: bold; margin-top: 10px; border-bottom: 1px solid #333; padding-bottom: 10px; max-width: 900px; margin: 10px auto 0; width: 100%;}
+        #projects-container { max-width: 900px; margin: 0 auto; width: 100%; }
         .project-card { background: var(--surface-color); border: 1px solid #333; border-radius: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;}
         .project-card.active-project { border-color: var(--theme-scripts); background: rgba(212,175,55,0.05); }
         .project-info { display: flex; flex-direction: column; gap: 5px; flex-grow: 1; min-width: 150px;}
@@ -135,10 +145,11 @@
         /* VISTAS 2 & 3: Teleprompter */
         .viewport { position: absolute; top: var(--ui-height-top); bottom: var(--ui-height-bottom); width: 100%; display: flex; justify-content: center; overflow: hidden; background-color: var(--bg-color); touch-action: none; }
         .focus-container { position: absolute; top: 50%; left: 0; width: 100%; height: 60px; transform: translateY(-50%); border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 10; pointer-events: none; }
-        .indicator-studio { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 4px; height: 40px; background: var(--theme-studio); border-radius: 2px; transition: background 0.3s; }
-        .indicator-player { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 4px; height: 40px; background: var(--theme-player); border-radius: 2px; }
+        .indicator-studio { position: absolute; left: calc(10px + var(--safe-left)); top: 50%; transform: translateY(-50%); width: 4px; height: 40px; background: var(--theme-studio); border-radius: 2px; transition: background 0.3s; }
+        .indicator-player { position: absolute; left: calc(10px + var(--safe-left)); top: 50%; transform: translateY(-50%); width: 4px; height: 40px; background: var(--theme-player); border-radius: 2px; }
 
-        .scroller { position: absolute; width: 90%; max-width: 800px; padding-top: calc(50vh - (var(--ui-height-top) + var(--ui-height-bottom))/2); padding-bottom: 50vh; will-change: transform; }
+        /* SCROLLER ADAPTATIVO (Protege cuellos en Tablets) */
+        .scroller { position: absolute; width: 95%; max-width: 900px; padding-top: calc(50vh - (var(--ui-height-top) + var(--ui-height-bottom))/2); padding-bottom: 50vh; will-change: transform; }
 
         .paragraph { font-size: var(--font-size-p); font-weight: 500; line-height: 1.5; margin-bottom: 45px; text-align: center; color: var(--text-future); transform-origin: center center; transition: color 0.3s, transform 0.3s, opacity 0.3s; opacity: 0.5; }
         .paragraph.past { color: var(--text-past); transform: scale(0.95); opacity: 0.3; }
@@ -155,9 +166,13 @@
         #countdown-overlay.active { opacity: 1; pointer-events: auto; }
         #countdown-number { font-size: 150px; font-weight: bold; color: var(--danger-color); text-shadow: 0 0 30px rgba(255,51,51,0.5); }
 
-        /* Bottom Bars */
+        /* Bottom Bars Adaptativos */
         .bottom-bar-wrapper { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--surface-color); border-top: 1px solid #333; z-index: 100; padding-bottom: var(--safe-area-bottom); }
-        .bottom-bar { height: calc(var(--ui-height-bottom) - var(--safe-area-bottom)); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; }
+        .bottom-bar { 
+            height: calc(var(--ui-height-bottom) - var(--safe-area-bottom)); display: flex; justify-content: space-between; align-items: center; 
+            padding: 0 calc(15px + var(--safe-right)) 0 calc(15px + var(--safe-left)); 
+            max-width: 1200px; margin: 0 auto; 
+        }
         .btn { background: var(--surface-light); color: #FFF; border: none; border-radius: 8px; height: 55px; min-width: 55px; font-size: 16px; font-weight: bold; display: flex; justify-content: center; align-items: center; touch-action: manipulation;}
         .btn:active { background: #333; }
         .btn:disabled { opacity: 0.3; cursor: not-allowed; }
@@ -169,12 +184,20 @@
         .btn-play-studio { background: rgba(57,255,20,0.15); color: var(--theme-studio); border: 1px solid var(--theme-studio); padding: 0 25px; flex-grow: 1; margin-left: 15px; }
         .btn-play-studio.active { background: rgba(57,255,20,0.3); }
 
+        /* Medias Queries para Tablets (Landscape) */
+        @media (min-width: 768px) {
+            .bottom-bar { padding: 0 40px; }
+            .top-bar { padding: var(--safe-top) 40px 0; }
+            .paragraph { margin-bottom: 55px; }
+        }
+
     </style>
 </head>
 <body>
 
     <div id="countdown-overlay"><div id="countdown-number">3</div></div>
 
+    <!-- SIDEBAR Y CONFIGURACIÓN -->
     <div id="sidebar-overlay"></div>
     <div id="sidebar">
         <div class="sidebar-header">StudioPrompter Zero</div>
@@ -198,7 +221,7 @@
         </div>
 
         <div class="sidebar-item" id="btn-install">
-            <svg viewBox="0 0 24 24" style="margin-right: 8px;"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg> Instalar App
+            <svg viewBox="0 0 24 24" style="margin-right: 8px;"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg> Instalar App Nativa
         </div>
 
         <div class="sidebar-item active" data-target="view-scripts">
@@ -212,6 +235,7 @@
         </div>
     </div>
 
+    <!-- VISTA 1: GESTOR DE GUIONES -->
     <div id="view-scripts" class="view-container active">
         <div class="top-bar" id="top-bar-scripts">
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -230,6 +254,7 @@
         </div>
     </div>
 
+    <!-- VISTA 2: EL ESTUDIO -->
     <div id="view-studio" class="view-container">
         <div class="top-bar" id="top-bar-studio">
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -266,6 +291,7 @@
         </div>
     </div>
 
+    <!-- VISTA 3: EL REPRODUCTOR -->
     <div id="view-player" class="view-container">
         <div class="top-bar" id="top-bar-player">
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -292,6 +318,9 @@
         </div>
     </div>
 
+    <!-- =========================================
+         MÓDULO: LÓGICA JAVASCRIPT CORE
+         ========================================= -->
     <script>
         // --- 1. REGISTRO PWA ---
         if ('serviceWorker' in navigator) {
@@ -325,7 +354,7 @@
             delete: (id) => new Promise((res, rej) => { const req = db.transaction(['scripts'], 'readwrite').objectStore('scripts').delete(id); req.onsuccess = res; })
         };
 
-        // --- 3. ESTADO GLOBAL Y PARSER ---
+        // --- 3. ESTADO GLOBAL ---
         const APP_STATE = { projects: [], activeProjectId: null };
         const parseText = (raw) => raw.split(/\n+/).map(p=>p.trim()).filter(p=>p.length>0).map((t, i) => ({ id: i, text: t, weight: t.length + (t.match(/,/g)||[]).length*15 + (t.match(/\./g)||[]).length*25 }));
 
@@ -361,23 +390,16 @@
             });
         };
 
-        let obsStudio = null;
-        let obsPlayer = null;
+        let obsStudio = null; let obsPlayer = null;
 
-        // EL SENSOR ÓPTICO UNIFICADO
         const createIntersectionObserver = (scrollerElement, rootViewportId) => {
             const pr = Array.from(scrollerElement.querySelectorAll('.paragraph'));
             return new IntersectionObserver((entries) => {
                 entries.forEach(e => {
                     if(e.isIntersecting) {
                         const act = e.target; const id = parseInt(act.dataset.id);
-                        if (scrollerElement.id === 'scroller-studio') {
-                            dPacing = Math.max(0.4, Math.min(1.0 / (parseInt(act.dataset.chars) / (act.getBoundingClientRect().height || 1) || 1.0), 1.5));
-                        }
-                        pr.forEach(p => { 
-                            const pId = parseInt(p.dataset.id); 
-                            p.className = `paragraph ${pId < id ? 'past' : (pId === id ? 'present' : 'future')}`; 
-                        });
+                        if (scrollerElement.id === 'scroller-studio') dPacing = Math.max(0.4, Math.min(1.0 / (parseInt(act.dataset.chars) / (act.getBoundingClientRect().height || 1) || 1.0), 1.5));
+                        pr.forEach(p => { const pId = parseInt(p.dataset.id); p.className = `paragraph ${pId < id ? 'past' : (pId === id ? 'present' : 'future')}`; });
                     }
                 });
             }, { root: document.getElementById(rootViewportId), rootMargin: '-48% 0px', threshold: 0 });
@@ -390,61 +412,39 @@
             if(isPlayingStudio) togglePlayStudio(false);
             if(isRecording) stopAudioEngine();
             
-            document.getElementById('studio-active-title').innerText = p.title;
-            document.getElementById('player-active-title').innerText = p.title;
-            
+            document.getElementById('studio-active-title').innerText = p.title; document.getElementById('player-active-title').innerText = p.title;
             const scrStudio = document.getElementById('scroller-studio'); scrStudio.innerHTML = '';
             const scrPlayer = document.getElementById('scroller-player'); scrPlayer.innerHTML = '';
             
             p.paragraphs.forEach((d, i) => {
                 const pTag = document.createElement('p'); pTag.className = `paragraph ${i === 0 ? 'present' : 'future'}`;
                 pTag.dataset.id = d.id; pTag.dataset.chars = d.weight; pTag.innerText = d.text; 
-                scrStudio.appendChild(pTag);
-                const pTagPlayer = pTag.cloneNode(true);
-                scrPlayer.appendChild(pTagPlayer);
+                scrStudio.appendChild(pTag); const pTagPlayer = pTag.cloneNode(true); scrPlayer.appendChild(pTagPlayer);
             });
             currentYStudio = 0; scrStudio.style.transform = `translateY(0px)`; scrPlayer.style.transform = `translateY(0px)`;
             
-            if(obsStudio) obsStudio.disconnect();
-            obsStudio = createIntersectionObserver(scrStudio, 'viewport-studio');
-            Array.from(scrStudio.querySelectorAll('.paragraph')).forEach(p => obsStudio.observe(p));
+            if(obsStudio) obsStudio.disconnect(); obsStudio = createIntersectionObserver(scrStudio, 'viewport-studio'); Array.from(scrStudio.querySelectorAll('.paragraph')).forEach(p => obsStudio.observe(p));
+            if(obsPlayer) obsPlayer.disconnect(); obsPlayer = createIntersectionObserver(scrPlayer, 'viewport-player'); Array.from(scrPlayer.querySelectorAll('.paragraph')).forEach(p => obsPlayer.observe(p));
 
-            if(obsPlayer) obsPlayer.disconnect();
-            obsPlayer = createIntersectionObserver(scrPlayer, 'viewport-player');
-            Array.from(scrPlayer.querySelectorAll('.paragraph')).forEach(p => obsPlayer.observe(p));
-
-            // Configuración del Reproductor Audio
-            const masterAudio = document.getElementById('master-audio');
-            const btnPlayAudio = document.getElementById('btn-play-audio');
-            const btnExport = document.getElementById('btn-export-audio');
-            
+            const masterAudio = document.getElementById('master-audio'); const btnPlayAudio = document.getElementById('btn-play-audio'); const btnExport = document.getElementById('btn-export-audio');
             if (p.audioData) {
-                const mime = p.audioMimeType || 'audio/webm';
-                const blob = new Blob([p.audioData], { type: mime });
+                const mime = p.audioMimeType || 'audio/webm'; const blob = new Blob([p.audioData], { type: mime });
                 masterAudio.src = URL.createObjectURL(blob);
-                
-                btnPlayAudio.disabled = false; btnPlayAudio.innerHTML = '▶ ESCUCHAR';
-                btnExport.disabled = false; 
-                
+                btnPlayAudio.disabled = false; btnPlayAudio.innerHTML = '▶ ESCUCHAR'; btnExport.disabled = false; 
                 btnExport.onclick = () => {
                     const a = document.createElement('a'); a.href = masterAudio.src;
-                    const safeTitle = p.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-                    const extension = mime.includes('mp4') ? 'mp4' : 'webm';
-                    a.download = `Audio_${safeTitle}.${extension}`;
-                    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                    const safeTitle = p.title.replace(/[^a-z0-9]/gi, '_').toLowerCase(); const extension = mime.includes('mp4') ? 'mp4' : 'webm';
+                    a.download = `Audio_${safeTitle}.${extension}`; document.body.appendChild(a); a.click(); document.body.removeChild(a);
                 };
             } else {
-                masterAudio.removeAttribute('src');
-                btnPlayAudio.disabled = true; btnPlayAudio.innerHTML = 'SIN AUDIO';
-                btnExport.disabled = true; btnExport.onclick = null;
+                masterAudio.removeAttribute('src'); btnPlayAudio.disabled = true; btnPlayAudio.innerHTML = 'SIN AUDIO'; btnExport.disabled = true; btnExport.onclick = null;
             }
             document.getElementById('audio-progress').style.width = '0%';
             if(btnPlayAudio.classList.contains('active')) btnPlayAudio.click(); 
         };
 
         // --- 4. CONFIGURACIONES UI ---
-        const rootStyles = document.documentElement.style;
-        let cFont = 28;
+        const rootStyles = document.documentElement.style; let cFont = 28;
         const setFont = (s) => { cFont = Math.max(16, Math.min(s, 48)); document.getElementById('font-size-display').innerText = `${cFont}px`; rootStyles.setProperty('--font-size-p', `${cFont}px`); };
         document.getElementById('btn-font-plus').addEventListener('click', () => setFont(cFont + 2));
         document.getElementById('btn-font-minus').addEventListener('click', () => setFont(cFont - 2));
@@ -469,27 +469,12 @@
 
         // --- 5. MOTOR ESTUDIO ---
         let isPlayingStudio = false; let gSpeed = 0.60; let dPacing = 1.0; let currentYStudio = 0; let reqFrameStudio = null; let lastTStudio = 0;
-        const scrollerStudio = document.getElementById('scroller-studio');
-        const btnPlayStudio = document.getElementById('btn-play-studio');
-
-        let isDragging = false; let startDragY = 0; let startCurrentY = 0;
-        const viewportStudio = document.getElementById('viewport-studio');
+        const scrollerStudio = document.getElementById('scroller-studio'); const btnPlayStudio = document.getElementById('btn-play-studio');
+        let isDragging = false; let startDragY = 0; let startCurrentY = 0; const viewportStudio = document.getElementById('viewport-studio');
         
-        viewportStudio.addEventListener('touchstart', (e) => {
-            if(!APP_STATE.activeProjectId) return;
-            isDragging = true; startDragY = e.touches[0].clientY; startCurrentY = currentYStudio;
-            if(isPlayingStudio) cancelAnimationFrame(reqFrameStudio);
-        });
-        viewportStudio.addEventListener('touchmove', (e) => {
-            if(!isDragging) return;
-            currentYStudio = startCurrentY - (e.touches[0].clientY - startDragY);
-            if(currentYStudio < 0) currentYStudio = 0;
-            scrollerStudio.style.transform = `translateY(-${currentYStudio}px)`;
-        });
-        viewportStudio.addEventListener('touchend', () => {
-            isDragging = false;
-            if(isPlayingStudio && !isRecordingPaused) { lastTStudio = performance.now(); loopStudio(lastTStudio); }
-        });
+        viewportStudio.addEventListener('touchstart', (e) => { if(!APP_STATE.activeProjectId) return; isDragging = true; startDragY = e.touches[0].clientY; startCurrentY = currentYStudio; if(isPlayingStudio) cancelAnimationFrame(reqFrameStudio); });
+        viewportStudio.addEventListener('touchmove', (e) => { if(!isDragging) return; currentYStudio = startCurrentY - (e.touches[0].clientY - startDragY); if(currentYStudio < 0) currentYStudio = 0; scrollerStudio.style.transform = `translateY(-${currentYStudio}px)`; });
+        viewportStudio.addEventListener('touchend', () => { isDragging = false; if(isPlayingStudio && !isRecordingPaused) { lastTStudio = performance.now(); loopStudio(lastTStudio); } });
 
         const togglePlayStudio = (forceState = null) => {
             isPlayingStudio = forceState !== null ? forceState : !isPlayingStudio;
@@ -499,19 +484,15 @@
 
         btnPlayStudio.addEventListener('click', () => { if(APP_STATE.activeProjectId && !isRecording) togglePlayStudio(); });
         document.getElementById('btn-restart-studio').addEventListener('click', () => {
-            if(isPlayingStudio) togglePlayStudio(false);
-            if(isRecording) stopAudioEngine();
-            currentYStudio = 0; dPacing = 1.0;
-            scrollerStudio.style.transform = `translateY(0px)`;
+            if(isPlayingStudio) togglePlayStudio(false); if(isRecording) stopAudioEngine();
+            currentYStudio = 0; dPacing = 1.0; scrollerStudio.style.transform = `translateY(0px)`;
             Array.from(scrollerStudio.querySelectorAll('.paragraph')).forEach((p, i) => p.className = `paragraph ${i===0?'present':'future'}`);
         });
 
         function loopStudio(time) {
             if (!isPlayingStudio || isDragging) return;
-            currentYStudio += 0.05 * (time - lastTStudio) * gSpeed * dPacing;
-            lastTStudio = time;
-            scrollerStudio.style.transform = `translateY(-${currentYStudio}px)`;
-            reqFrameStudio = requestAnimationFrame(loopStudio);
+            currentYStudio += 0.05 * (time - lastTStudio) * gSpeed * dPacing; lastTStudio = time;
+            scrollerStudio.style.transform = `translateY(-${currentYStudio}px)`; reqFrameStudio = requestAnimationFrame(loopStudio);
         }
 
         document.getElementById('btn-plus').addEventListener('click', () => { gSpeed+=0.05; document.getElementById('speed-display').innerText = gSpeed.toFixed(2); });
@@ -522,29 +503,20 @@
         let mediaRecorder = null; let audioContext = null; let analyser = null; let dataArray = null; let audioChunks = []; let reqFrameVu = null;
         let recordingSeconds = 0; let timerInterval = null; let globalStream = null;
 
-        const btnRec = document.getElementById('btn-rec');
-        const btnPauseRec = document.getElementById('btn-pause-rec');
-        const vuMeter = document.getElementById('vu-meter');
-        const timerStudio = document.getElementById('timer-studio');
-        const focusIndicator = document.getElementById('studio-focus-indicator');
-        const overlay = document.getElementById('countdown-overlay');
-        const overlayNum = document.getElementById('countdown-number');
+        const btnRec = document.getElementById('btn-rec'); const btnPauseRec = document.getElementById('btn-pause-rec'); const vuMeter = document.getElementById('vu-meter');
+        const timerStudio = document.getElementById('timer-studio'); const focusIndicator = document.getElementById('studio-focus-indicator');
+        const overlay = document.getElementById('countdown-overlay'); const overlayNum = document.getElementById('countdown-number');
         const vus = [document.getElementById('vu-1'), document.getElementById('vu-2'), document.getElementById('vu-3'), document.getElementById('vu-4'), document.getElementById('vu-5')];
 
         btnRec.addEventListener('click', async () => {
             if (!APP_STATE.activeProjectId) return alert("Selecciona un guion para grabar.");
             if (isRecording) { stopAudioEngine(); togglePlayStudio(false); return; }
-            
             try {
                 if (!globalStream) globalStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
                 let timeLeft = cdValues[cdIndex];
                 if (timeLeft > 0) {
                     overlay.classList.add('active'); overlayNum.innerText = timeLeft;
-                    const cdInterval = setInterval(() => {
-                        timeLeft--;
-                        if(timeLeft > 0) overlayNum.innerText = timeLeft;
-                        else { clearInterval(cdInterval); overlay.classList.remove('active'); startAudioEngineAndScroll(); }
-                    }, 1000);
+                    const cdInterval = setInterval(() => { timeLeft--; if(timeLeft > 0) overlayNum.innerText = timeLeft; else { clearInterval(cdInterval); overlay.classList.remove('active'); startAudioEngineAndScroll(); } }, 1000);
                 } else { startAudioEngineAndScroll(); }
             } catch (err) { alert("Permiso de micrófono denegado."); }
         });
@@ -552,28 +524,21 @@
         btnPauseRec.addEventListener('click', () => {
             if(!isRecording || !mediaRecorder) return;
             if(isRecordingPaused) {
-                mediaRecorder.resume(); isRecordingPaused = false;
-                timerStudio.classList.remove('paused');
-                btnPauseRec.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
-                togglePlayStudio(true); 
+                mediaRecorder.resume(); isRecordingPaused = false; timerStudio.classList.remove('paused');
+                btnPauseRec.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>'; togglePlayStudio(true); 
             } else {
-                mediaRecorder.pause(); isRecordingPaused = true;
-                timerStudio.classList.add('paused');
-                btnPauseRec.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M8 5v14l11-7z"/></svg>';
-                togglePlayStudio(false); 
+                mediaRecorder.pause(); isRecordingPaused = true; timerStudio.classList.add('paused');
+                btnPauseRec.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M8 5v14l11-7z"/></svg>'; togglePlayStudio(false); 
             }
         });
 
         const startAudioEngineAndScroll = () => {
             if(!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
             if(audioContext.state === 'suspended') audioContext.resume();
-            
             const source = audioContext.createMediaStreamSource(globalStream);
-            analyser = audioContext.createAnalyser(); analyser.fftSize = 256;
-            source.connect(analyser); dataArray = new Uint8Array(analyser.frequencyBinCount);
+            analyser = audioContext.createAnalyser(); analyser.fftSize = 256; source.connect(analyser); dataArray = new Uint8Array(analyser.frequencyBinCount);
             
-            audioChunks = [];
-            let options = {};
+            audioChunks = []; let options = {};
             if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) { options = { mimeType: 'audio/webm;codecs=opus' }; } 
             else if (MediaRecorder.isTypeSupported('audio/mp4')) { options = { mimeType: 'audio/mp4' }; }
 
@@ -583,58 +548,40 @@
             mediaRecorder.onstop = async () => {
                 const finalY = currentYStudio; 
                 setTimeout(async () => {
-                    const mime = mediaRecorder.mimeType || 'audio/webm';
-                    const audioBlob = new Blob(audioChunks, { type: mime }); 
+                    const mime = mediaRecorder.mimeType || 'audio/webm'; const audioBlob = new Blob(audioChunks, { type: mime }); 
                     if(audioBlob.size === 0) return alert("El micrófono capturó 0 bytes.");
-
                     const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
                     if(proj) {
                         try {
-                            proj.audioData = await audioBlob.arrayBuffer(); 
-                            proj.audioMimeType = mime;
-                            proj.recordedScrollY = finalY; 
-                            await dbOps.save(proj);
-                            
-                            const titleEl = document.getElementById('studio-active-title');
-                            titleEl.innerText = "¡AUDIO GUARDADO!"; titleEl.style.color = "#FFDD00";
+                            proj.audioData = await audioBlob.arrayBuffer(); proj.audioMimeType = mime; proj.recordedScrollY = finalY; await dbOps.save(proj);
+                            const titleEl = document.getElementById('studio-active-title'); titleEl.innerText = "¡AUDIO GUARDADO!"; titleEl.style.color = "#FFDD00";
                             setTimeout(() => selectProject(proj.id), 2000); 
                         } catch (e) { alert("Error al guardar: " + e); }
                     }
                 }, 100);
             };
 
-            mediaRecorder.start(500); 
-            isRecording = true; isRecordingPaused = false;
-            
-            btnRec.classList.add('recording'); 
-            btnPauseRec.classList.add('visible'); btnPauseRec.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
-            vuMeter.classList.add('recording'); timerStudio.classList.add('recording'); timerStudio.classList.remove('paused');
-            focusIndicator.style.background = 'var(--danger-color)';
+            mediaRecorder.start(500); isRecording = true; isRecordingPaused = false;
+            btnRec.classList.add('recording'); btnPauseRec.classList.add('visible'); btnPauseRec.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+            vuMeter.classList.add('recording'); timerStudio.classList.add('recording'); timerStudio.classList.remove('paused'); focusIndicator.style.background = 'var(--danger-color)';
             
             recordingSeconds = 0; timerStudio.innerText = "00:00:00";
             timerInterval = setInterval(() => {
-                if(isRecordingPaused) return; 
-                recordingSeconds++;
-                const h = Math.floor(recordingSeconds / 3600).toString().padStart(2, '0');
-                const m = Math.floor((recordingSeconds % 3600) / 60).toString().padStart(2, '0');
-                const s = (recordingSeconds % 60).toString().padStart(2, '0');
+                if(isRecordingPaused) return; recordingSeconds++;
+                const h = Math.floor(recordingSeconds / 3600).toString().padStart(2, '0'); const m = Math.floor((recordingSeconds % 3600) / 60).toString().padStart(2, '0'); const s = (recordingSeconds % 60).toString().padStart(2, '0');
                 timerStudio.innerText = `${h}:${m}:${s}`;
             }, 1000);
 
-            drawVUMeter();
-            togglePlayStudio(true); 
+            drawVUMeter(); togglePlayStudio(true); 
         };
 
         const stopAudioEngine = () => {
             if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
             if (globalStream) { globalStream.getTracks().forEach(track => track.stop()); globalStream = null; }
-
             isRecording = false; isRecordingPaused = false;
             btnRec.classList.remove('recording'); btnPauseRec.classList.remove('visible');
-            vuMeter.classList.remove('recording'); timerStudio.classList.remove('recording', 'paused');
-            focusIndicator.style.background = 'var(--theme-studio)';
-            clearInterval(timerInterval); cancelAnimationFrame(reqFrameVu);
-            vus.forEach(v => { v.style.height = '4px'; v.style.backgroundColor = 'var(--theme-studio)'; });
+            vuMeter.classList.remove('recording'); timerStudio.classList.remove('recording', 'paused'); focusIndicator.style.background = 'var(--theme-studio)';
+            clearInterval(timerInterval); cancelAnimationFrame(reqFrameVu); vus.forEach(v => { v.style.height = '4px'; v.style.backgroundColor = 'var(--theme-studio)'; });
         };
 
         const drawVUMeter = () => {
@@ -652,40 +599,26 @@
         };
 
         // --- 7. MOTOR REPRODUCTOR ESCLAVO FLUIDO ---
-        const masterAudio = document.getElementById('master-audio');
-        const btnPlayAudio = document.getElementById('btn-play-audio');
-        const audioProgress = document.getElementById('audio-progress');
-        const scrollerPlayer = document.getElementById('scroller-player');
+        const masterAudio = document.getElementById('master-audio'); const btnPlayAudio = document.getElementById('btn-play-audio');
+        const audioProgress = document.getElementById('audio-progress'); const scrollerPlayer = document.getElementById('scroller-player');
         let reqFramePlayer = null;
 
         function loopPlayer() {
             if (!masterAudio.paused && masterAudio.duration) {
                 const percent = masterAudio.currentTime / masterAudio.duration;
                 audioProgress.style.width = `${percent * 100}%`;
-                
                 const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
-                if(proj && proj.recordedScrollY) {
-                    scrollerPlayer.style.transform = `translateY(-${percent * proj.recordedScrollY}px)`;
-                }
+                if(proj && proj.recordedScrollY) scrollerPlayer.style.transform = `translateY(-${percent * proj.recordedScrollY}px)`;
                 reqFramePlayer = requestAnimationFrame(loopPlayer);
             }
         }
 
         if (btnPlayAudio && masterAudio) {
             btnPlayAudio.addEventListener('click', () => {
-                if (masterAudio.paused) { 
-                    masterAudio.play(); btnPlayAudio.innerHTML = '⏸ PAUSA'; btnPlayAudio.classList.add('active'); 
-                    reqFramePlayer = requestAnimationFrame(loopPlayer);
-                } else { 
-                    masterAudio.pause(); btnPlayAudio.innerHTML = '▶ ESCUCHAR'; btnPlayAudio.classList.remove('active'); 
-                    cancelAnimationFrame(reqFramePlayer);
-                }
+                if (masterAudio.paused) { masterAudio.play(); btnPlayAudio.innerHTML = '⏸ PAUSA'; btnPlayAudio.classList.add('active'); reqFramePlayer = requestAnimationFrame(loopPlayer); } 
+                else { masterAudio.pause(); btnPlayAudio.innerHTML = '▶ ESCUCHAR'; btnPlayAudio.classList.remove('active'); cancelAnimationFrame(reqFramePlayer); }
             });
-
-            masterAudio.addEventListener('ended', () => { 
-                btnPlayAudio.innerHTML = '▶ ESCUCHAR'; btnPlayAudio.classList.remove('active'); 
-                cancelAnimationFrame(reqFramePlayer);
-            });
+            masterAudio.addEventListener('ended', () => { btnPlayAudio.innerHTML = '▶ ESCUCHAR'; btnPlayAudio.classList.remove('active'); cancelAnimationFrame(reqFramePlayer); });
         }
 
         window.addEventListener('DOMContentLoaded', async () => { try { await initDB(); APP_STATE.projects = await dbOps.loadAll(); renderList(); } catch(e) {} });
