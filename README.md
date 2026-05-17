@@ -27,3 +27,4 @@
 * **Estudio de Grabación Local (Web Audio API):** Puerta de ruido adaptativa integrada y filtro pasa-banda por hardware. Incluye una función de **costura digital por crossfade** automático que fusiona fragmentos de audio de forma invisible al pausar y reanudar tomas.
 * **Sincronización Chroma Key (Modo Cine):** Sintoniza la reproducción del audio grabado con el desplazamiento del texto en horizontal sobre un fondo verde sólido (`#00FF00`). Diseñado para grabar la pantalla y superponer subtítulos dinámicos en editores como YouCut.
 * **Privacidad Absoluta e Independencia:** Todos los datos, guiones y tomas de audio viven exclusivamente dentro del entorno seguro del navegador (IndexedDB / OPFS) con opción de exportación directa a la tarjeta SD externa.
+
