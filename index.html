@@ -59,9 +59,14 @@
         #timer-studio { font-family: monospace; font-size: 20px; color: var(--text-future); }
         #timer-studio.recording { color: var(--danger-color); font-weight: bold; }
 
+        /* Vúmetro Real */
+        .vu-meter { display: flex; gap: 3px; height: 20px; align-items: flex-end; opacity: 0.3; margin-right: 15px;}
+        .vu-meter.recording { opacity: 1; }
+        .vu-bar { width: 6px; background-color: var(--theme-studio); border-radius: 2px; height: 4px; transition: height 0.05s ease, background-color 0.1s; }
+
         .btn-rec {
             background: transparent; border: 2px solid var(--danger-color); border-radius: 50%;
-            width: 50px; height: 50px; position: relative; display: flex; justify-content: center; align-items: center;
+            width: 50px; height: 50px; position: relative; display: flex; justify-content: center; align-items: center; cursor: pointer;
         }
         .btn-rec::after { content: ''; position: absolute; width: 20px; height: 20px; background: var(--danger-color); border-radius: 50%; transition: 0.3s; }
         .btn-rec.recording { background: rgba(255,51,51,0.1); }
@@ -80,12 +85,8 @@
         .sidebar-item[data-target="view-studio"].active { border-left-color: var(--theme-studio); color: var(--theme-studio); background: rgba(57,255,20,0.05); }
         .sidebar-item[data-target="view-player"].active { border-left-color: var(--theme-player); color: var(--theme-player); background: rgba(0,204,255,0.05); }
 
-        /* Botón de Instalación PWA Especial */
-        #btn-install { 
-            display: none; /* Oculto hasta que el navegador lo autorice */
-            background: linear-gradient(45deg, var(--theme-scripts), #FF8C00); 
-            color: #000; font-weight: bold; margin: 10px; border-radius: 8px; border: none; justify-content: center; 
-        }
+        /* Botón Instalación */
+        #btn-install { display: none; background: linear-gradient(45deg, var(--theme-scripts), #FF8C00); color: #000; font-weight: bold; margin: 10px; border-radius: 8px; border: none; justify-content: center; }
 
         .sidebar-config-panel { padding: 20px; border-bottom: 1px solid #222; display: flex; flex-direction: column; gap: 10px; }
         .config-label { font-size: 12px; color: #888; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
@@ -117,7 +118,7 @@
         /* VISTAS 2 & 3: Teleprompter Core */
         .viewport { position: absolute; top: var(--ui-height-top); bottom: var(--ui-height-bottom); width: 100%; display: flex; justify-content: center; overflow: hidden; background-color: var(--bg-color); }
         .focus-container { position: absolute; top: 50%; left: 0; width: 100%; height: 60px; transform: translateY(-50%); border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 10; pointer-events: none; }
-        .indicator-studio { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 4px; height: 40px; background: var(--theme-studio); border-radius: 2px; }
+        .indicator-studio { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 4px; height: 40px; background: var(--theme-studio); border-radius: 2px; transition: background 0.3s; }
         .indicator-player { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 4px; height: 40px; background: var(--theme-player); border-radius: 2px; }
 
         .scroller { position: absolute; width: 90%; max-width: 800px; padding-top: calc(50vh - (var(--ui-height-top) + var(--ui-height-bottom))/2); padding-bottom: 50vh; will-change: transform; }
@@ -158,7 +159,6 @@
             </div>
         </div>
 
-        <!-- Botón Especial de Instalación PWA -->
         <div class="sidebar-item" id="btn-install">
             <svg viewBox="0 0 24 24" style="margin-right: 8px;"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
             Instalar App
@@ -188,7 +188,7 @@
         </div>
         <div class="workspace-scripts">
             <div class="editor-card">
-                <input type="text" id="script-title" class="editor-input" placeholder="Título del Proyecto (Ej: Revelaciones Monarca)">
+                <input type="text" id="script-title" class="editor-input" placeholder="Título del Proyecto...">
                 <textarea id="script-content" class="editor-input" placeholder="Pega o escribe tu guion aquí..."></textarea>
                 <button class="btn-action" id="btn-save">Guardar Proyecto Local</button>
             </div>
@@ -197,7 +197,7 @@
         </div>
     </div>
 
-    <!-- VISTA 2: EL ESTUDIO -->
+    <!-- VISTA 2: EL ESTUDIO (AHORA CON AUDIO REAL) -->
     <div id="view-studio" class="view-container">
         <div class="top-bar" id="top-bar-studio">
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -205,12 +205,20 @@
                 <div class="brand"><span id="studio-active-title">Sin Guion</span></div>
             </div>
             <div style="display: flex; align-items: center; gap: 15px;">
+                <!-- Vúmetro Matemático -->
+                <div class="vu-meter" id="vu-meter">
+                    <div class="vu-bar" id="vu-1"></div>
+                    <div class="vu-bar" id="vu-2"></div>
+                    <div class="vu-bar" id="vu-3"></div>
+                    <div class="vu-bar" id="vu-4"></div>
+                    <div class="vu-bar" id="vu-5"></div>
+                </div>
                 <div id="timer-studio">00:00:00</div>
                 <button class="btn-rec" id="btn-rec" title="Grabar"></button>
             </div>
         </div>
         <div class="viewport">
-            <div class="focus-container"><div class="indicator-studio"></div></div>
+            <div class="focus-container"><div class="indicator-studio" id="studio-focus-indicator"></div></div>
             <div class="scroller" id="scroller-studio"></div>
         </div>
         <div class="bottom-bar-wrapper">
@@ -243,329 +251,310 @@
     </div>
 
     <!-- =========================================
-         MÓDULO: VANILLA JS CORE & PWA LOGIC
+         MÓDULO: VANILLA JS CORE, PWA & AUDIO DSP
          ========================================= -->
     <script>
-        // --- 1. REGISTRO PWA (Service Worker & Auto-Install) ---
+        // --- 1. REGISTRO PWA ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('Service Worker Registrado.', reg.scope))
-                    .catch(err => console.log('Falló el registro del Service Worker:', err));
+                    .then(reg => console.log('SW Listo.', reg.scope))
+                    .catch(err => console.log('SW Error:', err));
             });
         }
 
         let deferredPrompt;
         const btnInstall = document.getElementById('btn-install');
-
-        // Captura el evento nativo cuando la web cumple los requisitos PWA
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            btnInstall.style.display = 'flex'; // Muestra el botón en el menú
+            btnInstall.style.display = 'flex'; 
         });
 
         btnInstall.addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    console.log('El usuario aceptó instalar la PWA');
-                    btnInstall.style.display = 'none';
-                }
+                if (outcome === 'accepted') btnInstall.style.display = 'none';
                 deferredPrompt = null;
             }
         });
 
-        window.addEventListener('appinstalled', () => {
-            btnInstall.style.display = 'none';
-            console.log('PWA instalada exitosamente');
-        });
-
-        // Solicitud de Almacenamiento Persistente para la BD
-        if (navigator.storage && navigator.storage.persist) {
-            navigator.storage.persist().then(granted => {
-                console.log(granted ? "Storage persists." : "Storage transient.");
-            });
-        }
-
         // --- 2. BASE DE DATOS LOCAL (IndexedDB) ---
         const DB_NAME = 'StudioPrompterDB';
-        const DB_VERSION = 1;
-        const STORE_NAME = 'scripts';
         let db;
 
         const initDB = () => {
             return new Promise((resolve, reject) => {
-                const request = indexedDB.open(DB_NAME, DB_VERSION);
-                request.onerror = () => reject("Error DB");
-                request.onsuccess = (e) => { db = e.target.result; resolve(db); };
+                const request = indexedDB.open(DB_NAME, 1);
+                request.onerror = () => reject();
+                request.onsuccess = (e) => { db = e.target.result; resolve(); };
                 request.onupgradeneeded = (e) => {
                     db = e.target.result;
-                    if (!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                    if (!db.objectStoreNames.contains('scripts')) db.createObjectStore('scripts', { keyPath: 'id' });
                 };
             });
         };
 
-        const saveProjectToDB = (project) => {
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction([STORE_NAME], 'readwrite');
-                const store = transaction.objectStore(STORE_NAME);
-                const req = store.put(project);
-                req.onsuccess = () => resolve();
-                req.onerror = () => reject(req.error);
-            });
+        const dbOps = {
+            save: (proj) => new Promise((res, rej) => { const req = db.transaction(['scripts'], 'readwrite').objectStore('scripts').put(proj); req.onsuccess = res; req.onerror = rej; }),
+            loadAll: () => new Promise((res, rej) => { const req = db.transaction(['scripts'], 'readonly').objectStore('scripts').getAll(); req.onsuccess = () => res(req.result); req.onerror = rej; }),
+            delete: (id) => new Promise((res, rej) => { const req = db.transaction(['scripts'], 'readwrite').objectStore('scripts').delete(id); req.onsuccess = res; req.onerror = rej; })
         };
 
-        const loadProjectsFromDB = () => {
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction([STORE_NAME], 'readonly');
-                const store = transaction.objectStore(STORE_NAME);
-                const req = store.getAll();
-                req.onsuccess = () => resolve(req.result);
-                req.onerror = () => reject(req.error);
-            });
-        };
-
-        const deleteProjectFromDB = (id) => {
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction([STORE_NAME], 'readwrite');
-                const store = transaction.objectStore(STORE_NAME);
-                const req = store.delete(id);
-                req.onsuccess = () => resolve();
-                req.onerror = () => reject();
-            });
-        };
-
-        // --- 3. ESTADO Y LÓGICA DE UI DE GUIONES ---
+        // --- 3. ESTADO GLOBAL ---
         const APP_STATE = { projects: [], activeProjectId: null };
-        const inputTitle = document.getElementById('script-title');
-        const inputContent = document.getElementById('script-content');
-        const projectsContainer = document.getElementById('projects-container');
-
-        const parseTextToParagraphs = (rawText) => {
-            const blocks = rawText.split(/\n+/).map(p => p.trim()).filter(p => p.length > 0);
-            return blocks.map((text, index) => {
-                const w = text.length + (text.match(/,/g) || []).length * 15 + (text.match(/\./g) || []).length * 25;
-                return { id: index, text: text, weight: w };
-            });
-        };
+        const parseText = (raw) => raw.split(/\n+/).map(p=>p.trim()).filter(p=>p.length>0).map((t, i) => ({ id: i, text: t, weight: t.length + (t.match(/,/g)||[]).length*15 + (t.match(/\./g)||[]).length*25 }));
 
         document.getElementById('btn-save').addEventListener('click', async () => {
-            const title = inputTitle.value.trim() || `Proyecto sin título`;
-            const content = inputContent.value.trim();
-            if (!content) return;
-
-            const newProject = { 
-                id: Date.now().toString(), 
-                title: title, 
-                paragraphs: parseTextToParagraphs(content),
-                timestamp: Date.now()
-            };
-
-            await saveProjectToDB(newProject);
-            APP_STATE.projects.push(newProject);
-            
-            inputTitle.value = ''; inputContent.value = '';
-            selectProject(newProject.id);
+            const t = document.getElementById('script-title').value.trim() || `Proyecto sin título`;
+            const c = document.getElementById('script-content').value.trim();
+            if (!c) return;
+            const proj = { id: Date.now().toString(), title: t, paragraphs: parseText(c), timestamp: Date.now() };
+            await dbOps.save(proj);
+            APP_STATE.projects.push(proj);
+            document.getElementById('script-title').value = ''; document.getElementById('script-content').value = '';
+            selectProject(proj.id);
         });
 
         window.deleteProject = async (id) => {
-            if(!confirm("¿Borrar guion definitivamente?")) return;
-            await deleteProjectFromDB(id);
+            if(!confirm("¿Borrar definitivamente?")) return;
+            await dbOps.delete(id);
             APP_STATE.projects = APP_STATE.projects.filter(p => p.id !== id);
-            
-            if(APP_STATE.activeProjectId === id) {
-                APP_STATE.activeProjectId = null;
-                document.getElementById('studio-active-title').innerText = "Sin Guion";
-                document.getElementById('scroller-studio').innerHTML = "";
-            }
-            renderProjectList();
+            if(APP_STATE.activeProjectId === id) { APP_STATE.activeProjectId = null; document.getElementById('studio-active-title').innerText = "Sin Guion"; document.getElementById('scroller-studio').innerHTML = ""; }
+            renderList();
         };
 
-        const renderProjectList = () => {
-            projectsContainer.innerHTML = '';
-            if(APP_STATE.projects.length === 0) {
-                projectsContainer.innerHTML = '<div style="color:var(--text-future); font-size:14px; text-align:center;">No hay proyectos.</div>';
-                return;
-            }
-
-            [...APP_STATE.projects].sort((a,b) => b.timestamp - a.timestamp).forEach(project => {
-                const isActive = project.id === APP_STATE.activeProjectId;
+        const renderList = () => {
+            const container = document.getElementById('projects-container');
+            container.innerHTML = '';
+            if(APP_STATE.projects.length === 0) return container.innerHTML = '<div style="color:#888;font-size:14px;text-align:center;">No hay proyectos.</div>';
+            [...APP_STATE.projects].sort((a,b) => b.timestamp - a.timestamp).forEach(p => {
+                const isActive = p.id === APP_STATE.activeProjectId;
                 const card = document.createElement('div');
                 card.className = `project-card ${isActive ? 'active-project' : ''}`;
-                card.innerHTML = `
-                    <div class="project-info">
-                        <div class="project-title">${project.title}</div>
-                        <div class="project-meta">${project.paragraphs.length} fragmentos indexados</div>
-                    </div>
+                card.innerHTML = `<div class="project-info"><div class="project-title">${p.title}</div><div class="project-meta">${p.paragraphs.length} fragmentos</div></div>
                     <div class="card-actions">
-                        <button class="btn-delete" onclick="deleteProject('${project.id}')">
-                            <svg viewBox="0 0 24 24" style="width:18px;height:18px;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-                        </button>
-                        <button class="btn-select" onclick="selectProject('${project.id}')">
-                            ${isActive ? 'CARGADO' : 'CARGAR'}
-                        </button>
+                        <button class="btn-delete" onclick="deleteProject('${p.id}')"><svg viewBox="0 0 24 24" style="width:18px;height:18px;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
+                        <button class="btn-select" onclick="selectProject('${p.id}')">${isActive ? 'CARGADO' : 'CARGAR'}</button>
                     </div>`;
-                projectsContainer.appendChild(card);
+                container.appendChild(card);
             });
         };
 
-        let studioObserver = null;
-        window.selectProject = (projectId) => {
-            APP_STATE.activeProjectId = projectId;
-            const project = APP_STATE.projects.find(p => p.id === projectId);
-            if(!project) return;
-
-            renderProjectList();
+        let obs = null;
+        window.selectProject = (id) => {
+            APP_STATE.activeProjectId = id;
+            const p = APP_STATE.projects.find(x => x.id === id);
+            if(!p) return;
+            renderList();
             if(isPlayingStudio) document.getElementById('btn-play-studio').click();
+            document.getElementById('studio-active-title').innerText = p.title;
             
-            document.getElementById('studio-active-title').innerText = project.title;
-            document.getElementById('player-active-title').innerText = project.title;
-            
-            const scroller = document.getElementById('scroller-studio');
-            scroller.innerHTML = '';
-            project.paragraphs.forEach((pData, index) => {
+            const scr = document.getElementById('scroller-studio'); scr.innerHTML = '';
+            p.paragraphs.forEach((d, i) => {
                 const pTag = document.createElement('p');
-                pTag.className = `paragraph ${index === 0 ? 'present' : 'future'}`;
-                pTag.dataset.id = pData.id;
-                pTag.dataset.chars = pData.weight;
-                pTag.innerText = pData.text;
-                scroller.appendChild(pTag);
+                pTag.className = `paragraph ${i === 0 ? 'present' : 'future'}`;
+                pTag.dataset.id = d.id; pTag.dataset.chars = d.weight; pTag.innerText = d.text;
+                scr.appendChild(pTag);
             });
-
-            currentYStudio = 0;
-            scroller.style.transform = `translateY(0px)`;
-            reconnectStudioObserver();
+            currentYStudio = 0; scr.style.transform = `translateY(0px)`;
+            reconnectObserver(scr);
         };
 
-        // --- 4. ENRUTAMIENTO Y CONFIGURACIÓN ---
-        let currentFontSize = 28;
+        // --- 4. ENRUTAMIENTO Y UI CORE ---
         const rootStyles = document.documentElement.style;
-        const fontDisplay = document.getElementById('font-size-display');
-        
-        const updateFontSize = (newSize) => {
-            currentFontSize = Math.max(16, Math.min(newSize, 48));
-            fontDisplay.innerText = `${currentFontSize}px`;
-            rootStyles.setProperty('--font-size-p', `${currentFontSize}px`);
-        };
-        document.getElementById('btn-font-plus').addEventListener('click', () => updateFontSize(currentFontSize + 2));
-        document.getElementById('btn-font-minus').addEventListener('click', () => updateFontSize(currentFontSize - 2));
+        let cFont = 28;
+        const setFont = (s) => { cFont = Math.max(16, Math.min(s, 48)); document.getElementById('font-size-display').innerText = `${cFont}px`; rootStyles.setProperty('--font-size-p', `${cFont}px`); };
+        document.getElementById('btn-font-plus').addEventListener('click', () => setFont(cFont + 2));
+        document.getElementById('btn-font-minus').addEventListener('click', () => setFont(cFont - 2));
 
-        const sidebar = document.getElementById('sidebar');
-        const sidebarOverlay = document.getElementById('sidebar-overlay');
-        const toggleMenu = () => { sidebar.classList.toggle('active'); sidebarOverlay.classList.toggle('active'); };
-        document.querySelectorAll('.menu-btn').forEach(btn => btn.addEventListener('click', toggleMenu));
-        sidebarOverlay.addEventListener('click', toggleMenu);
+        const toggleMenu = () => { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('sidebar-overlay').classList.toggle('active'); };
+        document.querySelectorAll('.menu-btn, #sidebar-overlay').forEach(e => e.addEventListener('click', toggleMenu));
 
         document.querySelectorAll('.sidebar-item[data-target]').forEach(item => {
             item.addEventListener('click', () => {
-                const targetId = item.getAttribute('data-target');
-                if ((targetId === 'view-studio' || targetId === 'view-player') && !APP_STATE.activeProjectId) {
-                    console.warn("Se requiere cargar un guion primero.");
-                    return; 
-                }
+                const t = item.getAttribute('data-target');
+                if ((t === 'view-studio' || t === 'view-player') && !APP_STATE.activeProjectId) return alert("Selecciona un Guion primero.");
                 if(isPlayingStudio) document.getElementById('btn-play-studio').click();
-                
-                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
-                
-                document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
-                document.getElementById(targetId).classList.add('active');
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active')); item.classList.add('active');
+                document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active')); document.getElementById(t).classList.add('active');
                 toggleMenu();
             });
         });
 
-        // --- 5. MOTOR DE ESTUDIO (GPU & DENSIDAD) ---
-        let isPlayingStudio = false;
-        let globalSpeedMultiplier = 0.60;
-        let dynamicPacingFactor = 1.0;
-        let currentYStudio = 0;
-        let reqFrameStudio = null;
-        let lastTimeStudio = 0;
+        // --- 5. MOTOR AUDIO DSP & GRABACIÓN (¡NUEVO!) ---
+        let isRecording = false;
+        let mediaRecorder = null;
+        let audioContext = null;
+        let analyser = null;
+        let dataArray = null;
+        let audioChunks = [];
+        let reqFrameVu = null;
+        
+        let recordingSeconds = 0;
+        let timerInterval = null;
 
-        const btnPlayStudio = document.getElementById('btn-play-studio');
-        const btnRestartStudio = document.getElementById('btn-restart-studio');
-        const scrollerStudio = document.getElementById('scroller-studio');
+        const btnRec = document.getElementById('btn-rec');
+        const vuMeter = document.getElementById('vu-meter');
+        const timerStudio = document.getElementById('timer-studio');
+        const focusIndicator = document.getElementById('studio-focus-indicator');
+        
+        // Barras del Vúmetro DOM
+        const vus = [document.getElementById('vu-1'), document.getElementById('vu-2'), document.getElementById('vu-3'), document.getElementById('vu-4'), document.getElementById('vu-5')];
 
-        btnPlayStudio.addEventListener('click', () => {
-            if(!APP_STATE.activeProjectId) return;
-            isPlayingStudio = !isPlayingStudio;
-            
-            if (isPlayingStudio) {
-                btnPlayStudio.innerHTML = '⏸ PAUSA';
-                btnPlayStudio.classList.add('active');
-                lastTimeStudio = performance.now();
-                loopStudio(lastTimeStudio);
-            } else {
-                btnPlayStudio.innerHTML = '▶ ENSAYAR';
-                btnPlayStudio.classList.remove('active');
-                cancelAnimationFrame(reqFrameStudio);
+        const startAudioEngine = async () => {
+            try {
+                // Solicitar permisos nativos al Hardware (Android/PC)
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                
+                // Inicializar Web Audio API para DSP Matemático (Vúmetro)
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioContext.createMediaStreamSource(stream);
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256; // Ventana de muestreo
+                source.connect(analyser);
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+                
+                // Iniciar Grabador a memoria (Chunks crudos)
+                audioChunks = [];
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+                mediaRecorder.start(500); // Guardar buffer cada 500ms
+
+                // Iniciar UI de Grabación
+                isRecording = true;
+                btnRec.classList.add('recording');
+                vuMeter.classList.add('recording');
+                timerStudio.classList.add('recording');
+                focusIndicator.style.background = 'var(--danger-color)';
+                
+                recordingSeconds = 0;
+                timerStudio.innerText = "00:00:00";
+                timerInterval = setInterval(() => {
+                    recordingSeconds++;
+                    const h = Math.floor(recordingSeconds / 3600).toString().padStart(2, '0');
+                    const m = Math.floor((recordingSeconds % 3600) / 60).toString().padStart(2, '0');
+                    const s = (recordingSeconds % 60).toString().padStart(2, '0');
+                    timerStudio.innerText = `${h}:${m}:${s}`;
+                }, 1000);
+
+                // Iniciar Bucle del Vúmetro
+                drawVUMeter();
+
+            } catch (err) {
+                console.error("Permiso denegado o Hardware no encontrado:", err);
+                alert("Para grabar, debes permitir el acceso al micrófono de tu dispositivo en la configuración del navegador.");
             }
+        };
+
+        const stopAudioEngine = () => {
+            if (mediaRecorder && mediaRecorder.state !== "inactive") {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop()); // Apagar Micrófono físico
+            }
+            if (audioContext) audioContext.close();
+            
+            isRecording = false;
+            btnRec.classList.remove('recording');
+            vuMeter.classList.remove('recording');
+            timerStudio.classList.remove('recording');
+            focusIndicator.style.background = 'var(--theme-studio)';
+            clearInterval(timerInterval);
+            cancelAnimationFrame(reqFrameVu);
+            
+            // Apagar barras visualmente
+            vus.forEach(v => { v.style.height = '4px'; v.style.backgroundColor = 'var(--theme-studio)'; });
+
+            // (FUTURO: Aquí guardaremos los audioChunks al OPFS)
+            console.log("Grabación finalizada en RAM temporal. Fragmentos capturados:", audioChunks.length);
+        };
+
+        const drawVUMeter = () => {
+            if (!isRecording) return;
+            analyser.getByteFrequencyData(dataArray);
+            
+            // Calcular volumen medio RMS
+            let sum = 0;
+            for(let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+            let average = sum / dataArray.length; // Valor de 0 a 255
+            
+            // Convertir a nivel lógico para 5 barras
+            let level = (average / 128) * 5; // Escalado básico
+            
+            vus.forEach((bar, index) => {
+                if (index < level) {
+                    bar.style.height = '100%';
+                    if(index === 3) bar.style.backgroundColor = '#FFDD00'; // Amarillo
+                    else if(index === 4) bar.style.backgroundColor = 'var(--danger-color)'; // Rojo
+                    else bar.style.backgroundColor = 'var(--theme-studio)'; // Verde
+                } else {
+                    bar.style.height = '4px';
+                    bar.style.backgroundColor = 'var(--theme-studio)';
+                }
+            });
+
+            reqFrameVu = requestAnimationFrame(drawVUMeter);
+        };
+
+        btnRec.addEventListener('click', () => {
+            if (!APP_STATE.activeProjectId) return alert("Selecciona un guion para grabar.");
+            if (!isRecording) startAudioEngine();
+            else stopAudioEngine();
         });
 
-        btnRestartStudio.addEventListener('click', () => {
-            if(isPlayingStudio) btnPlayStudio.click();
-            currentYStudio = 0;
-            dynamicPacingFactor = 1.0;
-            scrollerStudio.style.transform = `translateY(0px)`;
-            
-            const paragraphs = Array.from(scrollerStudio.querySelectorAll('.paragraph'));
-            paragraphs.forEach((p, index) => p.className = `paragraph ${index === 0 ? 'present' : 'future'}`);
+
+        // --- 6. MOTOR SCROLL GPU ---
+        let isPlayingStudio = false;
+        let gSpeed = 0.60;
+        let dPacing = 1.0;
+        let currentYStudio = 0;
+        let reqFrameStudio = null;
+        let lastTStudio = 0;
+
+        document.getElementById('btn-play-studio').addEventListener('click', () => {
+            if(!APP_STATE.activeProjectId) return;
+            isPlayingStudio = !isPlayingStudio;
+            const btn = document.getElementById('btn-play-studio');
+            if (isPlayingStudio) { btn.innerHTML = '⏸ PAUSA'; btn.classList.add('active'); lastTStudio = performance.now(); loopStudio(lastTStudio); } 
+            else { btn.innerHTML = '▶ ENSAYAR'; btn.classList.remove('active'); cancelAnimationFrame(reqFrameStudio); }
+        });
+
+        document.getElementById('btn-restart-studio').addEventListener('click', () => {
+            if(isPlayingStudio) document.getElementById('btn-play-studio').click();
+            currentYStudio = 0; dPacing = 1.0;
+            const scr = document.getElementById('scroller-studio');
+            scr.style.transform = `translateY(0px)`;
+            Array.from(scr.querySelectorAll('.paragraph')).forEach((p, i) => p.className = `paragraph ${i===0?'present':'future'}`);
         });
 
         function loopStudio(time) {
             if (!isPlayingStudio) return;
-            const delta = time - lastTimeStudio;
-            lastTimeStudio = time;
-            
-            const movement = 0.05 * delta * globalSpeedMultiplier * dynamicPacingFactor;
-            currentYStudio += movement;
-            scrollerStudio.style.transform = `translateY(-${currentYStudio}px)`;
-            
+            currentYStudio += 0.05 * (time - lastTStudio) * gSpeed * dPacing;
+            lastTStudio = time;
+            document.getElementById('scroller-studio').style.transform = `translateY(-${currentYStudio}px)`;
             reqFrameStudio = requestAnimationFrame(loopStudio);
         }
 
-        document.getElementById('btn-plus').addEventListener('click', () => { globalSpeedMultiplier += 0.05; document.getElementById('speed-display').innerText = globalSpeedMultiplier.toFixed(2); });
-        document.getElementById('btn-minus').addEventListener('click', () => { globalSpeedMultiplier = Math.max(0, globalSpeedMultiplier - 0.05); document.getElementById('speed-display').innerText = globalSpeedMultiplier.toFixed(2); });
+        document.getElementById('btn-plus').addEventListener('click', () => { gSpeed+=0.05; document.getElementById('speed-display').innerText = gSpeed.toFixed(2); });
+        document.getElementById('btn-minus').addEventListener('click', () => { gSpeed=Math.max(0,gSpeed-0.05); document.getElementById('speed-display').innerText = gSpeed.toFixed(2); });
 
-        const reconnectStudioObserver = () => {
-            const paragraphs = Array.from(scrollerStudio.querySelectorAll('.paragraph'));
-            if (studioObserver) studioObserver.disconnect();
-            
-            studioObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if(entry.isIntersecting) {
-                        const activeP = entry.target;
-                        const activeId = parseInt(activeP.dataset.id);
-                        const density = parseInt(activeP.dataset.chars) / (activeP.getBoundingClientRect().height || 1);
-                        dynamicPacingFactor = Math.max(0.4, Math.min(1.0 / (density || 1.0), 1.5));
-                        
-                        paragraphs.forEach(p => {
-                            const id = parseInt(p.dataset.id);
-                            p.classList.remove('past', 'present', 'future');
-                            if (id < activeId) p.classList.add('past');
-                            else if (id === activeId) p.classList.add('present');
-                            else p.classList.add('future');
-                        });
+        const reconnectObserver = (scr) => {
+            const pr = Array.from(scr.querySelectorAll('.paragraph'));
+            if(obs) obs.disconnect();
+            obs = new IntersectionObserver((entries) => {
+                entries.forEach(e => {
+                    if(e.isIntersecting) {
+                        const act = e.target; const id = parseInt(act.dataset.id);
+                        dPacing = Math.max(0.4, Math.min(1.0 / (parseInt(act.dataset.chars) / (act.getBoundingClientRect().height || 1) || 1.0), 1.5));
+                        pr.forEach(p => { const pId = parseInt(p.dataset.id); p.className = `paragraph ${pId < id ? 'past' : (pId === id ? 'present' : 'future')}`; });
                     }
                 });
             }, { root: document.getElementById('view-studio').querySelector('.viewport'), rootMargin: '-48% 0px', threshold: 0 });
-            paragraphs.forEach(p => studioObserver.observe(p));
+            pr.forEach(p => obs.observe(p));
         };
 
-        // --- ARRANQUE DE LA APLICACIÓN ---
-        window.addEventListener('DOMContentLoaded', async () => {
-            try {
-                await initDB();
-                APP_STATE.projects = await loadProjectsFromDB();
-                renderProjectList();
-            } catch (error) {
-                console.error("Fallo al inicializar la base de datos Local:", error);
-                renderProjectList();
-            }
-        });
-
+        window.addEventListener('DOMContentLoaded', async () => { try { await initDB(); APP_STATE.projects = await dbOps.loadAll(); renderList(); } catch(e) {} });
     </script>
 </body>
 </html>
