@@ -64,6 +64,8 @@
         #top-bar-player .brand span { color: var(--theme-player); }
         #top-bar-scripts { border-bottom-color: rgba(212,175,55,0.3); }
         #top-bar-scripts .brand span { color: var(--theme-scripts); }
+        #top-bar-help { border-bottom-color: rgba(255,255,255,0.3); }
+        #top-bar-help .brand span { color: #FFF; }
 
         #timer-studio { font-family: monospace; font-size: 20px; color: var(--text-future); }
         #timer-studio.recording { color: var(--danger-color); font-weight: bold; }
@@ -90,13 +92,16 @@
         #sidebar.active { transform: translateX(280px); }
         
         .sidebar-header { padding: calc(25px + var(--safe-top)) 20px 25px; border-bottom: 1px solid #333; font-size: 20px; font-weight: bold; color: #FFF; }
-        .sidebar-item { padding: 20px; border-bottom: 1px solid #222; display: flex; align-items: center; gap: 15px; color: #CCC; transition: 0.2s; cursor: pointer; }
+        .sidebar-item { padding: 20px; border-bottom: 1px solid #222; display: flex; align-items: center; gap: 15px; color: #CCC; transition: 0.2s; cursor: pointer; text-decoration: none;}
         .sidebar-item.active { background: rgba(255,255,255,0.05); color: #FFF; border-left: 4px solid #FFF; }
         .sidebar-item[data-target="view-scripts"].active { border-left-color: var(--theme-scripts); color: var(--theme-scripts); background: rgba(212,175,55,0.05); }
         .sidebar-item[data-target="view-studio"].active { border-left-color: var(--theme-studio); color: var(--theme-studio); background: rgba(57,255,20,0.05); }
         .sidebar-item[data-target="view-player"].active { border-left-color: var(--theme-player); color: var(--theme-player); background: rgba(0,204,255,0.05); }
+        .sidebar-item[data-target="view-help"].active { border-left-color: #FFF; color: #FFF; background: rgba(255,255,255,0.05); }
 
         #btn-install { display: flex; background: linear-gradient(45deg, var(--theme-scripts), #B8860B); color: #000; font-weight: bold; margin: 10px; border-radius: 8px; border: none; justify-content: center; }
+        #btn-donate { color: var(--theme-scripts); border-top: 1px solid #333; margin-top: auto; }
+        #btn-donate:hover { background: rgba(212,175,55,0.1); }
 
         .sidebar-config-panel { padding: 20px; border-bottom: 1px solid #222; display: flex; flex-direction: column; gap: 10px; }
         .config-label { font-size: 12px; color: #888; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
@@ -105,16 +110,14 @@
         .settings-controls .btn-cfg:active { background: #333; }
         .settings-display { font-family: monospace; font-size: 16px; color: var(--theme-scripts); }
 
-        .workspace-scripts { position: absolute; top: var(--ui-height-top); bottom: 0; width: 100%; display: flex; flex-direction: column; background: var(--bg-color); overflow-y: auto; padding: 20px; gap: 20px; }
+        .workspace-area { position: absolute; top: var(--ui-height-top); bottom: 0; width: 100%; display: flex; flex-direction: column; background: var(--bg-color); overflow-y: auto; padding: 20px; gap: 20px; }
         .editor-card { background: var(--surface-color); border: 1px solid #333; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 15px; max-width: 900px; margin: 0 auto; width: 100%;}
         .editor-input { width: 100%; background: var(--surface-light); border: 1px solid #444; color: #FFF; padding: 15px; border-radius: 8px; font-size: 16px; font-family: var(--font-main); }
         .editor-input:focus { outline: 1px solid var(--theme-scripts); border-color: var(--theme-scripts); }
         textarea.editor-input { resize: none; height: 220px; user-select: text; }
         
-        .btn-action { background: var(--theme-scripts); color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; text-transform: uppercase; flex: 2;}
-        .btn-action-alt { background: #333; color: #FFF; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; flex: 1; transition: 0.2s; }
-        .btn-action-alt:active { background: #444; }
-        .action-row { display: flex; gap: 10px; }
+        .btn-action { background: var(--theme-scripts); color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; text-transform: uppercase; width: 100%; transition: 0.2s;}
+        .btn-action:active { transform: scale(0.98); }
 
         .mode-selector { display: flex; flex-wrap: wrap; gap: 10px; font-size: 14px; background: #0A0A0A; padding: 10px; border-radius: 8px; border: 1px solid #222; }
         .mode-option { display: flex; align-items: center; gap: 5px; color: #CCC; cursor: pointer; padding: 5px 10px; border-radius: 4px; transition: 0.2s;}
@@ -147,11 +150,12 @@
 
         .scroller { position: absolute; width: 95%; max-width: 900px; padding-top: calc(50vh - (var(--ui-height-top) + var(--ui-height-bottom))/2); padding-bottom: 50vh; will-change: transform; }
 
+        /* MODO SHADOWING */
         .paragraph { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: var(--font-size-p); font-weight: 500; line-height: 1.5; margin-bottom: 45px; text-align: center; color: var(--text-future); transform-origin: center center; transition: color 0.3s, transform 0.3s, opacity 0.3s; opacity: 0.5; }
-        
         .formal-text { display: block; width: 100%; }
         .phonetic-text { display: block; font-size: 0.75em; color: var(--theme-scripts); opacity: 0.7; margin-top: 4px; line-height: 1.2;}
         
+        /* MODO MUSICAL (ChordPro Visual) */
         .musical-line { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; width: 100%; }
         .chord-word-block { display: inline-flex; flex-direction: column; align-items: flex-start; margin-bottom: 10px;}
         .chord-text { color: var(--theme-scripts); font-weight: bold; font-size: 0.55em; line-height: 1; margin-bottom: 2px; font-family: monospace; letter-spacing: 1px; }
@@ -183,6 +187,12 @@
         #speed-display { font-family: monospace; font-size: 18px; width: 55px; text-align: center; color: var(--theme-studio); }
         .btn-play-studio { background: rgba(57,255,20,0.15); color: var(--theme-studio); border: 1px solid var(--theme-studio); padding: 0 25px; flex-grow: 1; margin-left: 15px; }
         .btn-play-studio.active { background: rgba(57,255,20,0.3); }
+
+        /* HELP MANUAL CSS */
+        .help-card { background: var(--surface-color); border: 1px solid #333; border-radius: 12px; padding: 20px; color: #CCC; font-size: 15px; line-height: 1.6; max-width: 900px; margin: 0 auto; width: 100%;}
+        .help-card h3 { color: #FFF; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .help-card h4 { color: var(--theme-scripts); margin-top: 15px; margin-bottom: 5px;}
+        .help-card code { background: #000; padding: 2px 6px; border-radius: 4px; color: var(--theme-studio); font-family: monospace;}
 
         @media (min-width: 768px) {
             .bottom-bar { padding: 0 40px; }
@@ -231,9 +241,15 @@
         <div class="sidebar-item" data-target="view-player">
             <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg> Reproductor (Revisar)
         </div>
+        <div class="sidebar-item" data-target="view-help">
+            <svg viewBox="0 0 24 24"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg> Instrucciones / Help
+        </div>
+
+        <a href="#" target="_blank" class="sidebar-item" id="btn-donate">
+            <svg viewBox="0 0 24 24" style="fill: var(--theme-scripts);"><path d="M20 3H4v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.11 0 2-.89 2-2V5c0-1.11-.89-2-2-2zm0 5h-2V5h2v3zM4 19h16v2H4z"/></svg> Buy me a coffee
+        </a>
     </div>
 
-    <!-- VISTA 1: GESTOR DE GUIONES -->
     <div id="view-scripts" class="view-container active">
         <div class="top-bar" id="top-bar-scripts">
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -241,7 +257,7 @@
                 <div class="brand"><span>Gestor de Guiones</span></div>
             </div>
         </div>
-        <div class="workspace-scripts">
+        <div class="workspace-area">
             <div class="editor-card">
                 <input type="text" id="script-title" class="editor-input" placeholder="Título del Proyecto (Ej: Análisis)">
                 
@@ -276,17 +292,13 @@
 
                 <textarea id="script-content" class="editor-input" placeholder="Pega o escribe tu guion aquí..."></textarea>
                 
-                <div class="action-row">
-                    <button class="btn-action-alt" id="btn-load-example">📄 Cargar Ejemplo</button>
-                    <button class="btn-action" id="btn-save">💾 Guardar Proyecto</button>
-                </div>
+                <button class="btn-action" id="btn-save">💾 Guardar Proyecto</button>
             </div>
             <div class="project-list-header">Almacenamiento Interno (IndexedDB)</div>
             <div id="projects-container" style="display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px;"></div>
         </div>
     </div>
 
-    <!-- VISTA 2: EL ESTUDIO -->
     <div id="view-studio" class="view-container">
         <div class="top-bar" id="top-bar-studio">
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -323,7 +335,6 @@
         </div>
     </div>
 
-    <!-- VISTA 3: EL REPRODUCTOR -->
     <div id="view-player" class="view-container">
         <div class="top-bar" id="top-bar-player">
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -350,9 +361,48 @@
         </div>
     </div>
 
-    <!-- =========================================
-         MÓDULO: LÓGICA JAVASCRIPT CORE
-         ========================================= -->
+    <div id="view-help" class="view-container">
+        <div class="top-bar" id="top-bar-help">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button class="menu-btn"><svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+                <div class="brand"><span>Instrucciones / Help</span></div>
+            </div>
+        </div>
+        <div class="workspace-area">
+            <div class="help-card">
+                <h3>🇪🇸 Guía de Uso Rápido</h3>
+                <p>Bienvenido a StudioPrompter Zero, un teleprompter 100% local y privado. Soporta 3 modos de escritura:</p>
+                
+                <h4>1. Modo Estándar (🎙️)</h4>
+                <p>Escribe tu texto normalmente. El sistema calculará la velocidad de lectura basándose en la longitud de las palabras y los signos de puntuación.</p>
+                
+                <h4>2. Modo Shadowing (🗣️)</h4>
+                <p>Ideal para practicar idiomas, doblaje o fonética. Usa la barra vertical <code>|</code> para separar el texto formal de la pronunciación.</p>
+                <p><i>Ejemplo:</i> <code>Hello world | Jelou uorld</code></p>
+                
+                <h4>3. Modo Musical (🎵)</h4>
+                <p>Formato tipo ChordPro visual. Escribe el acorde o nota entre corchetes rectos <code>[]</code> justo antes de la sílaba donde debe cantarse/tocarse.</p>
+                <p><i>Ejemplo:</i> <code>[C4]La don[C4]na è [F4]mobile</code></p>
+            </div>
+
+            <div class="help-card">
+                <h3>🇺🇸 Quick Start Guide</h3>
+                <p>Welcome to StudioPrompter Zero, a 100% local and private teleprompter. It supports 3 writing modes:</p>
+                
+                <h4>1. Standard Mode (🎙️)</h4>
+                <p>Write your script normally. The system will calculate the reading speed based on word length and punctuation.</p>
+                
+                <h4>2. Shadowing Mode (🗣️)</h4>
+                <p>Perfect for language learning or voice acting. Use the vertical bar <code>|</code> to separate formal text from pronunciation.</p>
+                <p><i>Example:</i> <code>Hello world | Jelou uorld</code></p>
+                
+                <h4>3. Musical Mode (🎵)</h4>
+                <p>Visual ChordPro format. Write the chord or note inside square brackets <code>[]</code> right before the syllable where it should be played.</p>
+                <p><i>Example:</i> <code>[C4]La don[C4]na è [F4]mobile</code></p>
+            </div>
+        </div>
+    </div>
+
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -392,21 +442,30 @@
 
         const APP_STATE = { projects: [], activeProjectId: null };
 
-        // --- INYECCIÓN DE TUS PLANTILLAS MAESTRAS ---
-        const TEMPLATES = {
-            standard: `President John F. Kennedy\nWaldorf-Astoria Hotel, New York City\nApril 27, 1961\n\nMr. Chairman, ladies and gentlemen:\n\nI appreciate very much your generous invitation to be here tonight.\n\nYou bear heavy responsibilities these days and an article I read some time ago reminded me of how particularly heavily the burdens of present day events bear upon your profession.\n\nYou may remember that in 1851 the New York Herald Tribune under the sponsorship and publishing of Horace Greeley, employed as its London correspondent an obscure journalist by the name of Karl Marx.\n\nWe are told that foreign correspondent Marx, stone broke, and with a family ill and undernourished, constantly appealed to Greeley and managing editor Charles Dana for an increase in his munificent salary of $5 per installment, a salary which he and Engels ungratefully labeled as the "lousiest petty bourgeois cheating."\n\nBut when all his financial appeals were refused, Marx looked around for other means of livelihood and fame, eventually terminating his relationship with the Tribune and devoting his talents full time to the cause that would bequeath the world the seeds of Leninism, Stalinism, revolution and the cold war.\n\nIf only this capitalistic New York newspaper had treated him more kindly; if only Marx had remained a foreign correspondent, history might have been different. And I hope all publishers will bear this lesson in mind the next time they receive a poverty-stricken appeal for a small increase in the expense account from an obscure newspaper man.\n\nI have selected as the title of my remarks tonight "The President and the Press." Some may suggest that this would be more naturally worded "The President Versus the Press." But those are not my sentiments tonight.\n\nIt is true, however, that when a well-known diplomat from another country demanded recently that our State Department repudiate certain newspaper attacks on his colleague it was unnecessary for us to reply that this Administration was not responsible for the press, for the press had already made it clear that it was not responsible for this Administration.`,
+        // --- PRECARGA (SEEDING) DE DATOS DE EJEMPLO ---
+        const PRELOAD_TEXTS = {
+            standard: `Mr. Chairman, ladies and gentlemen:\n\nI appreciate very much your generous invitation to be here tonight.\n\nYou bear heavy responsibilities these days and an article I read some time ago reminded me of how particularly heavily the burdens of present day events bear upon your profession.\n\nYou may remember that in 1851 the New York Herald Tribune under the sponsorship and publishing of Horace Greeley, employed as its London correspondent an obscure journalist by the name of Karl Marx.\n\nWe are told that foreign correspondent Marx, stone broke, and with a family ill and undernourished, constantly appealed to Greeley and managing editor Charles Dana for an increase in his munificent salary of $5 per installment, a salary which he and Engels ungratefully labeled as the "lousiest petty bourgeois cheating."\n\nBut when all his financial appeals were refused, Marx looked around for other means of livelihood and fame, eventually terminating his relationship with the Tribune and devoting his talents full time to the cause that would bequeath the world the seeds of Leninism, Stalinism, revolution and the cold war.\n\nIf only this capitalistic New York newspaper had treated him more kindly; if only Marx had remained a foreign correspondent, history might have been different. And I hope all publishers will bear this lesson in mind the next time they receive a poverty-stricken appeal for a small increase in the expense account from an obscure newspaper man.\n\nI have selected as the title of my remarks tonight "The President and the Press." Some may suggest that this would be more naturally worded "The President Versus the Press." But those are not my sentiments tonight.\n\nIt is true, however, that when a well-known diplomat from another country demanded recently that our State Department repudiate certain newspaper attacks on his colleague it was unnecessary for us to reply that this Administration was not responsible for the press, for the press had already made it clear that it was not responsible for this Administration.\n\nNevertheless, my purpose here tonight is not to deliver the usual assault on the so-called one party press. On the contrary, in recent months I have rarely heard any complaints about political bias in the press except from a few Republicans. Nor is it my purpose tonight to discuss or defend the televising of Presidential press conferences. I think it is highly beneficial to have some 20,000,000 Americans regularly sit in on these conferences to observe, if I may say so, the incisive, the intelligent and the courteous qualities displayed by your Washington correspondents.\n\nNor, finally, are these remarks intended to examine the proper degree of privacy which the press should allow to any President and his family.\n\nIf in the last few months your White House reporters and photographers have been attending church services with regularity, that has surely done them no harm.\n\nOn the other hand, I realize that your staff and wire service photographers may be complaining that they do not enjoy the same green privileges at the local golf courses that they once did.\n\nIt is true that my predecessor did not object as I do to pictures of one's golfing skill in action. But neither on the other hand did he ever bean a Secret Service man.\n\nMy topic tonight is a more sober one of concern to publishers as well as editors.\n\nI want to talk about our common responsibilities in the face of a common danger. The events of recent weeks may have helped to illuminate that challenge for some; but the dimensions of its threat have loomed large on the horizon for many years. Whatever our hopes may be for the future--for reducing this threat or living with it--there is no escaping either the gravity or the totality of its challenge to our survival and to our security--a challenge that confronts us in unaccustomed ways in every sphere of human activity.\n\nThis deadly challenge imposes upon our society two requirements of direct concern both to the press and to the President--two requirements that may seem almost contradictory in tone, but which must be reconciled and fulfilled if we are to meet this national peril. I refer, first, to the need for a far greater public information; and, second, to the need for far greater official secrecy.\n\nI\n\nThe very word "secrecy" is repugnant in a free and open society; and we are as a people inherently and historically opposed to secret societies, to secret oaths and to secret proceedings. We decided long ago that the dangers of excessive and unwarranted concealment of pertinent facts far outweighed the dangers which are cited to justify it. Even today, there is little value in opposing the threat of a closed society by imitating its arbitrary restrictions. Even today, there is little value in insuring the survival of our nation if our traditions do not survive with it. And there is very grave danger that an announced need for increased security will be seized upon by those anxious to expand its meaning to the very limits of official censorship and concealment. That I do not intend to permit to the extent that it is in my control. And no official of my Administration, whether his rank is high or low, civilian or military, should interpret my words here tonight as an excuse to censor the news, to stifle dissent, to cover up our mistakes or to withhold from the press and the public the facts they deserve to know.\n\nBut I do ask every publisher, every editor, and every newsman in the nation to reexamine his own standards, and to recognize the nature of our country's peril. In time of war, the government and the press have customarily joined in an effort based largely on self-discipline, to prevent unauthorized disclosures to the enemy. In time of "clear and present danger," the courts have held that even the privileged rights of the First Amendment must yield to the public's need for national security.\n\nToday no war has been declared--and however fierce the struggle may be, it may never be declared in the traditional fashion. Our way of life is under attack. Those who make themselves our enemy are advancing around the globe. The survival of our friends is in danger. And yet no war has been declared, no borders have been crossed by marching troops, no missiles have been fired.\n\nIf the press is awaiting a declaration of war before it imposes the self-discipline of combat conditions, then I can only say that no war ever posed a greater threat to our security. If you are awaiting a finding of "clear and present danger," then I can only say that the danger has never been more clear and its presence has never been more imminent.\n\nIt requires a change in outlook, a change in tactics, a change in missions--by the government, by the people, by every businessman or labor leader, and by every newspaper. For we are opposed around the world by a monolithic and ruthless conspiracy that relies primarily on covert means for expanding its sphere of influence--on infiltration instead of invasion, on subversion instead of elections, on intimidation instead of free choice, on guerrillas by night instead of armies by day. It is a system which has conscripted vast human and material resources into the building of a tightly knit, highly efficient machine that combines military, diplomatic, intelligence, economic, scientific and political operations.\n\nIts preparations are concealed, not published. Its mistakes are buried, not headlined. Its dissenters are silenced, not praised. No expenditure is questioned, no rumor is printed, no secret is revealed. It conducts the Cold War, in short, with a war-time discipline no democracy would ever hope or wish to match.\n\nNevertheless, every democracy recognizes the necessary restraints of national security--and the question remains whether those restraints need to be more strictly observed if we are to oppose this kind of attack as well as outright invasion.\n\nFor the facts of the matter are that this nation's foes have openly boasted of acquiring through our newspapers information they would otherwise hire agents to acquire through theft, bribery or espionage; that details of this nation's covert preparations to counter the enemy's covert operations have been available to every newspaper reader, friend and foe alike; that the size, the strength, the location and the nature of our forces and weapons, and our plans and strategy for their use, have all been pinpointed in the press and other news media to a degree sufficient to satisfy any foreign power; and that, in at least in one case, the publication of details concerning a secret mechanism whereby satellites were followed required its alteration at the expense of considerable time and money.\n\nThe newspapers which printed these stories were loyal, patriotic, responsible and well-meaning. Had we been engaged in open warfare, they undoubtedly would not have published such items. But in the absence of open warfare, they recognized only the tests of journalism and not the tests of national security. And my question tonight is whether additional tests should not now be adopted.\n\nThe question is for you alone to answer. No public official should answer it for you. No governmental plan should impose its restraints against your will. But I would be failing in my duty to the nation, in considering all of the responsibilities that we now bear and all of the means at hand to meet those responsibilities, if I did not commend this problem to your attention, and urge its thoughtful consideration.\n\nOn many earlier occasions, I have said--and your newspapers have constantly said--that these are times that appeal to every citizen's sense of sacrifice and self-discipline. They call out to every citizen to weigh his rights and comforts against his obligations to the common good. I cannot now believe that those citizens who serve in the newspaper business consider themselves exempt from that appeal.\n\nI have no intention of establishing a new Office of War Information to govern the flow of news. I am not suggesting any new forms of censorship or any new types of security classifications. I have no easy answer to the dilemma that I have posed, and would not seek to impose it if I had one. But I am asking the members of the newspaper profession and the industry in this country to reexamine their own responsibilities, to consider the degree and the nature of the present danger, and to heed the duty of self-restraint which that danger imposes upon us all.\n\nEvery newspaper now asks itself, with respect to every story: "Is it news?" All I suggest is that you add the question: "Is it in the interest of the national security?" And I hope that every group in America--unions and businessmen and public officials at every level-- will ask the same question of their endeavors, and subject their actions to the same exacting tests.\n\nAnd should the press of America consider and recommend the voluntary assumption of specific new steps or machinery, I can assure you that we will cooperate whole-heartedly with those recommendations.\n\nPerhaps there will be no recommendations. Perhaps there is no answer to the dilemma faced by a free and open society in a cold and secret war. In times of peace, any discussion of this subject, and any action that results, are both painful and without precedent. But this is a time of peace and peril which knows no precedent in history.\n\nII\n\nIt is the unprecedented nature of this challenge that also gives rise to your second obligation--an obligation which I share. And that is our obligation to inform and alert the American people--to make certain that they possess all the facts that they need, and understand them as well--the perils, the prospects, the purposes of our program and the choices that we face.\n\nNo President should fear public scrutiny of his program. For from that scrutiny comes understanding; and from that understanding comes support or opposition. And both are necessary. I am not asking your newspapers to support the Administration, but I am asking your help in the tremendous task of informing and alerting the American people. For I have complete confidence in the response and dedication of our citizens whenever they are fully informed.\n\nI not only could not stifle controversy among your readers--I welcome it. This Administration intends to be candid about its errors; for as a wise man once said: "An error does not become a mistake until you refuse to correct it." We intend to accept full responsibility for our errors; and we expect you to point them out when we miss them.\n\nWithout debate, without criticism, no Administration and no country can succeed--and no republic can survive. That is why the Athenian lawmaker Solon decreed it a crime for any citizen to shrink from controversy. And that is why our press was protected by the First Amendment-- the only business in America specifically protected by the Constitution- -not primarily to amuse and entertain, not to emphasize the trivial and the sentimental, not to simply "give the public what it wants"--but to inform, to arouse, to reflect, to state our dangers and our opportunities, to indicate our crises and our choices, to lead, mold, educate and sometimes even anger public opinion.\n\nThis means greater coverage and analysis of international news--for it is no longer far away and foreign but close at hand and local. It means greater attention to improved understanding of the news as well as improved transmission. And it means, finally, that government at all levels, must meet its obligation to provide you with the fullest possible information outside the narrowest limits of national security--and we intend to do it.\n\nIII\n\nIt was early in the Seventeenth Century that Francis Bacon remarked on three recent inventions already transforming the world: the compass, gunpowder and the printing press. Now the links between the nations first forged by the compass have made us all citizens of the world, the hopes and threats of one becoming the hopes and threats of us all. In that one world's efforts to live together, the evolution of gunpowder to its ultimate limit has warned mankind of the terrible consequences of failure.\n\nAnd so it is to the printing press--to the recorder of man's deeds, the keeper of his conscience, the courier of his news--that we look for strength and assistance, confident that with your help man will be what he was born to be: free and independent.`,
             
             shadowing: `A: Yo, y’all ever try datin’ in New York? It’s a whole sport, man! | A: Hey, have you all ever tried dating in New York? It’s a whole sport, man!\nSwipe right, swipe left, match, unmatch… I’m exhausted before I even leave my couch! | Swipe right, swipe left, match, unmatch… I’m exhausted before I even leave my couch!\nLast week I matched with this girl, bio said “love travel and deep conversations.” We meet up, first thing she says is “So… you like pizza?” Deep conversation, my ass! | Last week I matched with this girl, bio said “love travel and deep conversations.” We meet up, first thing she says is “So… you like pizza?” Deep conversation, my ass!\nI’m like, “Yeah I like pizza… but I also like not payin’ $18 for a coffee while we talk about your ex for two hours.” | I’m like, “Yeah I like pizza… but I also like not paying $18 for a coffee while we talk about your ex for two hours.”\nThen she hits me with the “I’m not lookin’ for anything serious.” Cool, cool… so why you got a vision board with wedding pictures on your phone background? Make it make sense! | Then she hits me with the “I’m not looking for anything serious.” Cool, cool… so why do you have a vision board with wedding pictures on your phone background? Make it make sense!\nDatin’ in this city is like tryin’ to find a parking spot in Manhattan — everybody wants it, but good luck actually gettin’ one without circlin’ for hours and payin’ a fortune! | Dating in this city is like trying to find a parking spot in Manhattan — everybody wants it, but good luck actually getting one without circling for hours and paying a fortune!\nI swear, by the time I find “the one,” I’m gonna be too old to remember her name! Thank you, goodnight! | I swear, by the time I find “the one,” I’m gonna be too old to remember her name! Thank you, goodnight!`,
             
             musical: `[C4]La don[C4]na è [F4]mo-[C4]bile, [G4]Qual piuma al [C4]vento,\n[C4]Mu-[F4]ta d’ac-[C4]cen-[G4]to [C4]E di [F4]pen-[C4]sier!\n[C4]La don[C4]na è [F4]mo-[C4]bile, [G4]Qual piuma al [C4]vento,\n[C4]Mu-[F4]ta d’ac-[C4]cen-[G4]to [C4]E di [F4]pen-[C4]sier!\n[C4]È sem-[F4]pre a-[C4]ma-[G4]bile, [C4]Pre-[F4]zios-[C4]a fi-[G4]gura,\n[C4]La don[C4]na è [F4]mo-[C4]bile, [G4]Qual piuma al [C4]vento!`
         };
 
+        const seedInitialData = async () => {
+            const p1 = { id: 'seed1', title: 'President John F. Kennedy (Apr 27, 1961)', mode: 'standard', paragraphs: parseText(PRELOAD_TEXTS.standard, 'standard'), timestamp: Date.now() };
+            const p2 = { id: 'seed2', title: 'Shadowing Demo', mode: 'shadowing', paragraphs: parseText(PRELOAD_TEXTS.shadowing, 'shadowing'), timestamp: Date.now() - 1000 };
+            const p3 = { id: 'seed3', title: 'La donna è mobile', mode: 'musical', musicKey: 'C', musicClef: 'G', paragraphs: parseText(PRELOAD_TEXTS.musical, 'musical'), timestamp: Date.now() - 2000 };
+            
+            await dbOps.save(p1);
+            await dbOps.save(p2);
+            await dbOps.save(p3);
+            APP_STATE.projects = [p1, p2, p3];
+        };
+
         const modeRadios = document.querySelectorAll('input[name="script-mode"]');
         const helperText = document.getElementById('helper-text');
         const musicalSettings = document.getElementById('musical-settings');
-        const contentArea = document.getElementById('script-content');
-        const btnLoadExample = document.getElementById('btn-load-example');
-
+        
         modeRadios.forEach(radio => {
             radio.addEventListener('change', (e) => {
                 musicalSettings.classList.remove('active');
@@ -419,11 +478,6 @@
                     helperText.innerText = "Modo texto puro. Pega tu guion normalmente.";
                 }
             });
-        });
-
-        btnLoadExample.addEventListener('click', () => {
-            const selectedMode = document.querySelector('input[name="script-mode"]:checked').value;
-            contentArea.value = TEMPLATES[selectedMode];
         });
 
         // --- PARSER MATEMÁTICO UNIVERSAL ---
@@ -783,7 +837,16 @@
             masterAudio.addEventListener('ended', () => { btnPlayAudio.innerHTML = '▶ ESCUCHAR'; btnPlayAudio.classList.remove('active'); cancelAnimationFrame(reqFramePlayer); });
         }
 
-        window.addEventListener('DOMContentLoaded', async () => { try { await initDB(); APP_STATE.projects = await dbOps.loadAll(); renderList(); } catch(e) {} });
+        window.addEventListener('DOMContentLoaded', async () => { 
+            try { 
+                await initDB(); 
+                APP_STATE.projects = await dbOps.loadAll(); 
+                if (APP_STATE.projects.length === 0) {
+                    await seedInitialData();
+                }
+                renderList(); 
+            } catch(e) {} 
+        });
     </script>
 </body>
 </html>
