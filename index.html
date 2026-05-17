@@ -145,6 +145,7 @@
         .bottom-bar { height: calc(var(--ui-height-bottom) - var(--safe-area-bottom)); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; }
         .btn { background: var(--surface-light); color: #FFF; border: none; border-radius: 8px; height: 55px; min-width: 55px; font-size: 16px; font-weight: bold; display: flex; justify-content: center; align-items: center; touch-action: manipulation;}
         .btn:active { background: #333; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         svg { width: 24px; height: 24px; fill: currentColor; }
 
         .speed-panel { background: #0A0A0A; border-radius: 27px; display: flex; align-items: center; padding: 5px; border: 1px solid #222; }
@@ -575,6 +576,7 @@
     </script>
 </body>
 </html>
+
 
 
 ```
