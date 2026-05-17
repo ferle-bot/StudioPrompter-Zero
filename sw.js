@@ -1,56 +1,54 @@
-const CACHE_NAME = 'studioprompter-cache-v1.4'; // Versión actualizada
-const ASSETS_TO_CACHE = [
+const CACHE_NAME = 'studioprompter-cache-v2.0';
+
+const ASSETS = [
     './',
-    './index.html',
-    './manifest.json',
-    './assets/images/icon-192.png',
-    './assets/images/icon-512.png'
+    'index.html',
+    'manifest.json',
+    'assets/images/icon-192.png',
+    'assets/images/icon-512.png'
 ];
 
-// Evento de Instalación (Tolerante a Fallos 404)
+// Instalación Segura: Promise.allSettled asegura que si falta un icono, no colapse todo.
 self.addEventListener('install', (event) => {
-    self.skipWaiting(); // Fuerza la instalación inmediata sin esperar a que cierres pestañas
+    self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            console.log('[Service Worker] Iniciando caché de assets...');
-            // Iteramos uno por uno. Si falla uno, no rompe el resto.
-            return Promise.all(
-                ASSETS_TO_CACHE.map(asset => {
-                    return cache.add(asset).catch(err => {
-                        console.warn(`[Service Worker] Fallo aisldado al cachear: ${asset}`, err);
-                    });
-                })
+            return Promise.allSettled(
+                ASSETS.map(asset => cache.add(asset).catch(err => console.warn(`Fallo al cachear: ${asset}`, err)))
             );
         })
     );
 });
 
-// Limpieza de cachés antiguas para no llenar la memoria del teléfono
+// Limpieza de memoria vieja
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
-                cacheNames.map((cache) => {
-                    if (cache !== CACHE_NAME) {
-                        console.log('[Service Worker] Limpiando caché antigua:', cache);
-                        return caches.delete(cache);
-                    }
+                cacheNames.map((cacheName) => {
+                    if (cacheName !== CACHE_NAME) return caches.delete(cacheName);
                 })
             );
         }).then(() => self.clients.claim())
     );
 });
 
-// Interceptor de Red (Cache First)
+// Interceptor "Network First" con protección contra bots
 self.addEventListener('fetch', (event) => {
+    // Filtro antibloqueo para PWABuilder (Ignora extensiones y esquemas raros)
+    if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) {
+        return;
+    }
+
     event.respondWith(
-        caches.match(event.request).then((cachedResponse) => {
-            // Si está en la memoria del teléfono, lo servimos de ahí (Offline Mode)
-            if (cachedResponse) {
-                return cachedResponse;
-            }
-            // Si no está, lo buscamos en internet (GitHub Pages)
-            return fetch(event.request);
-        })
+        fetch(event.request)
+            .then((response) => {
+                const responseClone = response.clone();
+                caches.open(CACHE_NAME).then((cache) => {
+                    cache.put(event.request, responseClone);
+                });
+                return response;
+            })
+            .catch(() => caches.match(event.request))
     );
 });
