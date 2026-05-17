@@ -110,14 +110,21 @@
         .editor-input { width: 100%; background: var(--surface-light); border: 1px solid #444; color: #FFF; padding: 15px; border-radius: 8px; font-size: 16px; font-family: var(--font-main); }
         .editor-input:focus { outline: 1px solid var(--theme-scripts); border-color: var(--theme-scripts); }
         textarea.editor-input { resize: none; height: 220px; user-select: text; }
-        .btn-action { background: var(--theme-scripts); color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; text-transform: uppercase; }
         
+        .btn-action { background: var(--theme-scripts); color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; text-transform: uppercase; flex: 2;}
+        .btn-action-alt { background: #333; color: #FFF; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; flex: 1; transition: 0.2s; }
+        .btn-action-alt:active { background: #444; }
+        .action-row { display: flex; gap: 10px; }
+
         .mode-selector { display: flex; flex-wrap: wrap; gap: 10px; font-size: 14px; background: #0A0A0A; padding: 10px; border-radius: 8px; border: 1px solid #222; }
         .mode-option { display: flex; align-items: center; gap: 5px; color: #CCC; cursor: pointer; padding: 5px 10px; border-radius: 4px; transition: 0.2s;}
         .mode-option:hover { background: rgba(255,255,255,0.05); }
         .mode-option input[type="radio"] { accent-color: var(--theme-scripts); }
-        .mode-option.disabled { opacity: 0.4; cursor: not-allowed; }
         #helper-text { font-size: 12px; color: #888; font-style: italic; margin-top: -5px; }
+
+        .musical-settings { display: none; gap: 10px; width: 100%; }
+        .musical-settings.active { display: flex; }
+        .musical-settings select { flex: 1; background: #0A0A0A; border: 1px solid #333; color: #FFF; padding: 10px; border-radius: 6px; font-size: 14px; }
 
         .project-list-header { font-size: 14px; color: var(--text-future); text-transform: uppercase; font-weight: bold; margin-top: 10px; border-bottom: 1px solid #333; padding-bottom: 10px; max-width: 900px; margin: 10px auto 0; width: 100%;}
         #projects-container { max-width: 900px; margin: 0 auto; width: 100%; }
@@ -140,17 +147,25 @@
 
         .scroller { position: absolute; width: 95%; max-width: 900px; padding-top: calc(50vh - (var(--ui-height-top) + var(--ui-height-bottom))/2); padding-bottom: 50vh; will-change: transform; }
 
-        /* Renderizado Dual Shadowing */
         .paragraph { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: var(--font-size-p); font-weight: 500; line-height: 1.5; margin-bottom: 45px; text-align: center; color: var(--text-future); transform-origin: center center; transition: color 0.3s, transform 0.3s, opacity 0.3s; opacity: 0.5; }
+        
         .formal-text { display: block; width: 100%; }
         .phonetic-text { display: block; font-size: 0.75em; color: var(--theme-scripts); opacity: 0.7; margin-top: 4px; line-height: 1.2;}
         
+        .musical-line { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; width: 100%; }
+        .chord-word-block { display: inline-flex; flex-direction: column; align-items: flex-start; margin-bottom: 10px;}
+        .chord-text { color: var(--theme-scripts); font-weight: bold; font-size: 0.55em; line-height: 1; margin-bottom: 2px; font-family: monospace; letter-spacing: 1px; }
+        .lyric-text { line-height: 1.2; }
+
         .paragraph.past { color: var(--text-past); transform: scale(0.95); opacity: 0.3; }
+        
         #scroller-studio .paragraph.present { color: var(--text-present); transform: scale(1.08); opacity: 1; text-shadow: 0 0 8px rgba(255,255,255,0.15); }
         #scroller-studio .paragraph.present .phonetic-text { opacity: 1; text-shadow: 0 0 8px rgba(212,175,55,0.3); }
+        #scroller-studio .paragraph.present .chord-text { opacity: 1; text-shadow: 0 0 8px rgba(212,175,55,0.5); }
         
         #scroller-player .paragraph.present { color: var(--theme-player); transform: scale(1.08); opacity: 1; text-shadow: 0 0 10px rgba(0,204,255,0.3); }
         #scroller-player .paragraph.present .phonetic-text { opacity: 1; text-shadow: 0 0 8px rgba(212,175,55,0.3); color: #FFF;}
+        #scroller-player .paragraph.present .chord-text { opacity: 1; text-shadow: 0 0 8px rgba(212,175,55,0.3); color: #FFF;}
 
         #countdown-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         #countdown-overlay.active { opacity: 1; pointer-events: auto; }
@@ -218,6 +233,7 @@
         </div>
     </div>
 
+    <!-- VISTA 1: GESTOR DE GUIONES -->
     <div id="view-scripts" class="view-container active">
         <div class="top-bar" id="top-bar-scripts">
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -227,23 +243,50 @@
         </div>
         <div class="workspace-scripts">
             <div class="editor-card">
-                <input type="text" id="script-title" class="editor-input" placeholder="Título del Proyecto (Ej: Práctica Doblaje)">
+                <input type="text" id="script-title" class="editor-input" placeholder="Título del Proyecto (Ej: Análisis)">
                 
                 <div class="mode-selector">
                     <label class="mode-option"><input type="radio" name="script-mode" value="standard" checked> 🎙️ Estándar</label>
                     <label class="mode-option"><input type="radio" name="script-mode" value="shadowing"> 🗣️ Shadowing</label>
-                    <label class="mode-option disabled" title="Próximamente en V3"><input type="radio" name="script-mode" value="musical" disabled> 🎵 Musical</label>
+                    <label class="mode-option"><input type="radio" name="script-mode" value="musical"> 🎵 Musical</label>
                 </div>
+                
+                <div class="musical-settings" id="musical-settings">
+                    <select id="music-key">
+                        <option value="C">Do (C)</option>
+                        <option value="C#">Do# (C#)</option>
+                        <option value="D">Re (D)</option>
+                        <option value="Eb">Mib (Eb)</option>
+                        <option value="E">Mi (E)</option>
+                        <option value="F">Fa (F)</option>
+                        <option value="F#">Fa# (F#)</option>
+                        <option value="G">Sol (G)</option>
+                        <option value="Ab">Lab (Ab)</option>
+                        <option value="A">La (A)</option>
+                        <option value="Bb">Sib (Bb)</option>
+                        <option value="B">Si (B)</option>
+                    </select>
+                    <select id="music-clef">
+                        <option value="G">Clave de Sol</option>
+                        <option value="F">Clave de Fa</option>
+                    </select>
+                </div>
+                
                 <div id="helper-text">Modo texto puro. Pega tu guion normalmente.</div>
 
                 <textarea id="script-content" class="editor-input" placeholder="Pega o escribe tu guion aquí..."></textarea>
-                <button class="btn-action" id="btn-save">Guardar Proyecto Local</button>
+                
+                <div class="action-row">
+                    <button class="btn-action-alt" id="btn-load-example">📄 Cargar Ejemplo</button>
+                    <button class="btn-action" id="btn-save">💾 Guardar Proyecto</button>
+                </div>
             </div>
             <div class="project-list-header">Almacenamiento Interno (IndexedDB)</div>
             <div id="projects-container" style="display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px;"></div>
         </div>
     </div>
 
+    <!-- VISTA 2: EL ESTUDIO -->
     <div id="view-studio" class="view-container">
         <div class="top-bar" id="top-bar-studio">
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -280,6 +323,7 @@
         </div>
     </div>
 
+    <!-- VISTA 3: EL REPRODUCTOR -->
     <div id="view-player" class="view-container">
         <div class="top-bar" id="top-bar-player">
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -306,6 +350,9 @@
         </div>
     </div>
 
+    <!-- =========================================
+         MÓDULO: LÓGICA JAVASCRIPT CORE
+         ========================================= -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -344,28 +391,67 @@
         };
 
         const APP_STATE = { projects: [], activeProjectId: null };
-        
+
+        // --- INYECCIÓN DE TUS PLANTILLAS MAESTRAS ---
+        const TEMPLATES = {
+            standard: `President John F. Kennedy\nWaldorf-Astoria Hotel, New York City\nApril 27, 1961\n\nMr. Chairman, ladies and gentlemen:\n\nI appreciate very much your generous invitation to be here tonight.\n\nYou bear heavy responsibilities these days and an article I read some time ago reminded me of how particularly heavily the burdens of present day events bear upon your profession.\n\nYou may remember that in 1851 the New York Herald Tribune under the sponsorship and publishing of Horace Greeley, employed as its London correspondent an obscure journalist by the name of Karl Marx.\n\nWe are told that foreign correspondent Marx, stone broke, and with a family ill and undernourished, constantly appealed to Greeley and managing editor Charles Dana for an increase in his munificent salary of $5 per installment, a salary which he and Engels ungratefully labeled as the "lousiest petty bourgeois cheating."\n\nBut when all his financial appeals were refused, Marx looked around for other means of livelihood and fame, eventually terminating his relationship with the Tribune and devoting his talents full time to the cause that would bequeath the world the seeds of Leninism, Stalinism, revolution and the cold war.\n\nIf only this capitalistic New York newspaper had treated him more kindly; if only Marx had remained a foreign correspondent, history might have been different. And I hope all publishers will bear this lesson in mind the next time they receive a poverty-stricken appeal for a small increase in the expense account from an obscure newspaper man.\n\nI have selected as the title of my remarks tonight "The President and the Press." Some may suggest that this would be more naturally worded "The President Versus the Press." But those are not my sentiments tonight.\n\nIt is true, however, that when a well-known diplomat from another country demanded recently that our State Department repudiate certain newspaper attacks on his colleague it was unnecessary for us to reply that this Administration was not responsible for the press, for the press had already made it clear that it was not responsible for this Administration.`,
+            
+            shadowing: `A: Yo, y’all ever try datin’ in New York? It’s a whole sport, man! | A: Hey, have you all ever tried dating in New York? It’s a whole sport, man!\nSwipe right, swipe left, match, unmatch… I’m exhausted before I even leave my couch! | Swipe right, swipe left, match, unmatch… I’m exhausted before I even leave my couch!\nLast week I matched with this girl, bio said “love travel and deep conversations.” We meet up, first thing she says is “So… you like pizza?” Deep conversation, my ass! | Last week I matched with this girl, bio said “love travel and deep conversations.” We meet up, first thing she says is “So… you like pizza?” Deep conversation, my ass!\nI’m like, “Yeah I like pizza… but I also like not payin’ $18 for a coffee while we talk about your ex for two hours.” | I’m like, “Yeah I like pizza… but I also like not paying $18 for a coffee while we talk about your ex for two hours.”\nThen she hits me with the “I’m not lookin’ for anything serious.” Cool, cool… so why you got a vision board with wedding pictures on your phone background? Make it make sense! | Then she hits me with the “I’m not looking for anything serious.” Cool, cool… so why do you have a vision board with wedding pictures on your phone background? Make it make sense!\nDatin’ in this city is like tryin’ to find a parking spot in Manhattan — everybody wants it, but good luck actually gettin’ one without circlin’ for hours and payin’ a fortune! | Dating in this city is like trying to find a parking spot in Manhattan — everybody wants it, but good luck actually getting one without circling for hours and paying a fortune!\nI swear, by the time I find “the one,” I’m gonna be too old to remember her name! Thank you, goodnight! | I swear, by the time I find “the one,” I’m gonna be too old to remember her name! Thank you, goodnight!`,
+            
+            musical: `[C4]La don[C4]na è [F4]mo-[C4]bile, [G4]Qual piuma al [C4]vento,\n[C4]Mu-[F4]ta d’ac-[C4]cen-[G4]to [C4]E di [F4]pen-[C4]sier!\n[C4]La don[C4]na è [F4]mo-[C4]bile, [G4]Qual piuma al [C4]vento,\n[C4]Mu-[F4]ta d’ac-[C4]cen-[G4]to [C4]E di [F4]pen-[C4]sier!\n[C4]È sem-[F4]pre a-[C4]ma-[G4]bile, [C4]Pre-[F4]zios-[C4]a fi-[G4]gura,\n[C4]La don[C4]na è [F4]mo-[C4]bile, [G4]Qual piuma al [C4]vento!`
+        };
+
         const modeRadios = document.querySelectorAll('input[name="script-mode"]');
         const helperText = document.getElementById('helper-text');
+        const musicalSettings = document.getElementById('musical-settings');
+        const contentArea = document.getElementById('script-content');
+        const btnLoadExample = document.getElementById('btn-load-example');
+
         modeRadios.forEach(radio => {
             radio.addEventListener('change', (e) => {
+                musicalSettings.classList.remove('active');
                 if(e.target.value === 'shadowing') {
-                    helperText.innerText = "Modo Shadowing: Usa la barra vertical (|) para separar el texto formal de la pronunciación. Ej: Hello world | Jelou uorld";
+                    helperText.innerText = "Modo Shadowing: Usa la barra vertical (|) para separar texto fonético del formal.";
+                } else if(e.target.value === 'musical') {
+                    helperText.innerText = "Modo Musical: Escribe la nota científica entre corchetes antes de la sílaba. Ej: [C4]La.";
+                    musicalSettings.classList.add('active');
                 } else {
                     helperText.innerText = "Modo texto puro. Pega tu guion normalmente.";
                 }
             });
         });
 
+        btnLoadExample.addEventListener('click', () => {
+            const selectedMode = document.querySelector('input[name="script-mode"]:checked').value;
+            contentArea.value = TEMPLATES[selectedMode];
+        });
+
+        // --- PARSER MATEMÁTICO UNIVERSAL ---
         const parseText = (raw, mode) => {
             return raw.split(/\n+/).map(p=>p.trim()).filter(p=>p.length>0).map((t, i) => {
+                
                 if (mode === 'shadowing' && t.includes('|')) {
                     const parts = t.split('|');
                     const formal = parts[0].trim();
                     const verbal = parts[1].trim();
-                    const weight = formal.length + (formal.match(/,/g)||[]).length*15 + (formal.match(/\./g)||[]).length*25;
+                    const weight = formal.length * 1.5; 
                     return { id: i, text: formal, phonetic: verbal, weight: weight };
                 }
+                
+                if (mode === 'musical') {
+                    let segments = [];
+                    let parts = t.split('[');
+                    parts.forEach((part, index) => {
+                        if (index === 0 && part.length > 0) {
+                            segments.push({ chord: '', text: part });
+                        } else if (part.includes(']')) {
+                            let splitPart = part.split(']');
+                            segments.push({ chord: splitPart[0].trim(), text: splitPart[1] });
+                        }
+                    });
+                    return { id: i, segments: segments, weight: t.length * 1.2 };
+                }
+
                 const baseWeight = t.length + (t.match(/,/g)||[]).length*15 + (t.match(/\./g)||[]).length*25;
                 return { id: i, text: t, weight: baseWeight };
             });
@@ -377,11 +463,18 @@
             if (!c) return;
             
             const selectedMode = document.querySelector('input[name="script-mode"]:checked').value;
+            let mKey = null; let mClef = null;
+            if(selectedMode === 'musical') {
+                mKey = document.getElementById('music-key').value;
+                mClef = document.getElementById('music-clef').value;
+            }
             
             const proj = { 
                 id: Date.now().toString(), 
                 title: t, 
                 mode: selectedMode,
+                musicKey: mKey,
+                musicClef: mClef,
                 paragraphs: parseText(c, selectedMode), 
                 timestamp: Date.now() 
             };
@@ -405,13 +498,15 @@
                 const isActive = p.id === APP_STATE.activeProjectId;
                 const card = document.createElement('div'); card.className = `project-card ${isActive ? 'active-project' : ''}`;
                 
-                const modeLabel = p.mode === 'shadowing' ? '🗣️ SHADOWING' : '🎙️ ESTÁNDAR';
+                let modeLabel = '🎙️ ESTÁNDAR';
+                if(p.mode === 'shadowing') modeLabel = '🗣️ SHADOWING';
+                if(p.mode === 'musical') modeLabel = `🎵 MUSICAL (${p.musicKey})`;
                 
                 card.innerHTML = `<div class="project-info">
                         <div class="project-title">${p.title}</div>
                         <div class="project-meta">
                             <span class="badge-mode">${modeLabel}</span>
-                            <span>${p.paragraphs.length} fragmentos | ${p.audioData ? '🎙️ Audio OK' : 'Sin Audio'}</span>
+                            <span>${p.paragraphs.length} líneas | ${p.audioData ? '🎙️ Audio OK' : 'Sin Audio'}</span>
                         </div>
                     </div>
                     <div class="card-actions">
@@ -455,16 +550,37 @@
                 pTag.className = `paragraph ${i === 0 ? 'present' : 'future'}`;
                 pTag.dataset.id = d.id; pTag.dataset.chars = d.weight; 
                 
-                const fSpan = document.createElement('span');
-                fSpan.className = 'formal-text';
-                fSpan.innerText = d.text;
-                pTag.appendChild(fSpan);
+                if (p.mode === 'musical' && d.segments) {
+                    const mLine = document.createElement('div');
+                    mLine.className = 'musical-line';
+                    d.segments.forEach(seg => {
+                        const wBlock = document.createElement('span');
+                        wBlock.className = 'chord-word-block';
+                        if(seg.chord) {
+                            const cSpan = document.createElement('span');
+                            cSpan.className = 'chord-text';
+                            cSpan.innerText = seg.chord;
+                            wBlock.appendChild(cSpan);
+                        }
+                        const lSpan = document.createElement('span');
+                        lSpan.className = 'lyric-text';
+                        lSpan.innerText = seg.text;
+                        wBlock.appendChild(lSpan);
+                        mLine.appendChild(wBlock);
+                    });
+                    pTag.appendChild(mLine);
+                } else {
+                    const fSpan = document.createElement('span');
+                    fSpan.className = 'formal-text';
+                    fSpan.innerText = d.text;
+                    pTag.appendChild(fSpan);
 
-                if(d.phonetic) {
-                    const vSpan = document.createElement('span');
-                    vSpan.className = 'phonetic-text';
-                    vSpan.innerText = d.phonetic;
-                    pTag.appendChild(vSpan);
+                    if(d.phonetic) {
+                        const vSpan = document.createElement('span');
+                        vSpan.className = 'phonetic-text';
+                        vSpan.innerText = d.phonetic;
+                        pTag.appendChild(vSpan);
+                    }
                 }
 
                 scrStudio.appendChild(pTag); 
