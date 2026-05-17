@@ -16,29 +16,15 @@
     
     <style>
         :root {
-            --bg-color: #000000;
-            --surface-color: #121212;
-            --surface-light: #1E1E1E;
-            --text-past: #444444;
-            --text-present: #FFFFFF;
-            --text-future: #888888;
-            
-            --theme-studio: #39FF14; 
-            --theme-player: #00CCFF; 
-            --theme-scripts: #D4AF37; 
-            --danger-color: #FF3333; 
-            --warning-color: #FFDD00;
-            
+            --bg-color: #000000; --surface-color: #121212; --surface-light: #1E1E1E;
+            --text-past: #444444; --text-present: #FFFFFF; --text-future: #888888;
+            --theme-studio: #39FF14; --theme-player: #00CCFF; --theme-scripts: #D4AF37; 
+            --danger-color: #FF3333; --warning-color: #FFDD00;
             --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             --font-size-p: 28px; 
-            
-            --safe-top: env(safe-area-inset-top, 0px);
-            --safe-bottom: env(safe-area-inset-bottom, 0px);
-            --safe-left: env(safe-area-inset-left, 0px);
-            --safe-right: env(safe-area-inset-right, 0px);
-
-            --ui-height-top: calc(80px + var(--safe-top)); 
-            --ui-height-bottom: calc(110px + var(--safe-bottom)); 
+            --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-left: env(safe-area-inset-left, 0px); --safe-right: env(safe-area-inset-right, 0px);
+            --ui-height-top: calc(80px + var(--safe-top)); --ui-height-bottom: calc(110px + var(--safe-bottom)); 
             --safe-area-bottom: calc(24px + var(--safe-bottom)); 
         }
 
@@ -48,24 +34,14 @@
         .view-container { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; flex-direction: column; }
         .view-container.active { display: flex; }
 
-        .top-bar {
-            position: fixed; top: 0; left: 0; width: 100%; height: var(--ui-height-top);
-            background-color: var(--surface-color); border-bottom: 1px solid #333;
-            display: flex; align-items: center; justify-content: space-between; 
-            padding: var(--safe-top) calc(15px + var(--safe-right)) 0 calc(15px + var(--safe-left)); 
-            z-index: 100;
-        }
+        .top-bar { position: fixed; top: 0; left: 0; width: 100%; height: var(--ui-height-top); background-color: var(--surface-color); border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; padding: var(--safe-top) calc(15px + var(--safe-right)) 0 calc(15px + var(--safe-left)); z-index: 100; }
         .menu-btn { background: none; border: none; color: #FFF; padding: 10px; cursor: pointer; }
         .brand span { font-weight: bold; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;}
         
-        #top-bar-studio { border-bottom-color: rgba(57,255,20,0.3); }
-        #top-bar-studio .brand span { color: var(--theme-studio); }
-        #top-bar-player { border-bottom-color: rgba(0,204,255,0.3); }
-        #top-bar-player .brand span { color: var(--theme-player); }
-        #top-bar-scripts { border-bottom-color: rgba(212,175,55,0.3); }
-        #top-bar-scripts .brand span { color: var(--theme-scripts); }
-        #top-bar-help { border-bottom-color: rgba(255,255,255,0.3); }
-        #top-bar-help .brand span { color: #FFF; }
+        #top-bar-studio { border-bottom-color: rgba(57,255,20,0.3); } #top-bar-studio .brand span { color: var(--theme-studio); }
+        #top-bar-player { border-bottom-color: rgba(0,204,255,0.3); } #top-bar-player .brand span { color: var(--theme-player); }
+        #top-bar-scripts { border-bottom-color: rgba(212,175,55,0.3); } #top-bar-scripts .brand span { color: var(--theme-scripts); }
+        #top-bar-help { border-bottom-color: rgba(255,255,255,0.3); } #top-bar-help .brand span { color: #FFF; }
 
         #timer-studio { font-family: monospace; font-size: 20px; color: var(--text-future); }
         #timer-studio.recording { color: var(--danger-color); font-weight: bold; }
@@ -77,59 +53,67 @@
         .vu-meter.recording { opacity: 1; }
         .vu-bar { width: 6px; background-color: var(--theme-studio); border-radius: 2px; height: 4px; transition: height 0.05s ease, background-color 0.1s; }
 
+        /* METRÓNOMO VISUAL */
+        .metro-indicator { width: 12px; height: 12px; border-radius: 50%; background: #333; margin-right: 15px; opacity: 0.2; transition: 0.1s;}
+        .metro-indicator.beat1 { background: var(--theme-studio); opacity: 1; box-shadow: 0 0 8px var(--theme-studio); }
+        .metro-indicator.beat-other { background: #FFF; opacity: 0.8; }
+
         .record-controls { display: flex; align-items: center; gap: 10px; }
         .btn-pause-rec { background: rgba(255,221,0,0.1); border: 1px solid var(--warning-color); color: var(--warning-color); border-radius: 8px; width: 40px; height: 40px; display: none; justify-content: center; align-items: center; cursor: pointer; }
         .btn-pause-rec.visible { display: flex; }
-        .btn-pause-rec:active { background: rgba(255,221,0,0.3); }
         .btn-rec { background: transparent; border: 2px solid var(--danger-color); border-radius: 50%; width: 50px; height: 50px; position: relative; display: flex; justify-content: center; align-items: center; cursor: pointer; }
         .btn-rec::after { content: ''; position: absolute; width: 20px; height: 20px; background: var(--danger-color); border-radius: 50%; transition: 0.3s; }
         .btn-rec.recording { background: rgba(255,51,51,0.1); }
         .btn-rec.recording::after { border-radius: 4px; transform: scale(0.8); }
+        .btn-edit-active { background: rgba(212,175,55,0.15); border: 1px solid var(--theme-scripts); color: var(--theme-scripts); border-radius: 8px; padding: 5px 10px; font-size: 14px; font-weight: bold; cursor: pointer; margin-right: 15px;}
 
         #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s; }
         #sidebar-overlay.active { opacity: 1; pointer-events: auto; }
         #sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--surface-color); z-index: 1001; transition: 0.3s cubic-bezier(0.4,0,0.2,1); display: flex; flex-direction: column; overflow-y: auto;}
         #sidebar.active { transform: translateX(280px); }
         
-        .sidebar-header { padding: calc(25px + var(--safe-top)) 20px 25px; border-bottom: 1px solid #333; font-size: 20px; font-weight: bold; color: #FFF; }
+        .sidebar-header { padding: calc(25px + var(--safe-top)) 20px 25px; border-bottom: 1px solid #333; font-size: 20px; font-weight: bold; color: #FFF; display: flex; justify-content: space-between; align-items: center;}
+        .lang-toggle { background: #0A0A0A; border: 1px solid #333; color: #FFF; border-radius: 12px; padding: 4px 8px; font-size: 12px; cursor: pointer;}
+        
         .sidebar-item { padding: 20px; border-bottom: 1px solid #222; display: flex; align-items: center; gap: 15px; color: #CCC; transition: 0.2s; cursor: pointer; text-decoration: none;}
         .sidebar-item.active { background: rgba(255,255,255,0.05); color: #FFF; border-left: 4px solid #FFF; }
         .sidebar-item[data-target="view-scripts"].active { border-left-color: var(--theme-scripts); color: var(--theme-scripts); background: rgba(212,175,55,0.05); }
         .sidebar-item[data-target="view-studio"].active { border-left-color: var(--theme-studio); color: var(--theme-studio); background: rgba(57,255,20,0.05); }
         .sidebar-item[data-target="view-player"].active { border-left-color: var(--theme-player); color: var(--theme-player); background: rgba(0,204,255,0.05); }
-        .sidebar-item[data-target="view-help"].active { border-left-color: #FFF; color: #FFF; background: rgba(255,255,255,0.05); }
 
         #btn-install { display: flex; background: linear-gradient(45deg, var(--theme-scripts), #B8860B); color: #000; font-weight: bold; margin: 10px; border-radius: 8px; border: none; justify-content: center; }
         #btn-donate { color: var(--theme-scripts); border-top: 1px solid #333; margin-top: auto; }
-        #btn-donate:hover { background: rgba(212,175,55,0.1); }
 
-        .sidebar-config-panel { padding: 20px; border-bottom: 1px solid #222; display: flex; flex-direction: column; gap: 10px; }
+        .sidebar-config-panel { padding: 15px 20px; border-bottom: 1px solid #222; display: flex; flex-direction: column; gap: 8px; }
         .config-label { font-size: 12px; color: #888; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
-        .settings-controls { display: flex; align-items: center; justify-content: space-between; background: #0A0A0A; border-radius: 8px; padding: 5px; border: 1px solid #333; }
-        .settings-controls .btn-cfg { background: transparent; color: #FFF; border: none; width: 40px; height: 40px; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; }
-        .settings-controls .btn-cfg:active { background: #333; }
-        .settings-display { font-family: monospace; font-size: 16px; color: var(--theme-scripts); }
+        .settings-controls { display: flex; align-items: center; justify-content: space-between; background: #0A0A0A; border-radius: 8px; padding: 2px 5px; border: 1px solid #333; }
+        .settings-controls .btn-cfg { background: transparent; color: #FFF; border: none; width: 35px; height: 35px; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        .settings-controls select { background: transparent; color: var(--theme-studio); border: none; outline: none; font-family: monospace; font-size: 14px; text-align: center; width: 100%;}
+        .settings-display { font-family: monospace; font-size: 14px; color: var(--theme-scripts); }
 
         .workspace-area { position: absolute; top: var(--ui-height-top); bottom: 0; width: 100%; display: flex; flex-direction: column; background: var(--bg-color); overflow-y: auto; padding: 20px; gap: 20px; }
-        .editor-card { background: var(--surface-color); border: 1px solid #333; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 15px; max-width: 900px; margin: 0 auto; width: 100%;}
+        .editor-card { background: var(--surface-color); border: 1px solid #333; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 12px; max-width: 900px; margin: 0 auto; width: 100%;}
         .editor-input { width: 100%; background: var(--surface-light); border: 1px solid #444; color: #FFF; padding: 15px; border-radius: 8px; font-size: 16px; font-family: var(--font-main); }
         .editor-input:focus { outline: 1px solid var(--theme-scripts); border-color: var(--theme-scripts); }
         textarea.editor-input { resize: none; height: 220px; user-select: text; }
         
-        .btn-action { background: var(--theme-scripts); color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; text-transform: uppercase; width: 100%; transition: 0.2s;}
-        .btn-action:active { transform: scale(0.98); }
+        .btn-action { background: var(--theme-scripts); color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; text-transform: uppercase; flex: 2; transition: 0.2s;}
+        .btn-action.update-mode { background: var(--theme-player); color: #000; }
+        .btn-action-alt { background: #333; color: #FFF; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; flex: 1; transition: 0.2s; }
+        .action-row { display: flex; gap: 10px; }
 
         .mode-selector { display: flex; flex-wrap: wrap; gap: 10px; font-size: 14px; background: #0A0A0A; padding: 10px; border-radius: 8px; border: 1px solid #222; }
-        .mode-option { display: flex; align-items: center; gap: 5px; color: #CCC; cursor: pointer; padding: 5px 10px; border-radius: 4px; transition: 0.2s;}
-        .mode-option:hover { background: rgba(255,255,255,0.05); }
+        .mode-option { display: flex; align-items: center; gap: 5px; color: #CCC; cursor: pointer; padding: 5px 10px; border-radius: 4px;}
         .mode-option input[type="radio"] { accent-color: var(--theme-scripts); }
-        #helper-text { font-size: 12px; color: #888; font-style: italic; margin-top: -5px; }
+        
+        /* CINTA CONTEXTUAL */
+        #context-ribbon { font-size: 12px; color: var(--theme-scripts); text-align: center; font-style: italic; background: rgba(212,175,55,0.05); padding: 8px; border-radius: 6px; border: 1px dashed rgba(212,175,55,0.3); }
 
         .musical-settings { display: none; gap: 10px; width: 100%; }
         .musical-settings.active { display: flex; }
         .musical-settings select { flex: 1; background: #0A0A0A; border: 1px solid #333; color: #FFF; padding: 10px; border-radius: 6px; font-size: 14px; }
 
-        .project-list-header { font-size: 14px; color: var(--text-future); text-transform: uppercase; font-weight: bold; margin-top: 10px; border-bottom: 1px solid #333; padding-bottom: 10px; max-width: 900px; margin: 10px auto 0; width: 100%;}
+        .project-list-header { font-size: 14px; color: var(--text-future); text-transform: uppercase; font-weight: bold; max-width: 900px; margin: 10px auto 0; width: 100%; border-bottom: 1px solid #333; padding-bottom: 10px;}
         #projects-container { max-width: 900px; margin: 0 auto; width: 100%; }
         .project-card { background: var(--surface-color); border: 1px solid #333; border-radius: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;}
         .project-card.active-project { border-color: var(--theme-scripts); background: rgba(212,175,55,0.05); }
@@ -140,7 +124,6 @@
         
         .card-actions { display: flex; gap: 10px; }
         .btn-select { background: var(--surface-light); color: var(--theme-scripts); border: 1px solid #444; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer;}
-        .project-card.active-project .btn-select { background: var(--theme-scripts); color: #000; border-color: var(--theme-scripts); }
         .btn-delete { background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 8px 10px; border-radius: 6px; cursor: pointer;}
 
         .viewport { position: absolute; top: var(--ui-height-top); bottom: var(--ui-height-bottom); width: 100%; display: flex; justify-content: center; overflow: hidden; background-color: var(--bg-color); touch-action: none; }
@@ -150,19 +133,16 @@
 
         .scroller { position: absolute; width: 95%; max-width: 900px; padding-top: calc(50vh - (var(--ui-height-top) + var(--ui-height-bottom))/2); padding-bottom: 50vh; will-change: transform; }
 
-        /* MODO SHADOWING */
         .paragraph { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: var(--font-size-p); font-weight: 500; line-height: 1.5; margin-bottom: 45px; text-align: center; color: var(--text-future); transform-origin: center center; transition: color 0.3s, transform 0.3s, opacity 0.3s; opacity: 0.5; }
         .formal-text { display: block; width: 100%; }
         .phonetic-text { display: block; font-size: 0.75em; color: var(--theme-scripts); opacity: 0.7; margin-top: 4px; line-height: 1.2;}
         
-        /* MODO MUSICAL (ChordPro Visual) */
         .musical-line { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; width: 100%; }
         .chord-word-block { display: inline-flex; flex-direction: column; align-items: flex-start; margin-bottom: 10px;}
         .chord-text { color: var(--theme-scripts); font-weight: bold; font-size: 0.55em; line-height: 1; margin-bottom: 2px; font-family: monospace; letter-spacing: 1px; }
         .lyric-text { line-height: 1.2; }
 
         .paragraph.past { color: var(--text-past); transform: scale(0.95); opacity: 0.3; }
-        
         #scroller-studio .paragraph.present { color: var(--text-present); transform: scale(1.08); opacity: 1; text-shadow: 0 0 8px rgba(255,255,255,0.15); }
         #scroller-studio .paragraph.present .phonetic-text { opacity: 1; text-shadow: 0 0 8px rgba(212,175,55,0.3); }
         #scroller-studio .paragraph.present .chord-text { opacity: 1; text-shadow: 0 0 8px rgba(212,175,55,0.5); }
@@ -188,18 +168,12 @@
         .btn-play-studio { background: rgba(57,255,20,0.15); color: var(--theme-studio); border: 1px solid var(--theme-studio); padding: 0 25px; flex-grow: 1; margin-left: 15px; }
         .btn-play-studio.active { background: rgba(57,255,20,0.3); }
 
-        /* HELP MANUAL CSS */
         .help-card { background: var(--surface-color); border: 1px solid #333; border-radius: 12px; padding: 20px; color: #CCC; font-size: 15px; line-height: 1.6; max-width: 900px; margin: 0 auto; width: 100%;}
         .help-card h3 { color: #FFF; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 10px; }
         .help-card h4 { color: var(--theme-scripts); margin-top: 15px; margin-bottom: 5px;}
         .help-card code { background: #000; padding: 2px 6px; border-radius: 4px; color: var(--theme-studio); font-family: monospace;}
 
-        @media (min-width: 768px) {
-            .bottom-bar { padding: 0 40px; }
-            .top-bar { padding: var(--safe-top) 40px 0; }
-            .paragraph { margin-bottom: 55px; }
-        }
-
+        @media (min-width: 768px) { .bottom-bar { padding: 0 40px; } .top-bar { padding: var(--safe-top) 40px 0; } .paragraph { margin-bottom: 55px; } }
     </style>
 </head>
 <body>
@@ -208,10 +182,13 @@
 
     <div id="sidebar-overlay"></div>
     <div id="sidebar">
-        <div class="sidebar-header">StudioPrompter Zero</div>
+        <div class="sidebar-header">
+            StudioPrompter Zero
+            <button class="lang-toggle" id="btn-lang-toggle">🇪🇸 ES</button>
+        </div>
         
         <div class="sidebar-config-panel">
-            <div class="config-label">Tamaño de Texto</div>
+            <div class="config-label i18n" data-es="Tamaño de Texto" data-en="Text Size">Tamaño de Texto</div>
             <div class="settings-controls">
                 <button class="btn-cfg" id="btn-font-minus">-</button>
                 <span class="settings-display" id="font-size-display">28px</span>
@@ -220,7 +197,7 @@
         </div>
 
         <div class="sidebar-config-panel" style="border-top:none; padding-top:0;">
-            <div class="config-label">Cuenta Regresiva (REC)</div>
+            <div class="config-label i18n" data-es="Cuenta Regresiva" data-en="Countdown (REC)">Cuenta Regresiva</div>
             <div class="settings-controls">
                 <button class="btn-cfg" id="btn-cd-minus">-</button>
                 <span class="settings-display" id="cd-display">3s</span>
@@ -228,21 +205,40 @@
             </div>
         </div>
 
+        <div class="sidebar-config-panel" style="border-top:none; padding-top:0;">
+            <div class="config-label i18n" data-es="Metrónomo" data-en="Metronome">Metrónomo</div>
+            <div class="settings-controls" style="margin-bottom: 5px;">
+                <button class="btn-cfg" id="btn-bpm-minus">-</button>
+                <span class="settings-display" id="bpm-display">120 BPM</span>
+                <button class="btn-cfg" id="btn-bpm-plus">+</button>
+            </div>
+            <div class="settings-controls">
+                <select id="metro-sig">
+                    <option value="4">4/4</option><option value="3">3/4</option><option value="2">2/4</option>
+                </select>
+                <select id="metro-mode">
+                    <option value="off" class="i18n" data-es="Apagado" data-en="Off">Apagado</option>
+                    <option value="visual" class="i18n" data-es="Solo Visual" data-en="Visual Only">Solo Visual</option>
+                    <option value="audio" class="i18n" data-es="Audio + Visual" data-en="Audio + Visual">Audio + Visual</option>
+                </select>
+            </div>
+        </div>
+
         <div class="sidebar-item" id="btn-install">
-            <svg viewBox="0 0 24 24" style="margin-right: 8px;"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg> Instalar App Nativa
+            <svg viewBox="0 0 24 24" style="margin-right: 8px;"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg> <span class="i18n" data-es="Instalar App Nativa" data-en="Install Native App">Instalar App Nativa</span>
         </div>
 
         <div class="sidebar-item active" data-target="view-scripts">
-            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> Gestor de Guiones
+            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> <span class="i18n" data-es="Gestor de Guiones" data-en="Script Manager">Gestor de Guiones</span>
         </div>
         <div class="sidebar-item" data-target="view-studio">
-            <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg> Estudio (Grabar)
+            <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg> <span class="i18n" data-es="Estudio (Grabar)" data-en="Studio (Record)">Estudio (Grabar)</span>
         </div>
         <div class="sidebar-item" data-target="view-player">
-            <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg> Reproductor (Revisar)
+            <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg> <span class="i18n" data-es="Reproductor" data-en="Player">Reproductor</span>
         </div>
         <div class="sidebar-item" data-target="view-help">
-            <svg viewBox="0 0 24 24"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg> Instrucciones / Help
+            <svg viewBox="0 0 24 24"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg> <span class="i18n" data-es="Instrucciones / Help" data-en="Help & Syntax">Instrucciones / Help</span>
         </div>
 
         <a href="#" target="_blank" class="sidebar-item" id="btn-donate">
@@ -254,47 +250,41 @@
         <div class="top-bar" id="top-bar-scripts">
             <div style="display: flex; align-items: center; gap: 15px;">
                 <button class="menu-btn"><svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
-                <div class="brand"><span>Gestor de Guiones</span></div>
+                <div class="brand"><span class="i18n" data-es="Gestor de Guiones" data-en="Script Manager">Gestor de Guiones</span></div>
             </div>
         </div>
         <div class="workspace-area">
             <div class="editor-card">
-                <input type="text" id="script-title" class="editor-input" placeholder="Título del Proyecto (Ej: Análisis)">
+                <input type="text" id="script-title" class="editor-input i18n-ph" data-es="Título del Proyecto (Ej: Análisis)" data-en="Project Title" placeholder="Título del Proyecto (Ej: Análisis)">
                 
                 <div class="mode-selector">
-                    <label class="mode-option"><input type="radio" name="script-mode" value="standard" checked> 🎙️ Estándar</label>
+                    <label class="mode-option"><input type="radio" name="script-mode" value="standard" checked> 🎙️ <span class="i18n" data-es="Estándar" data-en="Standard">Estándar</span></label>
                     <label class="mode-option"><input type="radio" name="script-mode" value="shadowing"> 🗣️ Shadowing</label>
-                    <label class="mode-option"><input type="radio" name="script-mode" value="musical"> 🎵 Musical</label>
+                    <label class="mode-option"><input type="radio" name="script-mode" value="musical"> 🎵 <span class="i18n" data-es="Musical" data-en="Musical">Musical</span></label>
                 </div>
                 
+                <div id="context-ribbon">Sintaxis Normal. ⏱️ Pausa: (P:2s)  ⚡ Vel: (V:1.5x)</div>
+
                 <div class="musical-settings" id="musical-settings">
                     <select id="music-key">
-                        <option value="C">Do (C)</option>
-                        <option value="C#">Do# (C#)</option>
-                        <option value="D">Re (D)</option>
-                        <option value="Eb">Mib (Eb)</option>
-                        <option value="E">Mi (E)</option>
-                        <option value="F">Fa (F)</option>
-                        <option value="F#">Fa# (F#)</option>
-                        <option value="G">Sol (G)</option>
-                        <option value="Ab">Lab (Ab)</option>
-                        <option value="A">La (A)</option>
-                        <option value="Bb">Sib (Bb)</option>
-                        <option value="B">Si (B)</option>
+                        <option value="C">C (Do)</option><option value="C#">C# (Do#)</option><option value="D">D (Re)</option><option value="Eb">Eb (Mib)</option>
+                        <option value="E">E (Mi)</option><option value="F">F (Fa)</option><option value="F#">F# (Fa#)</option><option value="G">G (Sol)</option>
+                        <option value="Ab">Ab (Lab)</option><option value="A">A (La)</option><option value="Bb">Bb (Sib)</option><option value="B">B (Si)</option>
                     </select>
                     <select id="music-clef">
-                        <option value="G">Clave de Sol</option>
-                        <option value="F">Clave de Fa</option>
+                        <option value="G" class="i18n" data-es="Clave de Sol" data-en="Treble Clef">Clave de Sol</option>
+                        <option value="F" class="i18n" data-es="Clave de Fa" data-en="Bass Clef">Clave de Fa</option>
                     </select>
                 </div>
-                
-                <div id="helper-text">Modo texto puro. Pega tu guion normalmente.</div>
 
-                <textarea id="script-content" class="editor-input" placeholder="Pega o escribe tu guion aquí..."></textarea>
+                <textarea id="script-content" class="editor-input i18n-ph" data-es="Pega tu texto copiado o escribe tu guion aquí..." data-en="Paste your copied text or write your script here..." placeholder="Pega tu texto copiado o escribe tu guion aquí..."></textarea>
                 
-                <button class="btn-action" id="btn-save">💾 Guardar Proyecto</button>
+                <div class="action-row">
+                    <button class="btn-action-alt i18n" id="btn-load-example" data-es="📄 Ejemplo" data-en="📄 Example">📄 Ejemplo</button>
+                    <button class="btn-action i18n" id="btn-save" data-es="💾 Guardar Proyecto" data-en="💾 Save Project">💾 Guardar Proyecto</button>
+                </div>
             </div>
-            <div class="project-list-header">Almacenamiento Interno (IndexedDB)</div>
+            <div class="project-list-header i18n" data-es="Almacenamiento Interno" data-en="Local Storage">Almacenamiento Interno</div>
             <div id="projects-container" style="display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px;"></div>
         </div>
     </div>
@@ -306,6 +296,8 @@
                 <div class="brand"><span id="studio-active-title">Sin Guion</span></div>
             </div>
             <div style="display: flex; align-items: center; gap: 15px;">
+                <button id="btn-edit-studio" class="btn-edit-active" title="Editar Guion Actual">✏️</button>
+                <div class="metro-indicator" id="metro-dot"></div>
                 <div class="vu-meter" id="vu-meter">
                     <div class="vu-bar" id="vu-1"></div><div class="vu-bar" id="vu-2"></div><div class="vu-bar" id="vu-3"></div><div class="vu-bar" id="vu-4"></div><div class="vu-bar" id="vu-5"></div>
                 </div>
@@ -330,7 +322,7 @@
                     <span id="speed-display">0.60</span>
                     <button class="btn" id="btn-plus">+</button>
                 </div>
-                <button class="btn btn-play-studio" id="btn-play-studio">▶ ENSAYAR</button>
+                <button class="btn btn-play-studio" id="btn-play-studio">▶ <span class="i18n" data-es="ENSAYAR" data-en="REHEARSE">ENSAYAR</span></button>
             </div>
         </div>
     </div>
@@ -341,6 +333,7 @@
                 <button class="menu-btn"><svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
                 <div class="brand"><span id="player-active-title">Sin Guion</span></div>
             </div>
+            <button id="btn-edit-player" class="btn-edit-active" style="margin-top:0;" title="Editar Guion Actual">✏️</button>
         </div>
         <div class="viewport" id="viewport-player">
             <div class="focus-container"><div class="indicator-player"></div></div>
@@ -350,11 +343,11 @@
         <audio id="master-audio" style="display: none;"></audio>
         <div class="bottom-bar-wrapper">
             <div class="bottom-bar">
-                <button class="btn btn-play-audio" id="btn-play-audio" disabled style="background: rgba(0,204,255,0.15); color: var(--theme-player); border: 1px solid var(--theme-player); padding: 0 15px; font-size:14px; width:130px;">SIN AUDIO</button>
+                <button class="btn btn-play-audio i18n" id="btn-play-audio" disabled style="background: rgba(0,204,255,0.15); color: var(--theme-player); border: 1px solid var(--theme-player); padding: 0 15px; font-size:14px; width:130px;" data-es="SIN AUDIO" data-en="NO AUDIO">SIN AUDIO</button>
                 <div style="flex-grow: 1; height: 6px; background: #333; border-radius: 3px; margin: 0 10px; position: relative; overflow: hidden;">
                     <div id="audio-progress" style="position: absolute; left: 0; top: 0; height: 100%; background: var(--theme-player); width: 0%; transition: width 0.1s linear;"></div>
                 </div>
-                <button class="btn" id="btn-export-audio" disabled style="background: rgba(212,175,55,0.15); color: var(--theme-scripts); border: 1px solid var(--theme-scripts); padding: 0 15px;" title="Descargar Audio">
+                <button class="btn" id="btn-export-audio" disabled style="background: rgba(212,175,55,0.15); color: var(--theme-scripts); border: 1px solid var(--theme-scripts); padding: 0 15px;">
                     <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
                 </button>
             </div>
@@ -365,181 +358,236 @@
         <div class="top-bar" id="top-bar-help">
             <div style="display: flex; align-items: center; gap: 15px;">
                 <button class="menu-btn"><svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
-                <div class="brand"><span>Instrucciones / Help</span></div>
+                <div class="brand"><span class="i18n" data-es="Instrucciones" data-en="Syntax Guide">Instrucciones</span></div>
             </div>
         </div>
         <div class="workspace-area">
-            <div class="help-card">
-                <h3>🇪🇸 Guía de Uso Rápido</h3>
-                <p>Bienvenido a StudioPrompter Zero, un teleprompter 100% local y privado. Soporta 3 modos de escritura:</p>
+            <div class="help-card" id="help-es" style="display:block;">
+                <h3>🇪🇸 Guía de Sintaxis Temporal</h3>
+                <p>Añade estos comandos en cualquier parte de tu párrafo para alterar el flujo:</p>
+                <ul>
+                    <li><code>(P:2s)</code> <b>Pausa:</b> Congela el texto durante 2 segundos. Ideal para interludios.</li>
+                    <li><code>(V:1.5x)</code> <b>Velocidad:</b> Multiplica la velocidad del párrafo (1.5x es más rápido, 0.5x es lento).</li>
+                </ul>
+                <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
                 
-                <h4>1. Modo Estándar (🎙️)</h4>
-                <p>Escribe tu texto normalmente. El sistema calculará la velocidad de lectura basándose en la longitud de las palabras y los signos de puntuación.</p>
+                <h4>🎙️ Modo Estándar</h4>
+                <p>Texto fluido. El motor calcula el peso de cada palabra automáticamente.</p>
                 
-                <h4>2. Modo Shadowing (🗣️)</h4>
-                <p>Ideal para practicar idiomas, doblaje o fonética. Usa la barra vertical <code>|</code> para separar el texto formal de la pronunciación.</p>
-                <p><i>Ejemplo:</i> <code>I do not know | I dunno</code></p>
+                <h4>🗣️ Mapeo Fonético (Shadowing)</h4>
+                <p>Usa la barra vertical <code>|</code> para separar la escritura formal de la reducción fonética.</p>
+                <p><i>Ej:</i> <code>¿Para dónde vas? | ¿Pa'nde vas?</code></p>
                 
-                <h4>3. Modo Musical (🎵)</h4>
-                <p>Formato tipo ChordPro visual. Escribe el acorde o nota entre corchetes rectos <code>[]</code> justo antes de la sílaba donde debe cantarse/tocarse.</p>
-                <p><i>Ejemplo:</i> <code>[C4]La don[C4]na è [F4]mobile</code></p>
+                <h4>🎵 Modo Musical</h4>
+                <p>Notación americana (*ChordPro*). Escribe la nota entre corchetes <code>[]</code> antes de la sílaba.</p>
+                <p><i>Ej:</i> <code>[C4]La don[C4]na è [F4]mobile</code></p>
             </div>
 
-            <div class="help-card">
-                <h3>🇺🇸 Quick Start Guide</h3>
-                <p>Welcome to StudioPrompter Zero, a 100% local and private teleprompter. It supports 3 writing modes:</p>
+            <div class="help-card" id="help-en" style="display:none;">
+                <h3>🇺🇸 Temporal Syntax Guide</h3>
+                <p>Add these tags anywhere in your paragraph to alter the flow:</p>
+                <ul>
+                    <li><code>(P:2s)</code> <b>Pause:</b> Freezes scrolling for 2 seconds. Great for interludes.</li>
+                    <li><code>(V:1.5x)</code> <b>Velocity:</b> Multiplies paragraph speed (1.5x is faster, 0.5x is slower).</li>
+                </ul>
+                <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
                 
-                <h4>1. Standard Mode (🎙️)</h4>
-                <p>Write your script normally. The system will calculate the reading speed based on word length and punctuation.</p>
+                <h4>🎙️ Standard Mode</h4>
+                <p>Fluid reading. The engine automatically calculates word density.</p>
                 
-                <h4>2. Shadowing Mode (🗣️)</h4>
-                <p>Perfect for language learning or voice acting. Use the vertical bar <code>|</code> to separate formal text from pronunciation.</p>
-                <p><i>Example:</i> <code>I do not know | I dunno</code></p>
+                <h4>🗣️ Phonetic Mapping (Shadowing)</h4>
+                <p>Use the vertical bar <code>|</code> to separate formal text from its slang/phonetic reduction.</p>
+                <p><i>Ex:</i> <code>Where are you going? | Where ya goin'?</code></p>
                 
-                <h4>3. Musical Mode (🎵)</h4>
-                <p>Visual ChordPro format. Write the chord or note inside square brackets <code>[]</code> right before the syllable where it should be played.</p>
-                <p><i>Example:</i> <code>[C4]La don[C4]na è [F4]mobile</code></p>
+                <h4>🎵 Musical Mode</h4>
+                <p>Scientific ChordPro notation. Write the chord inside square brackets <code>[]</code> before the syllable.</p>
+                <p><i>Ex:</i> <code>[C4]Twin[C4]kle, [F4]little [C4]star</code></p>
             </div>
         </div>
     </div>
 
     <script>
+        // --- 0. INTERNACIONALIZACIÓN (I18n) ---
+        let currentLang = 'es';
+        const applyLang = (lang) => {
+            currentLang = lang;
+            document.getElementById('btn-lang-toggle').innerText = lang === 'es' ? '🇪🇸 ES' : '🇺🇸 EN';
+            document.querySelectorAll('.i18n').forEach(el => el.innerText = el.getAttribute(`data-${lang}`));
+            document.querySelectorAll('.i18n-ph').forEach(el => el.setAttribute('placeholder', el.getAttribute(`data-${lang}`)));
+            
+            document.getElementById('help-es').style.display = lang === 'es' ? 'block' : 'none';
+            document.getElementById('help-en').style.display = lang === 'en' ? 'block' : 'none';
+            updateRibbon();
+        };
+
+        const detectLang = () => {
+            const sysLang = navigator.language || navigator.userLanguage;
+            if(sysLang.toLowerCase().startsWith('en')) applyLang('en');
+            else applyLang('es');
+        };
+        document.getElementById('btn-lang-toggle').addEventListener('click', () => { applyLang(currentLang === 'es' ? 'en' : 'es'); });
+
+        // --- 1. REGISTRO PWA ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/StudioPrompter-Zero/sw.js', { scope: '/StudioPrompter-Zero/' })
-                    .then(reg => console.log('SW Listo.', reg.scope))
-                    .catch(err => console.log('SW Error:', err));
+                navigator.serviceWorker.register('/StudioPrompter-Zero/sw.js', { scope: '/StudioPrompter-Zero/' }).catch(()=>{});
             });
         }
         let deferredPrompt = null;
         const btnInstall = document.getElementById('btn-install');
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); deferredPrompt = e; 
-        });
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
         btnInstall.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') btnInstall.style.display = 'none';
-                deferredPrompt = null;
-            } else {
-                alert("Tu navegador bloquea el instalador automático. Para instalar: Abre el menú nativo (los 3 puntos) y selecciona 'Instalar aplicación' o 'Agregar a inicio'.");
-            }
+            if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') btnInstall.style.display = 'none'; deferredPrompt = null; } 
+            else { alert(currentLang==='es'?"Usa el menú nativo (3 puntos) y selecciona 'Instalar aplicación'.":"Use your browser's native menu and select 'Install app'."); }
         });
 
+        // --- 2. BASE DE DATOS LOCAL ---
         const DB_NAME = 'StudioPrompterDB'; let db;
         const initDB = () => new Promise((res, rej) => {
-            const req = indexedDB.open(DB_NAME, 1);
-            req.onerror = () => rej();
+            const req = indexedDB.open(DB_NAME, 1); req.onerror = () => rej();
             req.onsuccess = (e) => { db = e.target.result; res(); };
             req.onupgradeneeded = (e) => { db = e.target.result; if (!db.objectStoreNames.contains('scripts')) db.createObjectStore('scripts', { keyPath: 'id' }); };
         });
         const dbOps = {
-            save: (proj) => new Promise((res, rej) => { const req = db.transaction(['scripts'], 'readwrite').objectStore('scripts').put(proj); req.onsuccess = res; }),
-            loadAll: () => new Promise((res, rej) => { const req = db.transaction(['scripts'], 'readonly').objectStore('scripts').getAll(); req.onsuccess = () => res(req.result); }),
-            delete: (id) => new Promise((res, rej) => { const req = db.transaction(['scripts'], 'readwrite').objectStore('scripts').delete(id); req.onsuccess = res; })
+            save: (proj) => new Promise((res) => { const req = db.transaction(['scripts'], 'readwrite').objectStore('scripts').put(proj); req.onsuccess = res; }),
+            loadAll: () => new Promise((res) => { const req = db.transaction(['scripts'], 'readonly').objectStore('scripts').getAll(); req.onsuccess = () => res(req.result); }),
+            delete: (id) => new Promise((res) => { const req = db.transaction(['scripts'], 'readwrite').objectStore('scripts').delete(id); req.onsuccess = res; })
         };
 
-        const APP_STATE = { projects: [], activeProjectId: null };
+        const APP_STATE = { projects: [], activeProjectId: null, editingId: null };
 
-        // --- PRECARGA (SEEDING) DE DATOS DE EJEMPLO ---
+        // --- 3. PRECARGA & EJEMPLOS (CON ETIQUETAS TEMPORALES) ---
         const PRELOAD_TEXTS = {
-            standard: `Mr. Chairman, ladies and gentlemen:\n\nI appreciate very much your generous invitation to be here tonight.\n\nYou bear heavy responsibilities these days and an article I read some time ago reminded me of how particularly heavily the burdens of present day events bear upon your profession.\n\nYou may remember that in 1851 the New York Herald Tribune under the sponsorship and publishing of Horace Greeley, employed as its London correspondent an obscure journalist by the name of Karl Marx.\n\nWe are told that foreign correspondent Marx, stone broke, and with a family ill and undernourished, constantly appealed to Greeley and managing editor Charles Dana for an increase in his munificent salary of $5 per installment, a salary which he and Engels ungratefully labeled as the "lousiest petty bourgeois cheating."\n\nBut when all his financial appeals were refused, Marx looked around for other means of livelihood and fame, eventually terminating his relationship with the Tribune and devoting his talents full time to the cause that would bequeath the world the seeds of Leninism, Stalinism, revolution and the cold war.\n\nIf only this capitalistic New York newspaper had treated him more kindly; if only Marx had remained a foreign correspondent, history might have been different. And I hope all publishers will bear this lesson in mind the next time they receive a poverty-stricken appeal for a small increase in the expense account from an obscure newspaper man.\n\nI have selected as the title of my remarks tonight "The President and the Press." Some may suggest that this would be more naturally worded "The President Versus the Press." But those are not my sentiments tonight.\n\nIt is true, however, that when a well-known diplomat from another country demanded recently that our State Department repudiate certain newspaper attacks on his colleague it was unnecessary for us to reply that this Administration was not responsible for the press, for the press had already made it clear that it was not responsible for this Administration.\n\nNevertheless, my purpose here tonight is not to deliver the usual assault on the so-called one party press. On the contrary, in recent months I have rarely heard any complaints about political bias in the press except from a few Republicans. Nor is it my purpose tonight to discuss or defend the televising of Presidential press conferences. I think it is highly beneficial to have some 20,000,000 Americans regularly sit in on these conferences to observe, if I may say so, the incisive, the intelligent and the courteous qualities displayed by your Washington correspondents.\n\nNor, finally, are these remarks intended to examine the proper degree of privacy which the press should allow to any President and his family.\n\nIf in the last few months your White House reporters and photographers have been attending church services with regularity, that has surely done them no harm.\n\nOn the other hand, I realize that your staff and wire service photographers may be complaining that they do not enjoy the same green privileges at the local golf courses that they once did.\n\nIt is true that my predecessor did not object as I do to pictures of one's golfing skill in action. But neither on the other hand did he ever bean a Secret Service man.\n\nMy topic tonight is a more sober one of concern to publishers as well as editors.\n\nI want to talk about our common responsibilities in the face of a common danger. The events of recent weeks may have helped to illuminate that challenge for some; but the dimensions of its threat have loomed large on the horizon for many years. Whatever our hopes may be for the future--for reducing this threat or living with it--there is no escaping either the gravity or the totality of its challenge to our survival and to our security--a challenge that confronts us in unaccustomed ways in every sphere of human activity.\n\nThis deadly challenge imposes upon our society two requirements of direct concern both to the press and to the President--two requirements that may seem almost contradictory in tone, but which must be reconciled and fulfilled if we are to meet this national peril. I refer, first, to the need for a far greater public information; and, second, to the need for far greater official secrecy.\n\nI\n\nThe very word "secrecy" is repugnant in a free and open society; and we are as a people inherently and historically opposed to secret societies, to secret oaths and to secret proceedings. We decided long ago that the dangers of excessive and unwarranted concealment of pertinent facts far outweighed the dangers which are cited to justify it. Even today, there is little value in opposing the threat of a closed society by imitating its arbitrary restrictions. Even today, there is little value in insuring the survival of our nation if our traditions do not survive with it. And there is very grave danger that an announced need for increased security will be seized upon by those anxious to expand its meaning to the very limits of official censorship and concealment. That I do not intend to permit to the extent that it is in my control. And no official of my Administration, whether his rank is high or low, civilian or military, should interpret my words here tonight as an excuse to censor the news, to stifle dissent, to cover up our mistakes or to withhold from the press and the public the facts they deserve to know.\n\nBut I do ask every publisher, every editor, and every newsman in the nation to reexamine his own standards, and to recognize the nature of our country's peril. In time of war, the government and the press have customarily joined in an effort based largely on self-discipline, to prevent unauthorized disclosures to the enemy. In time of "clear and present danger," the courts have held that even the privileged rights of the First Amendment must yield to the public's need for national security.\n\nToday no war has been declared--and however fierce the struggle may be, it may never be declared in the traditional fashion. Our way of life is under attack. Those who make themselves our enemy are advancing around the globe. The survival of our friends is in danger. And yet no war has been declared, no borders have been crossed by marching troops, no missiles have been fired.\n\nIf the press is awaiting a declaration of war before it imposes the self-discipline of combat conditions, then I can only say that no war ever posed a greater threat to our security. If you are awaiting a finding of "clear and present danger," then I can only say that the danger has never been more clear and its presence has never been more imminent.\n\nIt requires a change in outlook, a change in tactics, a change in missions--by the government, by the people, by every businessman or labor leader, and by every newspaper. For we are opposed around the world by a monolithic and ruthless conspiracy that relies primarily on covert means for expanding its sphere of influence--on infiltration instead of invasion, on subversion instead of elections, on intimidation instead of free choice, on guerrillas by night instead of armies by day. It is a system which has conscripted vast human and material resources into the building of a tightly knit, highly efficient machine that combines military, diplomatic, intelligence, economic, scientific and political operations.\n\nIts preparations are concealed, not published. Its mistakes are buried, not headlined. Its dissenters are silenced, not praised. No expenditure is questioned, no rumor is printed, no secret is revealed. It conducts the Cold War, in short, with a war-time discipline no democracy would ever hope or wish to match.\n\nNevertheless, every democracy recognizes the necessary restraints of national security--and the question remains whether those restraints need to be more strictly observed if we are to oppose this kind of attack as well as outright invasion.\n\nFor the facts of the matter are that this nation's foes have openly boasted of acquiring through our newspapers information they would otherwise hire agents to acquire through theft, bribery or espionage; that details of this nation's covert preparations to counter the enemy's covert operations have been available to every newspaper reader, friend and foe alike; that the size, the strength, the location and the nature of our forces and weapons, and our plans and strategy for their use, have all been pinpointed in the press and other news media to a degree sufficient to satisfy any foreign power; and that, in at least in one case, the publication of details concerning a secret mechanism whereby satellites were followed required its alteration at the expense of considerable time and money.\n\nThe newspapers which printed these stories were loyal, patriotic, responsible and well-meaning. Had we been engaged in open warfare, they undoubtedly would not have published such items. But in the absence of open warfare, they recognized only the tests of journalism and not the tests of national security. And my question tonight is whether additional tests should not now be adopted.\n\nThe question is for you alone to answer. No public official should answer it for you. No governmental plan should impose its restraints against your will. But I would be failing in my duty to the nation, in considering all of the responsibilities that we now bear and all of the means at hand to meet those responsibilities, if I did not commend this problem to your attention, and urge its thoughtful consideration.\n\nOn many earlier occasions, I have said--and your newspapers have constantly said--that these are times that appeal to every citizen's sense of sacrifice and self-discipline. They call out to every citizen to weigh his rights and comforts against his obligations to the common good. I cannot now believe that those citizens who serve in the newspaper business consider themselves exempt from that appeal.\n\nI have no intention of establishing a new Office of War Information to govern the flow of news. I am not suggesting any new forms of censorship or any new types of security classifications. I have no easy answer to the dilemma that I have posed, and would not seek to impose it if I had one. But I am asking the members of the newspaper profession and the industry in this country to reexamine their own responsibilities, to consider the degree and the nature of the present danger, and to heed the duty of self-restraint which that danger imposes upon us all.\n\nEvery newspaper now asks itself, with respect to every story: "Is it news?" All I suggest is that you add the question: "Is it in the interest of the national security?" And I hope that every group in America--unions and businessmen and public officials at every level-- will ask the same question of their endeavors, and subject their actions to the same exacting tests.\n\nAnd should the press of America consider and recommend the voluntary assumption of specific new steps or machinery, I can assure you that we will cooperate whole-heartedly with those recommendations.\n\nPerhaps there will be no recommendations. Perhaps there is no answer to the dilemma faced by a free and open society in a cold and secret war. In times of peace, any discussion of this subject, and any action that results, are both painful and without precedent. But this is a time of peace and peril which knows no precedent in history.\n\nII\n\nIt is the unprecedented nature of this challenge that also gives rise to your second obligation--an obligation which I share. And that is our obligation to inform and alert the American people--to make certain that they possess all the facts that they need, and understand them as well--the perils, the prospects, the purposes of our program and the choices that we face.\n\nNo President should fear public scrutiny of his program. For from that scrutiny comes understanding; and from that understanding comes support or opposition. And both are necessary. I am not asking your newspapers to support the Administration, but I am asking your help in the tremendous task of informing and alerting the American people. For I have complete confidence in the response and dedication of our citizens whenever they are fully informed.\n\nI not only could not stifle controversy among your readers--I welcome it. This Administration intends to be candid about its errors; for as a wise man once said: "An error does not become a mistake until you refuse to correct it." We intend to accept full responsibility for our errors; and we expect you to point them out when we miss them.\n\nWithout debate, without criticism, no Administration and no country can succeed--and no republic can survive. That is why the Athenian lawmaker Solon decreed it a crime for any citizen to shrink from controversy. And that is why our press was protected by the First Amendment-- the only business in America specifically protected by the Constitution- -not primarily to amuse and entertain, not to emphasize the trivial and the sentimental, not to simply "give the public what it wants"--but to inform, to arouse, to reflect, to state our dangers and our opportunities, to indicate our crises and our choices, to lead, mold, educate and sometimes even anger public opinion.\n\nThis means greater coverage and analysis of international news--for it is no longer far away and foreign but close at hand and local. It means greater attention to improved understanding of the news as well as improved transmission. And it means, finally, that government at all levels, must meet its obligation to provide you with the fullest possible information outside the narrowest limits of national security--and we intend to do it.\n\nIII\n\nIt was early in the Seventeenth Century that Francis Bacon remarked on three recent inventions already transforming the world: the compass, gunpowder and the printing press. Now the links between the nations first forged by the compass have made us all citizens of the world, the hopes and threats of one becoming the hopes and threats of us all. In that one world's efforts to live together, the evolution of gunpowder to its ultimate limit has warned mankind of the terrible consequences of failure.\n\nAnd so it is to the printing press--to the recorder of man's deeds, the keeper of his conscience, the courier of his news--that we look for strength and assistance, confident that with your help man will be what he was born to be: free and independent.`,
-            
-            shadowing: `A: Yo, y’all ever try datin’ in New York? It’s a whole sport, man! | A: Hey, have you all ever tried dating in New York? It’s a whole sport, man!\nSwipe right, swipe left, match, unmatch… I’m exhausted before I even leave my couch! | Swipe right, swipe left, match, unmatch… I’m exhausted before I even leave my couch!\nLast week I matched with this girl, bio said “love travel and deep conversations.” We meet up, first thing she says is “So… you like pizza?” Deep conversation, my ass! | Last week I matched with this girl, bio said “love travel and deep conversations.” We meet up, first thing she says is “So… you like pizza?” Deep conversation, my ass!\nI’m like, “Yeah I like pizza… but I also like not payin’ $18 for a coffee while we talk about your ex for two hours.” | I’m like, “Yeah I like pizza… but I also like not paying $18 for a coffee while we talk about your ex for two hours.”\nThen she hits me with the “I’m not lookin’ for anything serious.” Cool, cool… so why you got a vision board with wedding pictures on your phone background? Make it make sense! | Then she hits me with the “I’m not looking for anything serious.” Cool, cool… so why do you have a vision board with wedding pictures on your phone background? Make it make sense!\nDatin’ in this city is like tryin’ to find a parking spot in Manhattan — everybody wants it, but good luck actually gettin’ one without circlin’ for hours and payin’ a fortune! | Dating in this city is like trying to find a parking spot in Manhattan — everybody wants it, but good luck actually getting one without circling for hours and paying a fortune!\nI swear, by the time I find “the one,” I’m gonna be too old to remember her name! Thank you, goodnight! | I swear, by the time I find “the one,” I’m gonna be too old to remember her name! Thank you, goodnight!`,
-            
-            musical: `[C4]La don[C4]na è [F4]mo-[C4]bile, [G4]Qual piuma al [C4]vento,\n[C4]Mu-[F4]ta d’ac-[C4]cen-[G4]to [C4]E di [F4]pen-[C4]sier!\n[C4]La don[C4]na è [F4]mo-[C4]bile, [G4]Qual piuma al [C4]vento,\n[C4]Mu-[F4]ta d’ac-[C4]cen-[G4]to [C4]E di [F4]pen-[C4]sier!\n[C4]È sem-[F4]pre a-[C4]ma-[G4]bile, [C4]Pre-[F4]zios-[C4]a fi-[G4]gura,\n[C4]La don[C4]na è [F4]mo-[C4]bile, [G4]Qual piuma al [C4]vento!`
+            standard: `Mr. Chairman, ladies and gentlemen:\n\nI appreciate very much your generous invitation to be here tonight. (P:1.5s)\n\nYou bear heavy responsibilities these days and an article I read some time ago reminded me of how particularly heavily the burdens of present day events bear upon your profession. (V:1.2x)`,
+            shadowing: `A: Yo, y’all ever try datin’ in New York? It’s a whole sport, man! | A: Hey, have you all ever tried dating in New York? It’s a whole sport, man!\nSwipe right, swipe left, match, unmatch… I’m exhausted before I even leave my couch! | Swipe right, swipe left, match, unmatch… I’m exhausted before I even leave my couch!\nI do not know | I dunno. (P:1s)`,
+            musical: `[C4]La don[C4]na è [F4]mo-[C4]bile, [G4]Qual piuma al [C4]vento,\n[C4]Mu-[F4]ta d’ac-[C4]cen-[G4]to [C4]E di [F4]pen-[C4]sier! (P:2s)\n[C4]La don[C4]na è [F4]mo-[C4]bile, [G4]Qual piuma al [C4]vento,\n[C4]Mu-[F4]ta d’ac-[C4]cen-[G4]to [C4]E di [F4]pen-[C4]sier! (P:2s)\n[C4]È sem-[F4]pre a-[C4]ma-[G4]bile, [C4]Pre-[F4]zios-[C4]a fi-[G4]gura, (V:0.8x)\n[C4]La don[C4]na è [F4]mo-[C4]bile, [G4]Qual piuma al [C4]vento! (P:3s)`
         };
 
         const seedInitialData = async () => {
-            const p1 = { id: 'seed1', title: 'President John F. Kennedy (Apr 27, 1961)', mode: 'standard', paragraphs: parseText(PRELOAD_TEXTS.standard, 'standard'), timestamp: Date.now() };
-            const p2 = { id: 'seed2', title: 'Shadowing Demo', mode: 'shadowing', paragraphs: parseText(PRELOAD_TEXTS.shadowing, 'shadowing'), timestamp: Date.now() - 1000 };
-            const p3 = { id: 'seed3', title: 'La donna è mobile', mode: 'musical', musicKey: 'C', musicClef: 'G', paragraphs: parseText(PRELOAD_TEXTS.musical, 'musical'), timestamp: Date.now() - 2000 };
-            
-            await dbOps.save(p1);
-            await dbOps.save(p2);
-            await dbOps.save(p3);
+            const p1 = { id: 'seed1', title: 'John F. Kennedy (Apr 27, 1961)', mode: 'standard', paragraphs: parseText(PRELOAD_TEXTS.standard, 'standard'), timestamp: Date.now() };
+            const p2 = { id: 'seed2', title: 'Shadowing Demo (NY Dating)', mode: 'shadowing', paragraphs: parseText(PRELOAD_TEXTS.shadowing, 'shadowing'), timestamp: Date.now() - 1000 };
+            const p3 = { id: 'seed3', title: 'La donna è mobile (Verdi)', mode: 'musical', musicKey: 'C', musicClef: 'G', paragraphs: parseText(PRELOAD_TEXTS.musical, 'musical'), timestamp: Date.now() - 2000 };
+            await dbOps.save(p1); await dbOps.save(p2); await dbOps.save(p3);
             APP_STATE.projects = [p1, p2, p3];
         };
 
+        // --- UI & CINTA CONTEXTUAL ---
         const modeRadios = document.querySelectorAll('input[name="script-mode"]');
-        const helperText = document.getElementById('helper-text');
+        const contextRibbon = document.getElementById('context-ribbon');
         const musicalSettings = document.getElementById('musical-settings');
+        const contentArea = document.getElementById('script-content');
         
-        modeRadios.forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                musicalSettings.classList.remove('active');
-                if(e.target.value === 'shadowing') {
-                    helperText.innerText = "Modo Shadowing: Usa la barra vertical (|) para separar texto fonético del formal.";
-                } else if(e.target.value === 'musical') {
-                    helperText.innerText = "Modo Musical: Escribe la nota científica entre corchetes antes de la sílaba. Ej: [C4]La.";
-                    musicalSettings.classList.add('active');
-                } else {
-                    helperText.innerText = "Modo texto puro. Pega tu guion normalmente.";
-                }
-            });
-        });
+        const updateRibbon = () => {
+            const mode = document.querySelector('input[name="script-mode"]:checked').value;
+            musicalSettings.classList.remove('active');
+            let tPause = currentLang === 'es' ? '⏱️ Pausa: (P:2s)   ⚡ Vel: (V:1.5x)' : '⏱️ Pause: (P:2s)   ⚡ Speed: (V:1.5x)';
+            
+            if(mode === 'shadowing') contextRibbon.innerText = currentLang === 'es' ? `Sintaxis: Formal | Fonético.  ${tPause}` : `Syntax: Formal | Phonetic.  ${tPause}`;
+            else if(mode === 'musical') { contextRibbon.innerText = currentLang === 'es' ? `Sintaxis: [C4]Sílaba.  ${tPause}` : `Syntax: [C4]Syllable.  ${tPause}`; musicalSettings.classList.add('active'); }
+            else contextRibbon.innerText = currentLang === 'es' ? `Texto fluido.  ${tPause}` : `Fluid Text.  ${tPause}`;
+        };
+        modeRadios.forEach(radio => radio.addEventListener('change', updateRibbon));
+        document.getElementById('btn-load-example').addEventListener('click', () => { contentArea.value = PRELOAD_TEXTS[document.querySelector('input[name="script-mode"]:checked').value]; });
 
-        // --- PARSER MATEMÁTICO UNIVERSAL ---
+        // --- 4. PARSER MATEMÁTICO CON TOKENIZACIÓN TEMPORAL ---
+        const extractTimeTags = (text) => {
+            let pMatch = text.match(/\(P:([\d.]+)s\)/i);
+            let vMatch = text.match(/\(V:([\d.]+)x\)/i);
+            let pause = pMatch ? parseFloat(pMatch[1]) : 0;
+            let speed = vMatch ? parseFloat(vMatch[1]) : 1.0;
+            let clean = text.replace(/\(P:[\d.]+s\)/gi, '').replace(/\(V:[\d.]+x\)/gi, '').trim();
+            return { clean, pause, speed };
+        };
+
         const parseText = (raw, mode) => {
             return raw.split(/\n+/).map(p=>p.trim()).filter(p=>p.length>0).map((t, i) => {
+                let tags = extractTimeTags(t);
+                let wBase = tags.clean.length;
                 
-                if (mode === 'shadowing' && t.includes('|')) {
-                    const parts = t.split('|');
-                    const formal = parts[0].trim();
-                    const verbal = parts[1].trim();
-                    const weight = formal.length * 1.5; 
-                    return { id: i, text: formal, phonetic: verbal, weight: weight };
+                if (mode === 'shadowing' && tags.clean.includes('|')) {
+                    const parts = tags.clean.split('|');
+                    return { id: i, text: parts[0].trim(), phonetic: parts[1].trim(), weight: parts[0].trim().length*1.5, pause: tags.pause, speed: tags.speed };
                 }
                 
                 if (mode === 'musical') {
-                    let segments = [];
-                    let parts = t.split('[');
+                    let segments = []; let parts = tags.clean.split('[');
                     parts.forEach((part, index) => {
-                        if (index === 0 && part.length > 0) {
-                            segments.push({ chord: '', text: part });
-                        } else if (part.includes(']')) {
+                        if (index === 0 && part.length > 0) segments.push({ chord: '', text: part });
+                        else if (part.includes(']')) {
                             let splitPart = part.split(']');
                             segments.push({ chord: splitPart[0].trim(), text: splitPart[1] });
                         }
                     });
-                    return { id: i, segments: segments, weight: t.length * 1.2 };
+                    return { id: i, segments: segments, weight: wBase*1.2, pause: tags.pause, speed: tags.speed };
                 }
 
-                const baseWeight = t.length + (t.match(/,/g)||[]).length*15 + (t.match(/\./g)||[]).length*25;
-                return { id: i, text: t, weight: baseWeight };
+                return { id: i, text: tags.clean, weight: wBase + (tags.clean.match(/,/g)||[]).length*15 + (tags.clean.match(/\./g)||[]).length*25, pause: tags.pause, speed: tags.speed };
             });
         };
 
-        document.getElementById('btn-save').addEventListener('click', async () => {
-            const t = document.getElementById('script-title').value.trim() || `Proyecto sin título`;
-            const c = document.getElementById('script-content').value.trim();
+        // --- 5. LÓGICA DE EDICIÓN CIRCULAR ---
+        const btnSave = document.getElementById('btn-save');
+        const titleInput = document.getElementById('script-title');
+        
+        btnSave.addEventListener('click', async () => {
+            const t = titleInput.value.trim() || `Proyecto sin título`;
+            const c = contentArea.value.trim();
             if (!c) return;
             
             const selectedMode = document.querySelector('input[name="script-mode"]:checked').value;
-            let mKey = null; let mClef = null;
-            if(selectedMode === 'musical') {
-                mKey = document.getElementById('music-key').value;
-                mClef = document.getElementById('music-clef').value;
-            }
-            
             const proj = { 
-                id: Date.now().toString(), 
-                title: t, 
-                mode: selectedMode,
-                musicKey: mKey,
-                musicClef: mClef,
-                paragraphs: parseText(c, selectedMode), 
-                timestamp: Date.now() 
+                id: APP_STATE.editingId || Date.now().toString(), 
+                title: t, mode: selectedMode,
+                musicKey: selectedMode === 'musical' ? document.getElementById('music-key').value : null,
+                musicClef: selectedMode === 'musical' ? document.getElementById('music-clef').value : null,
+                paragraphs: parseText(c, selectedMode), timestamp: Date.now() 
             };
             
-            await dbOps.save(proj); APP_STATE.projects.push(proj);
-            document.getElementById('script-title').value = ''; document.getElementById('script-content').value = '';
+            await dbOps.save(proj); 
+            if (APP_STATE.editingId) {
+                APP_STATE.projects = APP_STATE.projects.map(p => p.id === proj.id ? proj : p);
+                APP_STATE.editingId = null;
+                btnSave.classList.remove('update-mode');
+                btnSave.innerText = currentLang === 'es' ? "💾 Guardar Proyecto" : "💾 Save Project";
+            } else {
+                APP_STATE.projects.push(proj);
+            }
+            
+            titleInput.value = ''; contentArea.value = '';
             selectProject(proj.id);
         });
 
+        const loadForEditing = (id) => {
+            const p = APP_STATE.projects.find(x => x.id === id); if(!p) return;
+            APP_STATE.editingId = id;
+            titleInput.value = p.title;
+            
+            let rawContent = p.paragraphs.map(para => {
+                let line = "";
+                if(p.mode === 'shadowing') line = `${para.text} | ${para.phonetic}`;
+                else if(p.mode === 'musical') line = para.segments.map(s => s.chord ? `[${s.chord}]${s.text}` : s.text).join('');
+                else line = para.text;
+                
+                if(para.pause > 0) line += ` (P:${para.pause}s)`;
+                if(para.speed !== 1.0) line += ` (V:${para.speed}x)`;
+                return line;
+            }).join('\n\n');
+            
+            contentArea.value = rawContent;
+            document.querySelector(`input[name="script-mode"][value="${p.mode}"]`).checked = true;
+            if(p.mode === 'musical'){ document.getElementById('music-key').value = p.musicKey; document.getElementById('music-clef').value = p.musicClef; }
+            updateRibbon();
+            
+            btnSave.classList.add('update-mode');
+            btnSave.innerText = currentLang === 'es' ? "🔄 Actualizar Cambios" : "🔄 Update Changes";
+            switchView('view-scripts'); toggleMenu(true);
+        };
+
+        document.getElementById('btn-edit-studio').addEventListener('click', () => loadForEditing(APP_STATE.activeProjectId));
+        document.getElementById('btn-edit-player').addEventListener('click', () => loadForEditing(APP_STATE.activeProjectId));
+
         window.deleteProject = async (id) => {
-            if(!confirm("¿Borrar definitivamente?")) return;
+            if(!confirm(currentLang === 'es' ? "¿Borrar definitivamente?" : "Delete permanently?")) return;
             await dbOps.delete(id); APP_STATE.projects = APP_STATE.projects.filter(p => p.id !== id);
             if(APP_STATE.activeProjectId === id) { APP_STATE.activeProjectId = null; document.getElementById('studio-active-title').innerText = "Sin Guion"; document.getElementById('scroller-studio').innerHTML = ""; document.getElementById('scroller-player').innerHTML = ""; }
             renderList();
@@ -547,7 +595,7 @@
 
         const renderList = () => {
             const container = document.getElementById('projects-container'); container.innerHTML = '';
-            if(APP_STATE.projects.length === 0) return container.innerHTML = '<div style="color:#888;font-size:14px;text-align:center;">No hay proyectos.</div>';
+            if(APP_STATE.projects.length === 0) return container.innerHTML = '<div style="color:#888;font-size:14px;text-align:center;">Empty</div>';
             [...APP_STATE.projects].sort((a,b) => b.timestamp - a.timestamp).forEach(p => {
                 const isActive = p.id === APP_STATE.activeProjectId;
                 const card = document.createElement('div'); card.className = `project-card ${isActive ? 'active-project' : ''}`;
@@ -556,16 +604,18 @@
                 if(p.mode === 'shadowing') modeLabel = '🗣️ SHADOWING';
                 if(p.mode === 'musical') modeLabel = `🎵 MUSICAL (${p.musicKey})`;
                 
+                let btnLoadTxt = currentLang === 'es' ? (isActive ? 'CARGADO' : 'CARGAR') : (isActive ? 'LOADED' : 'LOAD');
+
                 card.innerHTML = `<div class="project-info">
                         <div class="project-title">${p.title}</div>
                         <div class="project-meta">
                             <span class="badge-mode">${modeLabel}</span>
-                            <span>${p.paragraphs.length} líneas | ${p.audioData ? '🎙️ Audio OK' : 'Sin Audio'}</span>
+                            <span>${p.paragraphs.length} blocks | ${p.audioData ? '🎙️ Audio OK' : 'No Audio'}</span>
                         </div>
                     </div>
                     <div class="card-actions">
                         <button class="btn-delete" onclick="deleteProject('${p.id}')"><svg viewBox="0 0 24 24" style="width:18px;height:18px;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
-                        <button class="btn-select" onclick="selectProject('${p.id}')">${isActive ? 'CARGADO' : 'CARGAR'}</button>
+                        <button class="btn-select" onclick="selectProject('${p.id}')">${btnLoadTxt}</button>
                     </div>`;
                 container.appendChild(card);
             });
@@ -579,7 +629,24 @@
                 entries.forEach(e => {
                     if(e.isIntersecting) {
                         const act = e.target; const id = parseInt(act.dataset.id);
-                        if (scrollerElement.id === 'scroller-studio') dPacing = Math.max(0.4, Math.min(1.0 / (parseInt(act.dataset.chars) / (act.getBoundingClientRect().height || 1) || 1.0), 1.5));
+                        
+                        if (scrollerElement.id === 'scroller-studio') {
+                            dPacing = Math.max(0.4, Math.min(1.0 / (parseInt(act.dataset.chars) / (act.getBoundingClientRect().height || 1) || 1.0), 1.5));
+                            
+                            // MOTOR TEMPORAL INTRA-PÁRRAFO
+                            currentSpeedModifier = parseFloat(act.dataset.speed) || 1.0;
+                            const tPause = parseFloat(act.dataset.pause) || 0;
+                            
+                            if (tPause > 0 && isPlayingStudio && !isDragging) {
+                                isScrollPaused = true;
+                                clearTimeout(activePauseTimeout);
+                                activePauseTimeout = setTimeout(() => {
+                                    isScrollPaused = false;
+                                    lastTStudio = performance.now(); // Previene saltos bruscos tras despertar
+                                }, tPause * 1000);
+                            }
+                        }
+                        
                         pr.forEach(p => { const pId = parseInt(p.dataset.id); p.className = `paragraph ${pId < id ? 'past' : (pId === id ? 'present' : 'future')}`; });
                     }
                 });
@@ -593,9 +660,7 @@
             if(isPlayingStudio) togglePlayStudio(false);
             if(isRecording) stopAudioEngine();
             
-            document.getElementById('studio-active-title').innerText = p.title;
-            document.getElementById('player-active-title').innerText = p.title;
-            
+            document.getElementById('studio-active-title').innerText = p.title; document.getElementById('player-active-title').innerText = p.title;
             const scrStudio = document.getElementById('scroller-studio'); scrStudio.innerHTML = '';
             const scrPlayer = document.getElementById('scroller-player'); scrPlayer.innerHTML = '';
             
@@ -603,45 +668,25 @@
                 const pTag = document.createElement('div'); 
                 pTag.className = `paragraph ${i === 0 ? 'present' : 'future'}`;
                 pTag.dataset.id = d.id; pTag.dataset.chars = d.weight; 
+                pTag.dataset.pause = d.pause; pTag.dataset.speed = d.speed;
                 
                 if (p.mode === 'musical' && d.segments) {
-                    const mLine = document.createElement('div');
-                    mLine.className = 'musical-line';
+                    const mLine = document.createElement('div'); mLine.className = 'musical-line';
                     d.segments.forEach(seg => {
-                        const wBlock = document.createElement('span');
-                        wBlock.className = 'chord-word-block';
-                        if(seg.chord) {
-                            const cSpan = document.createElement('span');
-                            cSpan.className = 'chord-text';
-                            cSpan.innerText = seg.chord;
-                            wBlock.appendChild(cSpan);
-                        }
-                        const lSpan = document.createElement('span');
-                        lSpan.className = 'lyric-text';
-                        lSpan.innerText = seg.text;
-                        wBlock.appendChild(lSpan);
-                        mLine.appendChild(wBlock);
+                        const wBlock = document.createElement('span'); wBlock.className = 'chord-word-block';
+                        if(seg.chord) { const cSpan = document.createElement('span'); cSpan.className = 'chord-text'; cSpan.innerText = seg.chord; wBlock.appendChild(cSpan); }
+                        const lSpan = document.createElement('span'); lSpan.className = 'lyric-text'; lSpan.innerText = seg.text;
+                        wBlock.appendChild(lSpan); mLine.appendChild(wBlock);
                     });
                     pTag.appendChild(mLine);
                 } else {
-                    const fSpan = document.createElement('span');
-                    fSpan.className = 'formal-text';
-                    fSpan.innerText = d.text;
-                    pTag.appendChild(fSpan);
-
-                    if(d.phonetic) {
-                        const vSpan = document.createElement('span');
-                        vSpan.className = 'phonetic-text';
-                        vSpan.innerText = d.phonetic;
-                        pTag.appendChild(vSpan);
-                    }
+                    const fSpan = document.createElement('span'); fSpan.className = 'formal-text'; fSpan.innerText = d.text; pTag.appendChild(fSpan);
+                    if(d.phonetic) { const vSpan = document.createElement('span'); vSpan.className = 'phonetic-text'; vSpan.innerText = d.phonetic; pTag.appendChild(vSpan); }
                 }
 
-                scrStudio.appendChild(pTag); 
-                const pTagPlayer = pTag.cloneNode(true); 
-                scrPlayer.appendChild(pTagPlayer);
+                scrStudio.appendChild(pTag); const pTagPlayer = pTag.cloneNode(true); scrPlayer.appendChild(pTagPlayer);
             });
-            currentYStudio = 0; scrStudio.style.transform = `translateY(0px)`; scrPlayer.style.transform = `translateY(0px)`;
+            currentYStudio = 0; isScrollPaused = false; scrStudio.style.transform = `translateY(0px)`; scrPlayer.style.transform = `translateY(0px)`;
             
             if(obsStudio) obsStudio.disconnect(); obsStudio = createIntersectionObserver(scrStudio, 'viewport-studio'); Array.from(scrStudio.querySelectorAll('.paragraph')).forEach(p => obsStudio.observe(p));
             if(obsPlayer) obsPlayer.disconnect(); obsPlayer = createIntersectionObserver(scrPlayer, 'viewport-player'); Array.from(scrPlayer.querySelectorAll('.paragraph')).forEach(p => obsPlayer.observe(p));
@@ -657,65 +702,119 @@
                     a.download = `Audio_${safeTitle}.${extension}`; document.body.appendChild(a); a.click(); document.body.removeChild(a);
                 };
             } else {
-                masterAudio.removeAttribute('src'); btnPlayAudio.disabled = true; btnPlayAudio.innerHTML = 'SIN AUDIO'; btnExport.disabled = true; btnExport.onclick = null;
+                masterAudio.removeAttribute('src'); btnPlayAudio.disabled = true; btnPlayAudio.innerHTML = currentLang==='es'?'SIN AUDIO':'NO AUDIO'; btnExport.disabled = true; btnExport.onclick = null;
             }
             document.getElementById('audio-progress').style.width = '0%';
             if(btnPlayAudio.classList.contains('active')) btnPlayAudio.click(); 
         };
 
+        // --- 6. CONTROLES MENÚ LATERAL ---
         const rootStyles = document.documentElement.style; let cFont = 28;
-        const setFont = (s) => { cFont = Math.max(16, Math.min(s, 48)); document.getElementById('font-size-display').innerText = `${cFont}px`; rootStyles.setProperty('--font-size-p', `${cFont}px`); };
-        document.getElementById('btn-font-plus').addEventListener('click', () => setFont(cFont + 2));
-        document.getElementById('btn-font-minus').addEventListener('click', () => setFont(cFont - 2));
+        document.getElementById('btn-font-plus').addEventListener('click', () => { cFont = Math.min(cFont+2, 48); document.getElementById('font-size-display').innerText = `${cFont}px`; rootStyles.setProperty('--font-size-p', `${cFont}px`); });
+        document.getElementById('btn-font-minus').addEventListener('click', () => { cFont = Math.max(cFont-2, 16); document.getElementById('font-size-display').innerText = `${cFont}px`; rootStyles.setProperty('--font-size-p', `${cFont}px`); });
 
         const cdValues = [0, 3, 5, 10]; let cdIndex = 1;
-        const setCountdown = (idx) => { if(idx < 0) idx = 0; if(idx >= cdValues.length) idx = cdValues.length - 1; cdIndex = idx; document.getElementById('cd-display').innerText = cdValues[cdIndex] + 's'; };
-        document.getElementById('btn-cd-plus').addEventListener('click', () => setCountdown(cdIndex + 1));
-        document.getElementById('btn-cd-minus').addEventListener('click', () => setCountdown(cdIndex - 1));
+        document.getElementById('btn-cd-plus').addEventListener('click', () => { cdIndex = Math.min(cdIndex+1, cdValues.length-1); document.getElementById('cd-display').innerText = cdValues[cdIndex] + 's'; });
+        document.getElementById('btn-cd-minus').addEventListener('click', () => { cdIndex = Math.max(cdIndex-1, 0); document.getElementById('cd-display').innerText = cdValues[cdIndex] + 's'; });
 
-        const toggleMenu = () => { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('sidebar-overlay').classList.toggle('active'); };
-        document.querySelectorAll('.menu-btn, #sidebar-overlay').forEach(e => e.addEventListener('click', toggleMenu));
+        const switchView = (target) => { document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active')); document.getElementById(target).classList.add('active'); };
+        const toggleMenu = (forceClose = false) => { 
+            const sb = document.getElementById('sidebar'); const ol = document.getElementById('sidebar-overlay');
+            if(forceClose) { sb.classList.remove('active'); ol.classList.remove('active'); } else { sb.classList.toggle('active'); ol.classList.toggle('active'); }
+        };
+        document.querySelectorAll('.menu-btn, #sidebar-overlay').forEach(e => e.addEventListener('click', () => toggleMenu()));
         document.querySelectorAll('.sidebar-item[data-target]').forEach(item => {
             item.addEventListener('click', () => {
                 const t = item.getAttribute('data-target');
-                if ((t === 'view-studio' || t === 'view-player') && !APP_STATE.activeProjectId) return alert("Selecciona un Guion primero.");
+                if ((t === 'view-studio' || t === 'view-player') && !APP_STATE.activeProjectId) return alert(currentLang==='es'?"Selecciona un Guion primero.":"Select a script first.");
                 if(isPlayingStudio) togglePlayStudio(false);
                 document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active')); item.classList.add('active');
-                document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active')); document.getElementById(t).classList.add('active');
-                toggleMenu();
+                switchView(t); toggleMenu(true);
             });
         });
 
+        // --- 7. EL METRÓNOMO DE PRECISIÓN ---
+        let metroBpm = 120; let metroBeats = 4; let audioCtxMetro = null;
+        let metroNextNoteTime = 0.0; let currentBeat = 0; let lookahead = 25.0; let scheduleAheadTime = 0.1; let metroTimerID;
+        const btnBpmPlus = document.getElementById('btn-bpm-plus'); const btnBpmMinus = document.getElementById('btn-bpm-minus');
+        const bpmDisplay = document.getElementById('bpm-display'); const metroDot = document.getElementById('metro-dot');
+        const metroModeSelect = document.getElementById('metro-mode'); const metroSigSelect = document.getElementById('metro-sig');
+
+        btnBpmPlus.addEventListener('click', () => { metroBpm = Math.min(metroBpm+5, 240); bpmDisplay.innerText = `${metroBpm} BPM`; });
+        btnBpmMinus.addEventListener('click', () => { metroBpm = Math.max(metroBpm-5, 40); bpmDisplay.innerText = `${metroBpm} BPM`; });
+        metroSigSelect.addEventListener('change', (e) => { metroBeats = parseInt(e.target.value); });
+
+        const scheduleNote = (beatNumber, time) => {
+            const isBeat1 = beatNumber === 0;
+            const mode = metroModeSelect.value;
+            if(mode === 'audio' || mode === 'visual') {
+                setTimeout(() => {
+                    metroDot.className = `metro-indicator ${isBeat1 ? 'beat1' : 'beat-other'}`;
+                    setTimeout(() => metroDot.className = 'metro-indicator', 150);
+                }, (time - audioCtxMetro.currentTime) * 1000);
+            }
+            if (mode === 'audio') {
+                const osc = audioCtxMetro.createOscillator(); osc.connect(audioCtxMetro.destination);
+                osc.frequency.value = isBeat1 ? 1000 : 800; osc.start(time); osc.stop(time + 0.05);
+            }
+        };
+
+        const nextNote = () => { const secondsPerBeat = 60.0 / metroBpm; metroNextNoteTime += secondsPerBeat; currentBeat = (currentBeat + 1) % metroBeats; };
+        const scheduler = () => { while (metroNextNoteTime < audioCtxMetro.currentTime + scheduleAheadTime ) { scheduleNote(currentBeat, metroNextNoteTime); nextNote(); } metroTimerID = setTimeout(scheduler, lookahead); };
+        
+        const startMetronome = () => {
+            if (metroModeSelect.value === 'off') return;
+            if(!audioCtxMetro) audioCtxMetro = new (window.AudioContext || window.webkitAudioContext)();
+            if(audioCtxMetro.state === 'suspended') audioCtxMetro.resume();
+            currentBeat = 0; metroNextNoteTime = audioCtxMetro.currentTime + 0.05;
+            scheduler();
+        };
+        const stopMetronome = () => { clearTimeout(metroTimerID); metroDot.className = 'metro-indicator'; };
+
+        // --- 8. MOTOR ESTUDIO ---
         let isPlayingStudio = false; let gSpeed = 0.60; let dPacing = 1.0; let currentYStudio = 0; let reqFrameStudio = null; let lastTStudio = 0;
+        let isScrollPaused = false; let activePauseTimeout = null; let currentSpeedModifier = 1.0;
         const scrollerStudio = document.getElementById('scroller-studio'); const btnPlayStudio = document.getElementById('btn-play-studio');
         let isDragging = false; let startDragY = 0; let startCurrentY = 0; const viewportStudio = document.getElementById('viewport-studio');
         
-        viewportStudio.addEventListener('touchstart', (e) => { if(!APP_STATE.activeProjectId) return; isDragging = true; startDragY = e.touches[0].clientY; startCurrentY = currentYStudio; if(isPlayingStudio) cancelAnimationFrame(reqFrameStudio); });
+        viewportStudio.addEventListener('touchstart', (e) => { if(!APP_STATE.activeProjectId) return; isDragging = true; startDragY = e.touches[0].clientY; startCurrentY = currentYStudio; if(isPlayingStudio) togglePlayStudio(false); });
         viewportStudio.addEventListener('touchmove', (e) => { if(!isDragging) return; currentYStudio = startCurrentY - (e.touches[0].clientY - startDragY); if(currentYStudio < 0) currentYStudio = 0; scrollerStudio.style.transform = `translateY(-${currentYStudio}px)`; });
-        viewportStudio.addEventListener('touchend', () => { isDragging = false; if(isPlayingStudio && !isRecordingPaused) { lastTStudio = performance.now(); loopStudio(lastTStudio); } });
+        viewportStudio.addEventListener('touchend', () => { isDragging = false; });
 
         const togglePlayStudio = (forceState = null) => {
             isPlayingStudio = forceState !== null ? forceState : !isPlayingStudio;
-            if (isPlayingStudio) { btnPlayStudio.innerHTML = '⏸ PAUSA'; btnPlayStudio.classList.add('active'); lastTStudio = performance.now(); loopStudio(lastTStudio); } 
-            else { btnPlayStudio.innerHTML = '▶ ENSAYAR'; btnPlayStudio.classList.remove('active'); cancelAnimationFrame(reqFrameStudio); }
+            if (isPlayingStudio) { 
+                btnPlayStudio.innerHTML = '⏸ PAUSA'; btnPlayStudio.classList.add('active'); 
+                lastTStudio = performance.now(); loopStudio(lastTStudio); 
+                startMetronome();
+            } else { 
+                btnPlayStudio.innerHTML = currentLang==='es'?'▶ ENSAYAR':'▶ REHEARSE'; btnPlayStudio.classList.remove('active'); 
+                cancelAnimationFrame(reqFrameStudio); stopMetronome();
+                if(isScrollPaused) { clearTimeout(activePauseTimeout); isScrollPaused = false; }
+            }
         };
 
         btnPlayStudio.addEventListener('click', () => { if(APP_STATE.activeProjectId && !isRecording) togglePlayStudio(); });
         document.getElementById('btn-restart-studio').addEventListener('click', () => {
             if(isPlayingStudio) togglePlayStudio(false); if(isRecording) stopAudioEngine();
-            currentYStudio = 0; dPacing = 1.0; scrollerStudio.style.transform = `translateY(0px)`;
+            currentYStudio = 0; dPacing = 1.0; currentSpeedModifier = 1.0; isScrollPaused = false; clearTimeout(activePauseTimeout);
+            scrollerStudio.style.transform = `translateY(0px)`;
             Array.from(scrollerStudio.querySelectorAll('.paragraph')).forEach((p, i) => p.className = `paragraph ${i===0?'present':'future'}`);
         });
 
         function loopStudio(time) {
             if (!isPlayingStudio || isDragging) return;
-            currentYStudio += 0.05 * (time - lastTStudio) * gSpeed * dPacing; lastTStudio = time;
+            if (!isScrollPaused) {
+                currentYStudio += 0.05 * (time - lastTStudio) * gSpeed * dPacing * currentSpeedModifier;
+            }
+            lastTStudio = time;
             scrollerStudio.style.transform = `translateY(-${currentYStudio}px)`; reqFrameStudio = requestAnimationFrame(loopStudio);
         }
 
         document.getElementById('btn-plus').addEventListener('click', () => { gSpeed+=0.05; document.getElementById('speed-display').innerText = gSpeed.toFixed(2); });
         document.getElementById('btn-minus').addEventListener('click', () => { gSpeed=Math.max(0,gSpeed-0.05); document.getElementById('speed-display').innerText = gSpeed.toFixed(2); });
 
+        // --- 9. MOTOR GRABACIÓN ---
         let isRecording = false; let isRecordingPaused = false;
         let mediaRecorder = null; let audioContext = null; let analyser = null; let dataArray = null; let audioChunks = []; let reqFrameVu = null;
         let recordingSeconds = 0; let timerInterval = null; let globalStream = null;
@@ -726,7 +825,7 @@
         const vus = [document.getElementById('vu-1'), document.getElementById('vu-2'), document.getElementById('vu-3'), document.getElementById('vu-4'), document.getElementById('vu-5')];
 
         btnRec.addEventListener('click', async () => {
-            if (!APP_STATE.activeProjectId) return alert("Selecciona un guion para grabar.");
+            if (!APP_STATE.activeProjectId) return alert(currentLang==='es'?"Selecciona un guion para grabar.":"Select a script to record.");
             if (isRecording) { stopAudioEngine(); togglePlayStudio(false); return; }
             try {
                 if (!globalStream) globalStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
@@ -735,7 +834,7 @@
                     overlay.classList.add('active'); overlayNum.innerText = timeLeft;
                     const cdInterval = setInterval(() => { timeLeft--; if(timeLeft > 0) overlayNum.innerText = timeLeft; else { clearInterval(cdInterval); overlay.classList.remove('active'); startAudioEngineAndScroll(); } }, 1000);
                 } else { startAudioEngineAndScroll(); }
-            } catch (err) { alert("Permiso de micrófono denegado."); }
+            } catch (err) { alert(currentLang==='es'?"Permiso de micrófono denegado.":"Mic permission denied."); }
         });
 
         btnPauseRec.addEventListener('click', () => {
@@ -756,8 +855,8 @@
             analyser = audioContext.createAnalyser(); analyser.fftSize = 256; source.connect(analyser); dataArray = new Uint8Array(analyser.frequencyBinCount);
             
             audioChunks = []; let options = {};
-            if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) { options = { mimeType: 'audio/webm;codecs=opus' }; } 
-            else if (MediaRecorder.isTypeSupported('audio/mp4')) { options = { mimeType: 'audio/mp4' }; }
+            if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) options = { mimeType: 'audio/webm;codecs=opus' }; 
+            else if (MediaRecorder.isTypeSupported('audio/mp4')) options = { mimeType: 'audio/mp4' }; 
 
             mediaRecorder = new MediaRecorder(globalStream, options);
             mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) audioChunks.push(e.data); };
@@ -766,14 +865,14 @@
                 const finalY = currentYStudio; 
                 setTimeout(async () => {
                     const mime = mediaRecorder.mimeType || 'audio/webm'; const audioBlob = new Blob(audioChunks, { type: mime }); 
-                    if(audioBlob.size === 0) return alert("El micrófono capturó 0 bytes.");
+                    if(audioBlob.size === 0) return alert("0 bytes captured.");
                     const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
                     if(proj) {
                         try {
                             proj.audioData = await audioBlob.arrayBuffer(); proj.audioMimeType = mime; proj.recordedScrollY = finalY; await dbOps.save(proj);
-                            const titleEl = document.getElementById('studio-active-title'); titleEl.innerText = "¡AUDIO GUARDADO!"; titleEl.style.color = "#FFDD00";
+                            const titleEl = document.getElementById('studio-active-title'); titleEl.innerText = "AUDIO SAVED!"; titleEl.style.color = "#FFDD00";
                             setTimeout(() => selectProject(proj.id), 2000); 
-                        } catch (e) { alert("Error al guardar: " + e); }
+                        } catch (e) { alert("Error: " + e); }
                     }
                 }, 100);
             };
@@ -802,19 +901,18 @@
         };
 
         const drawVUMeter = () => {
-            if (!isRecording) return;
-            if (!isRecordingPaused) {
-                analyser.getByteFrequencyData(dataArray);
-                let sum = 0; for(let i=0; i<dataArray.length; i++) sum += dataArray[i];
-                let level = ((sum / dataArray.length) / 128) * 5; 
-                vus.forEach((bar, index) => {
-                    if (index < level) { bar.style.height = '100%'; if(index === 3) bar.style.backgroundColor = '#FFDD00'; else if(index === 4) bar.style.backgroundColor = 'var(--danger-color)'; else bar.style.backgroundColor = 'var(--theme-studio)'; } 
-                    else { bar.style.height = '4px'; bar.style.backgroundColor = 'var(--theme-studio)'; }
-                });
-            }
+            if (!isRecording || isRecordingPaused) return;
+            analyser.getByteFrequencyData(dataArray);
+            let sum = 0; for(let i=0; i<dataArray.length; i++) sum += dataArray[i];
+            let level = ((sum / dataArray.length) / 128) * 5; 
+            vus.forEach((bar, index) => {
+                if (index < level) { bar.style.height = '100%'; if(index === 3) bar.style.backgroundColor = '#FFDD00'; else if(index === 4) bar.style.backgroundColor = 'var(--danger-color)'; else bar.style.backgroundColor = 'var(--theme-studio)'; } 
+                else { bar.style.height = '4px'; bar.style.backgroundColor = 'var(--theme-studio)'; }
+            });
             reqFrameVu = requestAnimationFrame(drawVUMeter);
         };
 
+        // --- 10. REPRODUCTOR ---
         const masterAudio = document.getElementById('master-audio'); const btnPlayAudio = document.getElementById('btn-play-audio');
         const audioProgress = document.getElementById('audio-progress'); const scrollerPlayer = document.getElementById('scroller-player');
         let reqFramePlayer = null;
@@ -837,13 +935,13 @@
             masterAudio.addEventListener('ended', () => { btnPlayAudio.innerHTML = '▶ ESCUCHAR'; btnPlayAudio.classList.remove('active'); cancelAnimationFrame(reqFramePlayer); });
         }
 
+        // --- ARRANQUE ---
         window.addEventListener('DOMContentLoaded', async () => { 
             try { 
+                detectLang();
                 await initDB(); 
                 APP_STATE.projects = await dbOps.loadAll(); 
-                if (APP_STATE.projects.length === 0) {
-                    await seedInitialData();
-                }
+                if (APP_STATE.projects.length === 0) await seedInitialData();
                 renderList(); 
             } catch(e) {} 
         });
