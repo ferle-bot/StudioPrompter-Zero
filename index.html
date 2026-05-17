@@ -35,37 +35,43 @@
         .view-container.active { display: flex; }
 
         .top-bar { position: fixed; top: 0; left: 0; width: 100%; height: var(--ui-height-top); background-color: var(--surface-color); border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; padding: var(--safe-top) calc(15px + var(--safe-right)) 0 calc(15px + var(--safe-left)); z-index: 100; }
-        .menu-btn { background: none; border: none; color: #FFF; padding: 10px; cursor: pointer; }
-        .brand span { font-weight: bold; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;}
+        
+        /* FIX DE UI: Evita que el título empuje los controles fuera de la pantalla */
+        .top-bar-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; margin-right: 10px; }
+        .top-bar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        
+        .menu-btn { background: none; border: none; color: #FFF; padding: 5px; cursor: pointer; flex-shrink: 0;}
+        .brand { display: flex; align-items: center; overflow: hidden; }
+        .brand span { font-weight: bold; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;}
         
         #top-bar-studio { border-bottom-color: rgba(57,255,20,0.3); } #top-bar-studio .brand span { color: var(--theme-studio); }
         #top-bar-player { border-bottom-color: rgba(0,204,255,0.3); } #top-bar-player .brand span { color: var(--theme-player); }
         #top-bar-scripts { border-bottom-color: rgba(212,175,55,0.3); } #top-bar-scripts .brand span { color: var(--theme-scripts); }
         #top-bar-help { border-bottom-color: rgba(255,255,255,0.3); } #top-bar-help .brand span { color: #FFF; }
 
-        #timer-studio { font-family: monospace; font-size: 20px; color: var(--text-future); }
+        #timer-studio { font-family: monospace; font-size: 16px; color: var(--text-future); }
         #timer-studio.recording { color: var(--danger-color); font-weight: bold; }
         #timer-studio.paused { color: var(--warning-color); font-weight: bold; animation: pulse 1s infinite alternate; }
 
         @keyframes pulse { 0% { opacity: 1; } 100% { opacity: 0.5; } }
 
-        .vu-meter { display: flex; gap: 3px; height: 20px; align-items: flex-end; opacity: 0.3; margin-right: 15px;}
+        .vu-meter { display: flex; gap: 2px; height: 16px; align-items: flex-end; opacity: 0.3; margin-right: 5px;}
         .vu-meter.recording { opacity: 1; }
-        .vu-bar { width: 6px; background-color: var(--theme-studio); border-radius: 2px; height: 4px; transition: height 0.05s ease, background-color 0.1s; }
+        .vu-bar { width: 5px; background-color: var(--theme-studio); border-radius: 2px; height: 4px; transition: height 0.05s ease, background-color 0.1s; }
 
-        /* METRÓNOMO VISUAL */
-        .metro-indicator { width: 12px; height: 12px; border-radius: 50%; background: #333; margin-right: 15px; opacity: 0.2; transition: 0.1s;}
+        .metro-indicator { width: 10px; height: 10px; border-radius: 50%; background: #333; margin-right: 5px; opacity: 0.2; transition: 0.1s; flex-shrink: 0;}
         .metro-indicator.beat1 { background: var(--theme-studio); opacity: 1; box-shadow: 0 0 8px var(--theme-studio); }
         .metro-indicator.beat-other { background: #FFF; opacity: 0.8; }
 
-        .record-controls { display: flex; align-items: center; gap: 10px; }
-        .btn-pause-rec { background: rgba(255,221,0,0.1); border: 1px solid var(--warning-color); color: var(--warning-color); border-radius: 8px; width: 40px; height: 40px; display: none; justify-content: center; align-items: center; cursor: pointer; }
+        .record-controls { display: flex; align-items: center; gap: 8px; }
+        .btn-pause-rec { background: rgba(255,221,0,0.1); border: 1px solid var(--warning-color); color: var(--warning-color); border-radius: 8px; width: 35px; height: 35px; display: none; justify-content: center; align-items: center; cursor: pointer; }
         .btn-pause-rec.visible { display: flex; }
-        .btn-rec { background: transparent; border: 2px solid var(--danger-color); border-radius: 50%; width: 50px; height: 50px; position: relative; display: flex; justify-content: center; align-items: center; cursor: pointer; }
-        .btn-rec::after { content: ''; position: absolute; width: 20px; height: 20px; background: var(--danger-color); border-radius: 50%; transition: 0.3s; }
+        .btn-rec { background: transparent; border: 2px solid var(--danger-color); border-radius: 50%; width: 45px; height: 45px; position: relative; display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0;}
+        .btn-rec::after { content: ''; position: absolute; width: 18px; height: 18px; background: var(--danger-color); border-radius: 50%; transition: 0.3s; }
         .btn-rec.recording { background: rgba(255,51,51,0.1); }
         .btn-rec.recording::after { border-radius: 4px; transform: scale(0.8); }
-        .btn-edit-active { background: rgba(212,175,55,0.15); border: 1px solid var(--theme-scripts); color: var(--theme-scripts); border-radius: 8px; padding: 5px 10px; font-size: 14px; font-weight: bold; cursor: pointer; margin-right: 15px;}
+        
+        .btn-edit-active { background: rgba(212,175,55,0.15); border: 1px solid var(--theme-scripts); color: var(--theme-scripts); border-radius: 8px; padding: 4px 8px; font-size: 12px; font-weight: bold; cursor: pointer; flex-shrink: 0;}
 
         #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s; }
         #sidebar-overlay.active { opacity: 1; pointer-events: auto; }
@@ -80,9 +86,11 @@
         .sidebar-item[data-target="view-scripts"].active { border-left-color: var(--theme-scripts); color: var(--theme-scripts); background: rgba(212,175,55,0.05); }
         .sidebar-item[data-target="view-studio"].active { border-left-color: var(--theme-studio); color: var(--theme-studio); background: rgba(57,255,20,0.05); }
         .sidebar-item[data-target="view-player"].active { border-left-color: var(--theme-player); color: var(--theme-player); background: rgba(0,204,255,0.05); }
+        .sidebar-item[data-target="view-help"].active { border-left-color: #FFF; color: #FFF; background: rgba(255,255,255,0.05); }
 
         #btn-install { display: flex; background: linear-gradient(45deg, var(--theme-scripts), #B8860B); color: #000; font-weight: bold; margin: 10px; border-radius: 8px; border: none; justify-content: center; }
         #btn-donate { color: var(--theme-scripts); border-top: 1px solid #333; margin-top: auto; }
+        #btn-donate:hover { background: rgba(212,175,55,0.1); }
 
         .sidebar-config-panel { padding: 15px 20px; border-bottom: 1px solid #222; display: flex; flex-direction: column; gap: 8px; }
         .config-label { font-size: 12px; color: #888; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
@@ -106,7 +114,6 @@
         .mode-option { display: flex; align-items: center; gap: 5px; color: #CCC; cursor: pointer; padding: 5px 10px; border-radius: 4px;}
         .mode-option input[type="radio"] { accent-color: var(--theme-scripts); }
         
-        /* CINTA CONTEXTUAL */
         #context-ribbon { font-size: 12px; color: var(--theme-scripts); text-align: center; font-style: italic; background: rgba(212,175,55,0.05); padding: 8px; border-radius: 6px; border: 1px dashed rgba(212,175,55,0.3); }
 
         .musical-settings { display: none; gap: 10px; width: 100%; }
@@ -246,9 +253,10 @@
         </a>
     </div>
 
+    <!-- VISTA 1: GESTOR DE GUIONES -->
     <div id="view-scripts" class="view-container active">
         <div class="top-bar" id="top-bar-scripts">
-            <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="top-bar-left">
                 <button class="menu-btn"><svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
                 <div class="brand"><span class="i18n" data-es="Gestor de Guiones" data-en="Script Manager">Gestor de Guiones</span></div>
             </div>
@@ -289,19 +297,20 @@
         </div>
     </div>
 
+    <!-- VISTA 2: EL ESTUDIO -->
     <div id="view-studio" class="view-container">
         <div class="top-bar" id="top-bar-studio">
-            <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="top-bar-left">
                 <button class="menu-btn"><svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
                 <div class="brand"><span id="studio-active-title">Sin Guion</span></div>
             </div>
-            <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="top-bar-right">
                 <button id="btn-edit-studio" class="btn-edit-active" title="Editar Guion Actual">✏️</button>
                 <div class="metro-indicator" id="metro-dot"></div>
                 <div class="vu-meter" id="vu-meter">
                     <div class="vu-bar" id="vu-1"></div><div class="vu-bar" id="vu-2"></div><div class="vu-bar" id="vu-3"></div><div class="vu-bar" id="vu-4"></div><div class="vu-bar" id="vu-5"></div>
                 </div>
-                <div id="timer-studio">00:00:00</div>
+                <div id="timer-studio">00:00</div>
                 <div class="record-controls">
                     <button class="btn-pause-rec" id="btn-pause-rec" title="Pausar Grabación"><svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
                     <button class="btn-rec" id="btn-rec" title="Grabar/Detener"></button>
@@ -327,13 +336,16 @@
         </div>
     </div>
 
+    <!-- VISTA 3: EL REPRODUCTOR -->
     <div id="view-player" class="view-container">
         <div class="top-bar" id="top-bar-player">
-            <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="top-bar-left">
                 <button class="menu-btn"><svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
                 <div class="brand"><span id="player-active-title">Sin Guion</span></div>
             </div>
-            <button id="btn-edit-player" class="btn-edit-active" style="margin-top:0;" title="Editar Guion Actual">✏️</button>
+            <div class="top-bar-right">
+                <button id="btn-edit-player" class="btn-edit-active" title="Editar Guion Actual">✏️</button>
+            </div>
         </div>
         <div class="viewport" id="viewport-player">
             <div class="focus-container"><div class="indicator-player"></div></div>
@@ -354,9 +366,10 @@
         </div>
     </div>
 
+    <!-- VISTA 4: HELP -->
     <div id="view-help" class="view-container">
         <div class="top-bar" id="top-bar-help">
-            <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="top-bar-left">
                 <button class="menu-btn"><svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
                 <div class="brand"><span class="i18n" data-es="Instrucciones" data-en="Syntax Guide">Instrucciones</span></div>
             </div>
@@ -380,7 +393,7 @@
                 
                 <h4>🎵 Modo Musical</h4>
                 <p>Notación americana (*ChordPro*). Escribe la nota entre corchetes <code>[]</code> antes de la sílaba.</p>
-                <p><i>Ej:</i> <code>[C4]La don[C4]na è [F4]mobile</code></p>
+                <p><i>Ej:</i> <code>[C4]La don[C4]na è [F4]mobile (P:2s)</code></p>
             </div>
 
             <div class="help-card" id="help-en" style="display:none;">
@@ -401,13 +414,15 @@
                 
                 <h4>🎵 Musical Mode</h4>
                 <p>Scientific ChordPro notation. Write the chord inside square brackets <code>[]</code> before the syllable.</p>
-                <p><i>Ex:</i> <code>[C4]Twin[C4]kle, [F4]little [C4]star</code></p>
+                <p><i>Ex:</i> <code>[C4]Twin[C4]kle, [F4]little [C4]star (P:2s)</code></p>
             </div>
         </div>
     </div>
 
+    <!-- =========================================
+         MÓDULO: LÓGICA JAVASCRIPT CORE
+         ========================================= -->
     <script>
-        // --- 0. INTERNACIONALIZACIÓN (I18n) ---
         let currentLang = 'es';
         const applyLang = (lang) => {
             currentLang = lang;
@@ -427,21 +442,16 @@
         };
         document.getElementById('btn-lang-toggle').addEventListener('click', () => { applyLang(currentLang === 'es' ? 'en' : 'es'); });
 
-        // --- 1. REGISTRO PWA ---
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/StudioPrompter-Zero/sw.js', { scope: '/StudioPrompter-Zero/' }).catch(()=>{});
-            });
+            window.addEventListener('load', () => { navigator.serviceWorker.register('/StudioPrompter-Zero/sw.js', { scope: '/StudioPrompter-Zero/' }).catch(()=>{}); });
         }
-        let deferredPrompt = null;
-        const btnInstall = document.getElementById('btn-install');
+        let deferredPrompt = null; const btnInstall = document.getElementById('btn-install');
         window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
         btnInstall.addEventListener('click', async () => {
             if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') btnInstall.style.display = 'none'; deferredPrompt = null; } 
             else { alert(currentLang==='es'?"Usa el menú nativo (3 puntos) y selecciona 'Instalar aplicación'.":"Use your browser's native menu and select 'Install app'."); }
         });
 
-        // --- 2. BASE DE DATOS LOCAL ---
         const DB_NAME = 'StudioPrompterDB'; let db;
         const initDB = () => new Promise((res, rej) => {
             const req = indexedDB.open(DB_NAME, 1); req.onerror = () => rej();
@@ -456,7 +466,6 @@
 
         const APP_STATE = { projects: [], activeProjectId: null, editingId: null };
 
-        // --- 3. PRECARGA & EJEMPLOS (CON ETIQUETAS TEMPORALES) ---
         const PRELOAD_TEXTS = {
             standard: `Mr. Chairman, ladies and gentlemen:\n\nI appreciate very much your generous invitation to be here tonight. (P:1.5s)\n\nYou bear heavy responsibilities these days and an article I read some time ago reminded me of how particularly heavily the burdens of present day events bear upon your profession. (V:1.2x)`,
             shadowing: `A: Yo, y’all ever try datin’ in New York? It’s a whole sport, man! | A: Hey, have you all ever tried dating in New York? It’s a whole sport, man!\nSwipe right, swipe left, match, unmatch… I’m exhausted before I even leave my couch! | Swipe right, swipe left, match, unmatch… I’m exhausted before I even leave my couch!\nI do not know | I dunno. (P:1s)`,
@@ -471,7 +480,6 @@
             APP_STATE.projects = [p1, p2, p3];
         };
 
-        // --- UI & CINTA CONTEXTUAL ---
         const modeRadios = document.querySelectorAll('input[name="script-mode"]');
         const contextRibbon = document.getElementById('context-ribbon');
         const musicalSettings = document.getElementById('musical-settings');
@@ -489,97 +497,60 @@
         modeRadios.forEach(radio => radio.addEventListener('change', updateRibbon));
         document.getElementById('btn-load-example').addEventListener('click', () => { contentArea.value = PRELOAD_TEXTS[document.querySelector('input[name="script-mode"]:checked').value]; });
 
-        // --- 4. PARSER MATEMÁTICO CON TOKENIZACIÓN TEMPORAL ---
         const extractTimeTags = (text) => {
-            let pMatch = text.match(/\(P:([\d.]+)s\)/i);
-            let vMatch = text.match(/\(V:([\d.]+)x\)/i);
-            let pause = pMatch ? parseFloat(pMatch[1]) : 0;
-            let speed = vMatch ? parseFloat(vMatch[1]) : 1.0;
+            let pMatch = text.match(/\(P:([\d.]+)s\)/i); let vMatch = text.match(/\(V:([\d.]+)x\)/i);
+            let pause = pMatch ? parseFloat(pMatch[1]) : 0; let speed = vMatch ? parseFloat(vMatch[1]) : 1.0;
             let clean = text.replace(/\(P:[\d.]+s\)/gi, '').replace(/\(V:[\d.]+x\)/gi, '').trim();
             return { clean, pause, speed };
         };
 
         const parseText = (raw, mode) => {
             return raw.split(/\n+/).map(p=>p.trim()).filter(p=>p.length>0).map((t, i) => {
-                let tags = extractTimeTags(t);
-                let wBase = tags.clean.length;
-                
+                let tags = extractTimeTags(t); let wBase = tags.clean.length;
                 if (mode === 'shadowing' && tags.clean.includes('|')) {
-                    const parts = tags.clean.split('|');
-                    return { id: i, text: parts[0].trim(), phonetic: parts[1].trim(), weight: parts[0].trim().length*1.5, pause: tags.pause, speed: tags.speed };
+                    const parts = tags.clean.split('|'); return { id: i, text: parts[0].trim(), phonetic: parts[1].trim(), weight: parts[0].trim().length*1.5, pause: tags.pause, speed: tags.speed };
                 }
-                
                 if (mode === 'musical') {
                     let segments = []; let parts = tags.clean.split('[');
                     parts.forEach((part, index) => {
                         if (index === 0 && part.length > 0) segments.push({ chord: '', text: part });
-                        else if (part.includes(']')) {
-                            let splitPart = part.split(']');
-                            segments.push({ chord: splitPart[0].trim(), text: splitPart[1] });
-                        }
+                        else if (part.includes(']')) { let splitPart = part.split(']'); segments.push({ chord: splitPart[0].trim(), text: splitPart[1] }); }
                     });
                     return { id: i, segments: segments, weight: wBase*1.2, pause: tags.pause, speed: tags.speed };
                 }
-
                 return { id: i, text: tags.clean, weight: wBase + (tags.clean.match(/,/g)||[]).length*15 + (tags.clean.match(/\./g)||[]).length*25, pause: tags.pause, speed: tags.speed };
             });
         };
 
-        // --- 5. LÓGICA DE EDICIÓN CIRCULAR ---
-        const btnSave = document.getElementById('btn-save');
-        const titleInput = document.getElementById('script-title');
-        
+        const btnSave = document.getElementById('btn-save'); const titleInput = document.getElementById('script-title');
         btnSave.addEventListener('click', async () => {
-            const t = titleInput.value.trim() || `Proyecto sin título`;
-            const c = contentArea.value.trim();
-            if (!c) return;
-            
+            const t = titleInput.value.trim() || `Proyecto sin título`; const c = contentArea.value.trim(); if (!c) return;
             const selectedMode = document.querySelector('input[name="script-mode"]:checked').value;
             const proj = { 
-                id: APP_STATE.editingId || Date.now().toString(), 
-                title: t, mode: selectedMode,
+                id: APP_STATE.editingId || Date.now().toString(), title: t, mode: selectedMode,
                 musicKey: selectedMode === 'musical' ? document.getElementById('music-key').value : null,
                 musicClef: selectedMode === 'musical' ? document.getElementById('music-clef').value : null,
                 paragraphs: parseText(c, selectedMode), timestamp: Date.now() 
             };
-            
             await dbOps.save(proj); 
-            if (APP_STATE.editingId) {
-                APP_STATE.projects = APP_STATE.projects.map(p => p.id === proj.id ? proj : p);
-                APP_STATE.editingId = null;
-                btnSave.classList.remove('update-mode');
-                btnSave.innerText = currentLang === 'es' ? "💾 Guardar Proyecto" : "💾 Save Project";
-            } else {
-                APP_STATE.projects.push(proj);
-            }
-            
-            titleInput.value = ''; contentArea.value = '';
-            selectProject(proj.id);
+            if (APP_STATE.editingId) { APP_STATE.projects = APP_STATE.projects.map(p => p.id === proj.id ? proj : p); APP_STATE.editingId = null; btnSave.classList.remove('update-mode'); btnSave.innerText = currentLang === 'es' ? "💾 Guardar Proyecto" : "💾 Save Project"; } 
+            else { APP_STATE.projects.push(proj); }
+            titleInput.value = ''; contentArea.value = ''; selectProject(proj.id);
         });
 
         const loadForEditing = (id) => {
             const p = APP_STATE.projects.find(x => x.id === id); if(!p) return;
-            APP_STATE.editingId = id;
-            titleInput.value = p.title;
-            
+            APP_STATE.editingId = id; titleInput.value = p.title;
             let rawContent = p.paragraphs.map(para => {
                 let line = "";
                 if(p.mode === 'shadowing') line = `${para.text} | ${para.phonetic}`;
                 else if(p.mode === 'musical') line = para.segments.map(s => s.chord ? `[${s.chord}]${s.text}` : s.text).join('');
                 else line = para.text;
-                
-                if(para.pause > 0) line += ` (P:${para.pause}s)`;
-                if(para.speed !== 1.0) line += ` (V:${para.speed}x)`;
-                return line;
+                if(para.pause > 0) line += ` (P:${para.pause}s)`; if(para.speed !== 1.0) line += ` (V:${para.speed}x)`; return line;
             }).join('\n\n');
-            
-            contentArea.value = rawContent;
-            document.querySelector(`input[name="script-mode"][value="${p.mode}"]`).checked = true;
+            contentArea.value = rawContent; document.querySelector(`input[name="script-mode"][value="${p.mode}"]`).checked = true;
             if(p.mode === 'musical'){ document.getElementById('music-key').value = p.musicKey; document.getElementById('music-clef').value = p.musicClef; }
-            updateRibbon();
-            
-            btnSave.classList.add('update-mode');
-            btnSave.innerText = currentLang === 'es' ? "🔄 Actualizar Cambios" : "🔄 Update Changes";
+            updateRibbon(); btnSave.classList.add('update-mode'); btnSave.innerText = currentLang === 'es' ? "🔄 Actualizar Cambios" : "🔄 Update Changes";
             switchView('view-scripts'); toggleMenu(true);
         };
 
@@ -599,24 +570,9 @@
             [...APP_STATE.projects].sort((a,b) => b.timestamp - a.timestamp).forEach(p => {
                 const isActive = p.id === APP_STATE.activeProjectId;
                 const card = document.createElement('div'); card.className = `project-card ${isActive ? 'active-project' : ''}`;
-                
-                let modeLabel = '🎙️ ESTÁNDAR';
-                if(p.mode === 'shadowing') modeLabel = '🗣️ SHADOWING';
-                if(p.mode === 'musical') modeLabel = `🎵 MUSICAL (${p.musicKey})`;
-                
+                let modeLabel = '🎙️ ESTÁNDAR'; if(p.mode === 'shadowing') modeLabel = '🗣️ SHADOWING'; if(p.mode === 'musical') modeLabel = `🎵 MUSICAL (${p.musicKey})`;
                 let btnLoadTxt = currentLang === 'es' ? (isActive ? 'CARGADO' : 'CARGAR') : (isActive ? 'LOADED' : 'LOAD');
-
-                card.innerHTML = `<div class="project-info">
-                        <div class="project-title">${p.title}</div>
-                        <div class="project-meta">
-                            <span class="badge-mode">${modeLabel}</span>
-                            <span>${p.paragraphs.length} blocks | ${p.audioData ? '🎙️ Audio OK' : 'No Audio'}</span>
-                        </div>
-                    </div>
-                    <div class="card-actions">
-                        <button class="btn-delete" onclick="deleteProject('${p.id}')"><svg viewBox="0 0 24 24" style="width:18px;height:18px;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
-                        <button class="btn-select" onclick="selectProject('${p.id}')">${btnLoadTxt}</button>
-                    </div>`;
+                card.innerHTML = `<div class="project-info"><div class="project-title">${p.title}</div><div class="project-meta"><span class="badge-mode">${modeLabel}</span><span>${p.paragraphs.length} blocks | ${p.audioData ? '🎙️ Audio OK' : 'No Audio'}</span></div></div><div class="card-actions"><button class="btn-delete" onclick="deleteProject('${p.id}')"><svg viewBox="0 0 24 24" style="width:18px;height:18px;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button><button class="btn-select" onclick="selectProject('${p.id}')">${btnLoadTxt}</button></div>`;
                 container.appendChild(card);
             });
         };
@@ -629,24 +585,15 @@
                 entries.forEach(e => {
                     if(e.isIntersecting) {
                         const act = e.target; const id = parseInt(act.dataset.id);
-                        
                         if (scrollerElement.id === 'scroller-studio') {
                             dPacing = Math.max(0.4, Math.min(1.0 / (parseInt(act.dataset.chars) / (act.getBoundingClientRect().height || 1) || 1.0), 1.5));
-                            
-                            // MOTOR TEMPORAL INTRA-PÁRRAFO
                             currentSpeedModifier = parseFloat(act.dataset.speed) || 1.0;
                             const tPause = parseFloat(act.dataset.pause) || 0;
-                            
                             if (tPause > 0 && isPlayingStudio && !isDragging) {
-                                isScrollPaused = true;
-                                clearTimeout(activePauseTimeout);
-                                activePauseTimeout = setTimeout(() => {
-                                    isScrollPaused = false;
-                                    lastTStudio = performance.now(); // Previene saltos bruscos tras despertar
-                                }, tPause * 1000);
+                                isScrollPaused = true; clearTimeout(activePauseTimeout);
+                                activePauseTimeout = setTimeout(() => { isScrollPaused = false; lastTStudio = performance.now(); }, tPause * 1000);
                             }
                         }
-                        
                         pr.forEach(p => { const pId = parseInt(p.dataset.id); p.className = `paragraph ${pId < id ? 'past' : (pId === id ? 'present' : 'future')}`; });
                     }
                 });
@@ -654,36 +601,25 @@
         };
 
         window.selectProject = (id) => {
-            APP_STATE.activeProjectId = id;
-            const p = APP_STATE.projects.find(x => x.id === id); if(!p) return;
-            renderList();
-            if(isPlayingStudio) togglePlayStudio(false);
-            if(isRecording) stopAudioEngine();
+            APP_STATE.activeProjectId = id; const p = APP_STATE.projects.find(x => x.id === id); if(!p) return; renderList();
+            if(isPlayingStudio) togglePlayStudio(false); if(isRecording) stopAudioEngine();
             
             document.getElementById('studio-active-title').innerText = p.title; document.getElementById('player-active-title').innerText = p.title;
-            const scrStudio = document.getElementById('scroller-studio'); scrStudio.innerHTML = '';
-            const scrPlayer = document.getElementById('scroller-player'); scrPlayer.innerHTML = '';
+            const scrStudio = document.getElementById('scroller-studio'); scrStudio.innerHTML = ''; const scrPlayer = document.getElementById('scroller-player'); scrPlayer.innerHTML = '';
             
             p.paragraphs.forEach((d, i) => {
-                const pTag = document.createElement('div'); 
-                pTag.className = `paragraph ${i === 0 ? 'present' : 'future'}`;
-                pTag.dataset.id = d.id; pTag.dataset.chars = d.weight; 
-                pTag.dataset.pause = d.pause; pTag.dataset.speed = d.speed;
-                
+                const pTag = document.createElement('div'); pTag.className = `paragraph ${i === 0 ? 'present' : 'future'}`; pTag.dataset.id = d.id; pTag.dataset.chars = d.weight; pTag.dataset.pause = d.pause; pTag.dataset.speed = d.speed;
                 if (p.mode === 'musical' && d.segments) {
                     const mLine = document.createElement('div'); mLine.className = 'musical-line';
                     d.segments.forEach(seg => {
                         const wBlock = document.createElement('span'); wBlock.className = 'chord-word-block';
                         if(seg.chord) { const cSpan = document.createElement('span'); cSpan.className = 'chord-text'; cSpan.innerText = seg.chord; wBlock.appendChild(cSpan); }
-                        const lSpan = document.createElement('span'); lSpan.className = 'lyric-text'; lSpan.innerText = seg.text;
-                        wBlock.appendChild(lSpan); mLine.appendChild(wBlock);
-                    });
-                    pTag.appendChild(mLine);
+                        const lSpan = document.createElement('span'); lSpan.className = 'lyric-text'; lSpan.innerText = seg.text; wBlock.appendChild(lSpan); mLine.appendChild(wBlock);
+                    }); pTag.appendChild(mLine);
                 } else {
                     const fSpan = document.createElement('span'); fSpan.className = 'formal-text'; fSpan.innerText = d.text; pTag.appendChild(fSpan);
                     if(d.phonetic) { const vSpan = document.createElement('span'); vSpan.className = 'phonetic-text'; vSpan.innerText = d.phonetic; pTag.appendChild(vSpan); }
                 }
-
                 scrStudio.appendChild(pTag); const pTagPlayer = pTag.cloneNode(true); scrPlayer.appendChild(pTagPlayer);
             });
             currentYStudio = 0; isScrollPaused = false; scrStudio.style.transform = `translateY(0px)`; scrPlayer.style.transform = `translateY(0px)`;
@@ -693,22 +629,15 @@
 
             const masterAudio = document.getElementById('master-audio'); const btnPlayAudio = document.getElementById('btn-play-audio'); const btnExport = document.getElementById('btn-export-audio');
             if (p.audioData) {
-                const mime = p.audioMimeType || 'audio/webm'; const blob = new Blob([p.audioData], { type: mime });
-                masterAudio.src = URL.createObjectURL(blob);
+                const mime = p.audioMimeType || 'audio/webm'; const blob = new Blob([p.audioData], { type: mime }); masterAudio.src = URL.createObjectURL(blob);
                 btnPlayAudio.disabled = false; btnPlayAudio.innerHTML = '▶ ESCUCHAR'; btnExport.disabled = false; 
-                btnExport.onclick = () => {
-                    const a = document.createElement('a'); a.href = masterAudio.src;
-                    const safeTitle = p.title.replace(/[^a-z0-9]/gi, '_').toLowerCase(); const extension = mime.includes('mp4') ? 'mp4' : 'webm';
-                    a.download = `Audio_${safeTitle}.${extension}`; document.body.appendChild(a); a.click(); document.body.removeChild(a);
-                };
+                btnExport.onclick = () => { const a = document.createElement('a'); a.href = masterAudio.src; const safeTitle = p.title.replace(/[^a-z0-9]/gi, '_').toLowerCase(); const extension = mime.includes('mp4') ? 'mp4' : 'webm'; a.download = `Audio_${safeTitle}.${extension}`; document.body.appendChild(a); a.click(); document.body.removeChild(a); };
             } else {
                 masterAudio.removeAttribute('src'); btnPlayAudio.disabled = true; btnPlayAudio.innerHTML = currentLang==='es'?'SIN AUDIO':'NO AUDIO'; btnExport.disabled = true; btnExport.onclick = null;
             }
-            document.getElementById('audio-progress').style.width = '0%';
-            if(btnPlayAudio.classList.contains('active')) btnPlayAudio.click(); 
+            document.getElementById('audio-progress').style.width = '0%'; if(btnPlayAudio.classList.contains('active')) btnPlayAudio.click(); 
         };
 
-        // --- 6. CONTROLES MENÚ LATERAL ---
         const rootStyles = document.documentElement.style; let cFont = 28;
         document.getElementById('btn-font-plus').addEventListener('click', () => { cFont = Math.min(cFont+2, 48); document.getElementById('font-size-display').innerText = `${cFont}px`; rootStyles.setProperty('--font-size-p', `${cFont}px`); });
         document.getElementById('btn-font-minus').addEventListener('click', () => { cFont = Math.max(cFont-2, 16); document.getElementById('font-size-display').innerText = `${cFont}px`; rootStyles.setProperty('--font-size-p', `${cFont}px`); });
@@ -718,62 +647,24 @@
         document.getElementById('btn-cd-minus').addEventListener('click', () => { cdIndex = Math.max(cdIndex-1, 0); document.getElementById('cd-display').innerText = cdValues[cdIndex] + 's'; });
 
         const switchView = (target) => { document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active')); document.getElementById(target).classList.add('active'); };
-        const toggleMenu = (forceClose = false) => { 
-            const sb = document.getElementById('sidebar'); const ol = document.getElementById('sidebar-overlay');
-            if(forceClose) { sb.classList.remove('active'); ol.classList.remove('active'); } else { sb.classList.toggle('active'); ol.classList.toggle('active'); }
-        };
+        const toggleMenu = (forceClose = false) => { const sb = document.getElementById('sidebar'); const ol = document.getElementById('sidebar-overlay'); if(forceClose) { sb.classList.remove('active'); ol.classList.remove('active'); } else { sb.classList.toggle('active'); ol.classList.toggle('active'); } };
         document.querySelectorAll('.menu-btn, #sidebar-overlay').forEach(e => e.addEventListener('click', () => toggleMenu()));
-        document.querySelectorAll('.sidebar-item[data-target]').forEach(item => {
-            item.addEventListener('click', () => {
-                const t = item.getAttribute('data-target');
-                if ((t === 'view-studio' || t === 'view-player') && !APP_STATE.activeProjectId) return alert(currentLang==='es'?"Selecciona un Guion primero.":"Select a script first.");
-                if(isPlayingStudio) togglePlayStudio(false);
-                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active')); item.classList.add('active');
-                switchView(t); toggleMenu(true);
-            });
-        });
+        document.querySelectorAll('.sidebar-item[data-target]').forEach(item => { item.addEventListener('click', () => { const t = item.getAttribute('data-target'); if ((t === 'view-studio' || t === 'view-player') && !APP_STATE.activeProjectId) return alert(currentLang==='es'?"Selecciona un Guion primero.":"Select a script first."); if(isPlayingStudio) togglePlayStudio(false); document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active')); item.classList.add('active'); switchView(t); toggleMenu(true); }); });
 
-        // --- 7. EL METRÓNOMO DE PRECISIÓN ---
-        let metroBpm = 120; let metroBeats = 4; let audioCtxMetro = null;
-        let metroNextNoteTime = 0.0; let currentBeat = 0; let lookahead = 25.0; let scheduleAheadTime = 0.1; let metroTimerID;
-        const btnBpmPlus = document.getElementById('btn-bpm-plus'); const btnBpmMinus = document.getElementById('btn-bpm-minus');
-        const bpmDisplay = document.getElementById('bpm-display'); const metroDot = document.getElementById('metro-dot');
-        const metroModeSelect = document.getElementById('metro-mode'); const metroSigSelect = document.getElementById('metro-sig');
-
-        btnBpmPlus.addEventListener('click', () => { metroBpm = Math.min(metroBpm+5, 240); bpmDisplay.innerText = `${metroBpm} BPM`; });
-        btnBpmMinus.addEventListener('click', () => { metroBpm = Math.max(metroBpm-5, 40); bpmDisplay.innerText = `${metroBpm} BPM`; });
-        metroSigSelect.addEventListener('change', (e) => { metroBeats = parseInt(e.target.value); });
-
+        let metroBpm = 120; let metroBeats = 4; let audioCtxMetro = null; let metroNextNoteTime = 0.0; let currentBeat = 0; let lookahead = 25.0; let scheduleAheadTime = 0.1; let metroTimerID;
+        const btnBpmPlus = document.getElementById('btn-bpm-plus'); const btnBpmMinus = document.getElementById('btn-bpm-minus'); const bpmDisplay = document.getElementById('bpm-display'); const metroDot = document.getElementById('metro-dot'); const metroModeSelect = document.getElementById('metro-mode'); const metroSigSelect = document.getElementById('metro-sig');
+        btnBpmPlus.addEventListener('click', () => { metroBpm = Math.min(metroBpm+5, 240); bpmDisplay.innerText = `${metroBpm} BPM`; }); btnBpmMinus.addEventListener('click', () => { metroBpm = Math.max(metroBpm-5, 40); bpmDisplay.innerText = `${metroBpm} BPM`; }); metroSigSelect.addEventListener('change', (e) => { metroBeats = parseInt(e.target.value); });
         const scheduleNote = (beatNumber, time) => {
-            const isBeat1 = beatNumber === 0;
-            const mode = metroModeSelect.value;
-            if(mode === 'audio' || mode === 'visual') {
-                setTimeout(() => {
-                    metroDot.className = `metro-indicator ${isBeat1 ? 'beat1' : 'beat-other'}`;
-                    setTimeout(() => metroDot.className = 'metro-indicator', 150);
-                }, (time - audioCtxMetro.currentTime) * 1000);
-            }
-            if (mode === 'audio') {
-                const osc = audioCtxMetro.createOscillator(); osc.connect(audioCtxMetro.destination);
-                osc.frequency.value = isBeat1 ? 1000 : 800; osc.start(time); osc.stop(time + 0.05);
-            }
+            const isBeat1 = beatNumber === 0; const mode = metroModeSelect.value;
+            if(mode === 'audio' || mode === 'visual') { setTimeout(() => { metroDot.className = `metro-indicator ${isBeat1 ? 'beat1' : 'beat-other'}`; setTimeout(() => metroDot.className = 'metro-indicator', 150); }, (time - audioCtxMetro.currentTime) * 1000); }
+            if (mode === 'audio') { const osc = audioCtxMetro.createOscillator(); osc.connect(audioCtxMetro.destination); osc.frequency.value = isBeat1 ? 1000 : 800; osc.start(time); osc.stop(time + 0.05); }
         };
-
         const nextNote = () => { const secondsPerBeat = 60.0 / metroBpm; metroNextNoteTime += secondsPerBeat; currentBeat = (currentBeat + 1) % metroBeats; };
         const scheduler = () => { while (metroNextNoteTime < audioCtxMetro.currentTime + scheduleAheadTime ) { scheduleNote(currentBeat, metroNextNoteTime); nextNote(); } metroTimerID = setTimeout(scheduler, lookahead); };
-        
-        const startMetronome = () => {
-            if (metroModeSelect.value === 'off') return;
-            if(!audioCtxMetro) audioCtxMetro = new (window.AudioContext || window.webkitAudioContext)();
-            if(audioCtxMetro.state === 'suspended') audioCtxMetro.resume();
-            currentBeat = 0; metroNextNoteTime = audioCtxMetro.currentTime + 0.05;
-            scheduler();
-        };
+        const startMetronome = () => { if (metroModeSelect.value === 'off') return; if(!audioCtxMetro) audioCtxMetro = new (window.AudioContext || window.webkitAudioContext)(); if(audioCtxMetro.state === 'suspended') audioCtxMetro.resume(); currentBeat = 0; metroNextNoteTime = audioCtxMetro.currentTime + 0.05; scheduler(); };
         const stopMetronome = () => { clearTimeout(metroTimerID); metroDot.className = 'metro-indicator'; };
 
-        // --- 8. MOTOR ESTUDIO ---
-        let isPlayingStudio = false; let gSpeed = 0.60; let dPacing = 1.0; let currentYStudio = 0; let reqFrameStudio = null; let lastTStudio = 0;
-        let isScrollPaused = false; let activePauseTimeout = null; let currentSpeedModifier = 1.0;
+        let isPlayingStudio = false; let gSpeed = 0.60; let dPacing = 1.0; let currentYStudio = 0; let reqFrameStudio = null; let lastTStudio = 0; let isScrollPaused = false; let activePauseTimeout = null; let currentSpeedModifier = 1.0;
         const scrollerStudio = document.getElementById('scroller-studio'); const btnPlayStudio = document.getElementById('btn-play-studio');
         let isDragging = false; let startDragY = 0; let startCurrentY = 0; const viewportStudio = document.getElementById('viewport-studio');
         
@@ -783,46 +674,28 @@
 
         const togglePlayStudio = (forceState = null) => {
             isPlayingStudio = forceState !== null ? forceState : !isPlayingStudio;
-            if (isPlayingStudio) { 
-                btnPlayStudio.innerHTML = '⏸ PAUSA'; btnPlayStudio.classList.add('active'); 
-                lastTStudio = performance.now(); loopStudio(lastTStudio); 
-                startMetronome();
-            } else { 
-                btnPlayStudio.innerHTML = currentLang==='es'?'▶ ENSAYAR':'▶ REHEARSE'; btnPlayStudio.classList.remove('active'); 
-                cancelAnimationFrame(reqFrameStudio); stopMetronome();
-                if(isScrollPaused) { clearTimeout(activePauseTimeout); isScrollPaused = false; }
-            }
+            if (isPlayingStudio) { btnPlayStudio.innerHTML = '⏸ PAUSA'; btnPlayStudio.classList.add('active'); lastTStudio = performance.now(); loopStudio(lastTStudio); startMetronome(); } 
+            else { btnPlayStudio.innerHTML = currentLang==='es'?'▶ ENSAYAR':'▶ REHEARSE'; btnPlayStudio.classList.remove('active'); cancelAnimationFrame(reqFrameStudio); stopMetronome(); if(isScrollPaused) { clearTimeout(activePauseTimeout); isScrollPaused = false; } }
         };
 
         btnPlayStudio.addEventListener('click', () => { if(APP_STATE.activeProjectId && !isRecording) togglePlayStudio(); });
         document.getElementById('btn-restart-studio').addEventListener('click', () => {
             if(isPlayingStudio) togglePlayStudio(false); if(isRecording) stopAudioEngine();
             currentYStudio = 0; dPacing = 1.0; currentSpeedModifier = 1.0; isScrollPaused = false; clearTimeout(activePauseTimeout);
-            scrollerStudio.style.transform = `translateY(0px)`;
-            Array.from(scrollerStudio.querySelectorAll('.paragraph')).forEach((p, i) => p.className = `paragraph ${i===0?'present':'future'}`);
+            scrollerStudio.style.transform = `translateY(0px)`; Array.from(scrollerStudio.querySelectorAll('.paragraph')).forEach((p, i) => p.className = `paragraph ${i===0?'present':'future'}`);
         });
 
         function loopStudio(time) {
             if (!isPlayingStudio || isDragging) return;
-            if (!isScrollPaused) {
-                currentYStudio += 0.05 * (time - lastTStudio) * gSpeed * dPacing * currentSpeedModifier;
-            }
-            lastTStudio = time;
-            scrollerStudio.style.transform = `translateY(-${currentYStudio}px)`; reqFrameStudio = requestAnimationFrame(loopStudio);
+            if (!isScrollPaused) { currentYStudio += 0.05 * (time - lastTStudio) * gSpeed * dPacing * currentSpeedModifier; }
+            lastTStudio = time; scrollerStudio.style.transform = `translateY(-${currentYStudio}px)`; reqFrameStudio = requestAnimationFrame(loopStudio);
         }
 
         document.getElementById('btn-plus').addEventListener('click', () => { gSpeed+=0.05; document.getElementById('speed-display').innerText = gSpeed.toFixed(2); });
         document.getElementById('btn-minus').addEventListener('click', () => { gSpeed=Math.max(0,gSpeed-0.05); document.getElementById('speed-display').innerText = gSpeed.toFixed(2); });
 
-        // --- 9. MOTOR GRABACIÓN ---
-        let isRecording = false; let isRecordingPaused = false;
-        let mediaRecorder = null; let audioContext = null; let analyser = null; let dataArray = null; let audioChunks = []; let reqFrameVu = null;
-        let recordingSeconds = 0; let timerInterval = null; let globalStream = null;
-
-        const btnRec = document.getElementById('btn-rec'); const btnPauseRec = document.getElementById('btn-pause-rec'); const vuMeter = document.getElementById('vu-meter');
-        const timerStudio = document.getElementById('timer-studio'); const focusIndicator = document.getElementById('studio-focus-indicator');
-        const overlay = document.getElementById('countdown-overlay'); const overlayNum = document.getElementById('countdown-number');
-        const vus = [document.getElementById('vu-1'), document.getElementById('vu-2'), document.getElementById('vu-3'), document.getElementById('vu-4'), document.getElementById('vu-5')];
+        let isRecording = false; let isRecordingPaused = false; let mediaRecorder = null; let audioContext = null; let analyser = null; let dataArray = null; let audioChunks = []; let reqFrameVu = null; let recordingSeconds = 0; let timerInterval = null; let globalStream = null;
+        const btnRec = document.getElementById('btn-rec'); const btnPauseRec = document.getElementById('btn-pause-rec'); const vuMeter = document.getElementById('vu-meter'); const timerStudio = document.getElementById('timer-studio'); const focusIndicator = document.getElementById('studio-focus-indicator'); const overlay = document.getElementById('countdown-overlay'); const overlayNum = document.getElementById('countdown-number'); const vus = [document.getElementById('vu-1'), document.getElementById('vu-2'), document.getElementById('vu-3'), document.getElementById('vu-4'), document.getElementById('vu-5')];
 
         btnRec.addEventListener('click', async () => {
             if (!APP_STATE.activeProjectId) return alert(currentLang==='es'?"Selecciona un guion para grabar.":"Select a script to record.");
@@ -839,111 +712,65 @@
 
         btnPauseRec.addEventListener('click', () => {
             if(!isRecording || !mediaRecorder) return;
-            if(isRecordingPaused) {
-                mediaRecorder.resume(); isRecordingPaused = false; timerStudio.classList.remove('paused');
-                btnPauseRec.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>'; togglePlayStudio(true); 
-            } else {
-                mediaRecorder.pause(); isRecordingPaused = true; timerStudio.classList.add('paused');
-                btnPauseRec.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M8 5v14l11-7z"/></svg>'; togglePlayStudio(false); 
-            }
+            if(isRecordingPaused) { mediaRecorder.resume(); isRecordingPaused = false; timerStudio.classList.remove('paused'); btnPauseRec.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>'; togglePlayStudio(true); } 
+            else { mediaRecorder.pause(); isRecordingPaused = true; timerStudio.classList.add('paused'); btnPauseRec.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M8 5v14l11-7z"/></svg>'; togglePlayStudio(false); }
         });
 
         const startAudioEngineAndScroll = () => {
             if(!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
             if(audioContext.state === 'suspended') audioContext.resume();
-            const source = audioContext.createMediaStreamSource(globalStream);
-            analyser = audioContext.createAnalyser(); analyser.fftSize = 256; source.connect(analyser); dataArray = new Uint8Array(analyser.frequencyBinCount);
-            
+            const source = audioContext.createMediaStreamSource(globalStream); analyser = audioContext.createAnalyser(); analyser.fftSize = 256; source.connect(analyser); dataArray = new Uint8Array(analyser.frequencyBinCount);
             audioChunks = []; let options = {};
-            if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) options = { mimeType: 'audio/webm;codecs=opus' }; 
-            else if (MediaRecorder.isTypeSupported('audio/mp4')) options = { mimeType: 'audio/mp4' }; 
-
-            mediaRecorder = new MediaRecorder(globalStream, options);
-            mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) audioChunks.push(e.data); };
-            
+            if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) options = { mimeType: 'audio/webm;codecs=opus' }; else if (MediaRecorder.isTypeSupported('audio/mp4')) options = { mimeType: 'audio/mp4' }; 
+            mediaRecorder = new MediaRecorder(globalStream, options); mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) audioChunks.push(e.data); };
             mediaRecorder.onstop = async () => {
                 const finalY = currentYStudio; 
                 setTimeout(async () => {
                     const mime = mediaRecorder.mimeType || 'audio/webm'; const audioBlob = new Blob(audioChunks, { type: mime }); 
                     if(audioBlob.size === 0) return alert("0 bytes captured.");
                     const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
-                    if(proj) {
-                        try {
-                            proj.audioData = await audioBlob.arrayBuffer(); proj.audioMimeType = mime; proj.recordedScrollY = finalY; await dbOps.save(proj);
-                            const titleEl = document.getElementById('studio-active-title'); titleEl.innerText = "AUDIO SAVED!"; titleEl.style.color = "#FFDD00";
-                            setTimeout(() => selectProject(proj.id), 2000); 
-                        } catch (e) { alert("Error: " + e); }
-                    }
+                    if(proj) { try { proj.audioData = await audioBlob.arrayBuffer(); proj.audioMimeType = mime; proj.recordedScrollY = finalY; await dbOps.save(proj); document.getElementById('studio-active-title').innerText = "AUDIO SAVED!"; document.getElementById('studio-active-title').style.color = "#FFDD00"; setTimeout(() => selectProject(proj.id), 2000); } catch (e) { alert("Error: " + e); } }
                 }, 100);
             };
-
             mediaRecorder.start(500); isRecording = true; isRecordingPaused = false;
             btnRec.classList.add('recording'); btnPauseRec.classList.add('visible'); btnPauseRec.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
             vuMeter.classList.add('recording'); timerStudio.classList.add('recording'); timerStudio.classList.remove('paused'); focusIndicator.style.background = 'var(--danger-color)';
-            
-            recordingSeconds = 0; timerStudio.innerText = "00:00:00";
+            recordingSeconds = 0; timerStudio.innerText = "00:00";
             timerInterval = setInterval(() => {
                 if(isRecordingPaused) return; recordingSeconds++;
-                const h = Math.floor(recordingSeconds / 3600).toString().padStart(2, '0'); const m = Math.floor((recordingSeconds % 3600) / 60).toString().padStart(2, '0'); const s = (recordingSeconds % 60).toString().padStart(2, '0');
-                timerStudio.innerText = `${h}:${m}:${s}`;
+                const m = Math.floor((recordingSeconds % 3600) / 60).toString().padStart(2, '0'); const s = (recordingSeconds % 60).toString().padStart(2, '0');
+                timerStudio.innerText = `${m}:${s}`;
             }, 1000);
-
             drawVUMeter(); togglePlayStudio(true); 
         };
 
         const stopAudioEngine = () => {
             if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
             if (globalStream) { globalStream.getTracks().forEach(track => track.stop()); globalStream = null; }
-            isRecording = false; isRecordingPaused = false;
-            btnRec.classList.remove('recording'); btnPauseRec.classList.remove('visible');
+            isRecording = false; isRecordingPaused = false; btnRec.classList.remove('recording'); btnPauseRec.classList.remove('visible');
             vuMeter.classList.remove('recording'); timerStudio.classList.remove('recording', 'paused'); focusIndicator.style.background = 'var(--theme-studio)';
             clearInterval(timerInterval); cancelAnimationFrame(reqFrameVu); vus.forEach(v => { v.style.height = '4px'; v.style.backgroundColor = 'var(--theme-studio)'; });
         };
 
         const drawVUMeter = () => {
             if (!isRecording || isRecordingPaused) return;
-            analyser.getByteFrequencyData(dataArray);
-            let sum = 0; for(let i=0; i<dataArray.length; i++) sum += dataArray[i];
+            analyser.getByteFrequencyData(dataArray); let sum = 0; for(let i=0; i<dataArray.length; i++) sum += dataArray[i];
             let level = ((sum / dataArray.length) / 128) * 5; 
             vus.forEach((bar, index) => {
                 if (index < level) { bar.style.height = '100%'; if(index === 3) bar.style.backgroundColor = '#FFDD00'; else if(index === 4) bar.style.backgroundColor = 'var(--danger-color)'; else bar.style.backgroundColor = 'var(--theme-studio)'; } 
                 else { bar.style.height = '4px'; bar.style.backgroundColor = 'var(--theme-studio)'; }
-            });
-            reqFrameVu = requestAnimationFrame(drawVUMeter);
+            }); reqFrameVu = requestAnimationFrame(drawVUMeter);
         };
 
-        // --- 10. REPRODUCTOR ---
-        const masterAudio = document.getElementById('master-audio'); const btnPlayAudio = document.getElementById('btn-play-audio');
-        const audioProgress = document.getElementById('audio-progress'); const scrollerPlayer = document.getElementById('scroller-player');
-        let reqFramePlayer = null;
-
-        function loopPlayer() {
-            if (!masterAudio.paused && masterAudio.duration) {
-                const percent = masterAudio.currentTime / masterAudio.duration;
-                audioProgress.style.width = `${percent * 100}%`;
-                const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
-                if(proj && proj.recordedScrollY) scrollerPlayer.style.transform = `translateY(-${percent * proj.recordedScrollY}px)`;
-                reqFramePlayer = requestAnimationFrame(loopPlayer);
-            }
-        }
-
+        const masterAudio = document.getElementById('master-audio'); const btnPlayAudio = document.getElementById('btn-play-audio'); const audioProgress = document.getElementById('audio-progress'); const scrollerPlayer = document.getElementById('scroller-player'); let reqFramePlayer = null;
+        function loopPlayer() { if (!masterAudio.paused && masterAudio.duration) { const percent = masterAudio.currentTime / masterAudio.duration; audioProgress.style.width = `${percent * 100}%`; const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId); if(proj && proj.recordedScrollY) scrollerPlayer.style.transform = `translateY(-${percent * proj.recordedScrollY}px)`; reqFramePlayer = requestAnimationFrame(loopPlayer); } }
         if (btnPlayAudio && masterAudio) {
-            btnPlayAudio.addEventListener('click', () => {
-                if (masterAudio.paused) { masterAudio.play(); btnPlayAudio.innerHTML = '⏸ PAUSA'; btnPlayAudio.classList.add('active'); reqFramePlayer = requestAnimationFrame(loopPlayer); } 
-                else { masterAudio.pause(); btnPlayAudio.innerHTML = '▶ ESCUCHAR'; btnPlayAudio.classList.remove('active'); cancelAnimationFrame(reqFramePlayer); }
-            });
+            btnPlayAudio.addEventListener('click', () => { if (masterAudio.paused) { masterAudio.play(); btnPlayAudio.innerHTML = '⏸ PAUSA'; btnPlayAudio.classList.add('active'); reqFramePlayer = requestAnimationFrame(loopPlayer); } else { masterAudio.pause(); btnPlayAudio.innerHTML = '▶ ESCUCHAR'; btnPlayAudio.classList.remove('active'); cancelAnimationFrame(reqFramePlayer); } });
             masterAudio.addEventListener('ended', () => { btnPlayAudio.innerHTML = '▶ ESCUCHAR'; btnPlayAudio.classList.remove('active'); cancelAnimationFrame(reqFramePlayer); });
         }
 
-        // --- ARRANQUE ---
         window.addEventListener('DOMContentLoaded', async () => { 
-            try { 
-                detectLang();
-                await initDB(); 
-                APP_STATE.projects = await dbOps.loadAll(); 
-                if (APP_STATE.projects.length === 0) await seedInitialData();
-                renderList(); 
-            } catch(e) {} 
+            try { detectLang(); await initDB(); APP_STATE.projects = await dbOps.loadAll(); if (APP_STATE.projects.length === 0) await seedInitialData(); renderList(); } catch(e) {} 
         });
     </script>
 </body>
