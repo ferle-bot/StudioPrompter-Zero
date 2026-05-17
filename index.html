@@ -35,7 +35,6 @@
         .view-container.active { display: flex; }
 
         .top-bar { position: fixed; top: 0; left: 0; width: 100%; height: var(--ui-height-top); background-color: var(--surface-color); border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; padding: var(--safe-top) calc(15px + var(--safe-right)) 0 calc(15px + var(--safe-left)); z-index: 100; }
-        
         .top-bar-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; margin-right: 10px; }
         .top-bar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
         
@@ -62,8 +61,29 @@
         .metro-indicator { width: 10px; height: 10px; border-radius: 50%; background: #333; margin-right: 5px; opacity: 0.2; transition: 0.1s; flex-shrink: 0;}
         .metro-indicator.beat1 { background: var(--theme-studio); opacity: 1; box-shadow: 0 0 8px var(--theme-studio); }
         .metro-indicator.beat-other { background: #FFF; opacity: 0.8; }
-        
-        #tuner-display { display: none; font-family: monospace; color: var(--theme-scripts); font-weight: bold; font-size: 16px; margin-right: 8px; }
+
+        /* MONITOR DE AFINACIÓN FLOTANTE (HUD) */
+        .floating-tuner {
+            position: absolute;
+            top: calc(var(--ui-height-top) + 20px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(18, 18, 18, 0.85);
+            border: 2px solid var(--theme-scripts);
+            color: var(--theme-scripts);
+            font-family: monospace;
+            font-size: 32px;
+            font-weight: bold;
+            padding: 10px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            z-index: 50;
+            display: none;
+            text-align: center;
+            min-width: 100px;
+            pointer-events: none; /* Para que no interfiera con el scroll manual táctil */
+            transition: opacity 0.2s ease;
+        }
 
         .record-controls { display: flex; align-items: center; gap: 8px; }
         .btn-pause-rec { background: rgba(255,221,0,0.1); border: 1px solid var(--warning-color); color: var(--warning-color); border-radius: 8px; width: 35px; height: 35px; display: none; justify-content: center; align-items: center; cursor: pointer; }
@@ -75,6 +95,7 @@
         
         .btn-edit-active { background: rgba(212,175,55,0.15); border: 1px solid var(--theme-scripts); color: var(--theme-scripts); border-radius: 8px; padding: 4px 8px; font-size: 12px; font-weight: bold; cursor: pointer; flex-shrink: 0;}
 
+        /* SIDEBAR */
         #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s; }
         #sidebar-overlay.active { opacity: 1; pointer-events: auto; }
         #sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--surface-color); z-index: 1001; transition: 0.3s cubic-bezier(0.4,0,0.2,1); display: flex; flex-direction: column; overflow-y: auto;}
@@ -101,6 +122,7 @@
         .settings-controls select { background: transparent; color: var(--theme-studio); border: none; outline: none; font-family: monospace; font-size: 14px; text-align: center; width: 100%; padding: 4px;}
         .settings-display { font-family: monospace; font-size: 14px; color: var(--theme-scripts); }
 
+        /* EDITOR SCRIPTS */
         .workspace-area { position: absolute; top: var(--ui-height-top); bottom: 0; width: 100%; display: flex; flex-direction: column; background: var(--bg-color); overflow-y: auto; padding: 20px; gap: 20px; }
         .editor-card { background: var(--surface-color); border: 1px solid #333; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 12px; max-width: 900px; margin: 0 auto; width: 100%;}
         .editor-input { width: 100%; background: var(--surface-light); border: 1px solid #444; color: #FFF; padding: 15px; border-radius: 8px; font-size: 16px; font-family: var(--font-main); }
@@ -135,6 +157,7 @@
         .btn-select { background: var(--surface-light); color: var(--theme-scripts); border: 1px solid #444; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer;}
         .btn-delete { background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 8px 10px; border-radius: 6px; cursor: pointer;}
 
+        /* VIEWPORT Y SCROLLER */
         .viewport { position: absolute; top: var(--ui-height-top); bottom: var(--ui-height-bottom); width: 100%; display: flex; justify-content: center; overflow: hidden; background-color: var(--bg-color); touch-action: none; }
         .focus-container { position: absolute; top: 50%; left: 0; width: 100%; height: 60px; transform: translateY(-50%); border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 10; pointer-events: none; }
         .indicator-studio { position: absolute; left: calc(10px + var(--safe-left)); top: 50%; transform: translateY(-50%); width: 4px; height: 40px; background: var(--theme-studio); border-radius: 2px; transition: background 0.3s; }
@@ -160,6 +183,7 @@
         #scroller-player .paragraph.present .phonetic-text { opacity: 1; text-shadow: 0 0 8px rgba(212,175,55,0.3); color: #FFF;}
         #scroller-player .paragraph.present .chord-text { opacity: 1; text-shadow: 0 0 8px rgba(212,175,55,0.3); color: #FFF;}
 
+        /* OVERLAYS Y BOTTOM BAR */
         #countdown-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         #countdown-overlay.active { opacity: 1; pointer-events: auto; }
         #countdown-number { font-size: 150px; font-weight: bold; color: var(--danger-color); text-shadow: 0 0 30px rgba(255,51,51,0.5); }
@@ -177,6 +201,7 @@
         .btn-play-studio { background: rgba(57,255,20,0.15); color: var(--theme-studio); border: 1px solid var(--theme-studio); padding: 0 25px; flex-grow: 1; margin-left: 15px; }
         .btn-play-studio.active { background: rgba(57,255,20,0.3); }
 
+        /* CARPETAS DE AYUDA */
         .help-card { background: var(--surface-color); border: 1px solid #333; border-radius: 12px; padding: 20px; color: #CCC; font-size: 15px; line-height: 1.6; max-width: 900px; margin: 0 auto; width: 100%; margin-bottom: 20px;}
         .help-card h3 { color: #FFF; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 10px; }
         .help-card h4 { color: var(--theme-scripts); margin-top: 15px; margin-bottom: 5px;}
@@ -191,6 +216,7 @@
 
     <div id="countdown-overlay"><div id="countdown-number">3</div></div>
 
+    <!-- SIDEBAR -->
     <div id="sidebar-overlay"></div>
     <div id="sidebar">
         <div class="sidebar-header">
@@ -267,6 +293,7 @@
         </a>
     </div>
 
+    <!-- VISTA 1: GESTOR DE GUIONES -->
     <div id="view-scripts" class="view-container active">
         <div class="top-bar" id="top-bar-scripts">
             <div class="top-bar-left">
@@ -310,6 +337,7 @@
         </div>
     </div>
 
+    <!-- VISTA 2: EL ESTUDIO -->
     <div id="view-studio" class="view-container">
         <div class="top-bar" id="top-bar-studio">
             <div class="top-bar-left">
@@ -318,7 +346,6 @@
             </div>
             <div class="top-bar-right">
                 <button id="btn-edit-studio" class="btn-edit-active" title="Editar Guion Actual">✏️</button>
-                <div id="tuner-display">--</div>
                 <div class="metro-indicator" id="metro-dot"></div>
                 <div class="vu-meter" id="vu-meter">
                     <div class="vu-bar" id="vu-1"></div><div class="vu-bar" id="vu-2"></div><div class="vu-bar" id="vu-3"></div><div class="vu-bar" id="vu-4"></div><div class="vu-bar" id="vu-5"></div>
@@ -330,6 +357,10 @@
                 </div>
             </div>
         </div>
+        
+        <!-- MONITOR FLOTANTE HUD -->
+        <div id="floating-tuner" class="floating-tuner">--</div>
+
         <div class="viewport" id="viewport-studio">
             <div class="focus-container"><div class="indicator-studio" id="studio-focus-indicator"></div></div>
             <div class="scroller" id="scroller-studio"></div>
@@ -349,6 +380,7 @@
         </div>
     </div>
 
+    <!-- VISTA 3: EL REPRODUCTOR -->
     <div id="view-player" class="view-container">
         <div class="top-bar" id="top-bar-player">
             <div class="top-bar-left">
@@ -378,6 +410,7 @@
         </div>
     </div>
 
+    <!-- VISTA 4: HELP -->
     <div id="view-help" class="view-container">
         <div class="top-bar" id="top-bar-help">
             <div class="top-bar-left">
@@ -438,14 +471,24 @@
         </div>
     </div>
 
+    <!-- =========================================
+         MÓDULO: LÓGICA JAVASCRIPT CORE
+         ========================================= -->
     <script>
         // --- 0. INTERNACIONALIZACIÓN (I18n) ---
         let currentLang = 'es';
         const applyLang = (lang) => {
             currentLang = lang;
             document.getElementById('btn-lang-toggle').innerText = lang === 'es' ? '🇪🇸 ES' : '🇺🇸 EN';
-            document.querySelectorAll('.i18n').forEach(el => el.innerText = el.getAttribute(`data-${lang}`));
-            document.querySelectorAll('.i18n-ph').forEach(el => el.setAttribute('placeholder', el.getAttribute(`data-${lang}`)));
+            
+            document.querySelectorAll('.i18n').forEach(el => {
+                el.innerText = el.getAttribute(`data-${lang}`);
+            });
+            
+            document.querySelectorAll('.i18n-ph').forEach(el => {
+                el.setAttribute('placeholder', el.getAttribute(`data-${lang}`));
+            });
+            
             document.getElementById('help-es').style.display = lang === 'es' ? 'block' : 'none';
             document.getElementById('help-en').style.display = lang === 'en' ? 'block' : 'none';
             updateRibbon();
@@ -453,7 +496,11 @@
 
         const detectLang = () => {
             const sysLang = navigator.language || navigator.userLanguage;
-            if(sysLang.toLowerCase().startsWith('en')) applyLang('en'); else applyLang('es');
+            if(sysLang.toLowerCase().startsWith('en')) {
+                applyLang('en');
+            } else {
+                applyLang('es');
+            }
         };
         
         document.getElementById('btn-lang-toggle').addEventListener('click', () => { 
@@ -468,7 +515,12 @@
         }
         let deferredPrompt = null;
         const btnInstall = document.getElementById('btn-install');
-        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
+        
+        window.addEventListener('beforeinstallprompt', (e) => { 
+            e.preventDefault(); 
+            deferredPrompt = e; 
+        });
+        
         btnInstall.addEventListener('click', async () => {
             if (deferredPrompt) { 
                 deferredPrompt.prompt(); 
@@ -480,22 +532,35 @@
             }
         });
 
-        // --- 2. BASE DE DATOS LOCAL ---
-        const DB_NAME = 'StudioPrompterDB'; let db;
+        // --- 2. BASE DE DATOS LOCAL (INDEXEDDB) ---
+        const DB_NAME = 'StudioPrompterDB'; 
+        let db;
+        
         const initDB = () => new Promise((res, rej) => {
             const req = indexedDB.open(DB_NAME, 1); 
             req.onerror = () => rej();
             req.onsuccess = (e) => { db = e.target.result; res(); };
             req.onupgradeneeded = (e) => { 
                 db = e.target.result; 
-                if (!db.objectStoreNames.contains('scripts')) db.createObjectStore('scripts', { keyPath: 'id' }); 
+                if (!db.objectStoreNames.contains('scripts')) {
+                    db.createObjectStore('scripts', { keyPath: 'id' }); 
+                }
             };
         });
         
         const dbOps = {
-            save: (proj) => new Promise((res) => { const req = db.transaction(['scripts'], 'readwrite').objectStore('scripts').put(proj); req.onsuccess = res; }),
-            loadAll: () => new Promise((res) => { const req = db.transaction(['scripts'], 'readonly').objectStore('scripts').getAll(); req.onsuccess = () => res(req.result); }),
-            delete: (id) => new Promise((res) => { const req = db.transaction(['scripts'], 'readwrite').objectStore('scripts').delete(id); req.onsuccess = res; })
+            save: (proj) => new Promise((res) => { 
+                const req = db.transaction(['scripts'], 'readwrite').objectStore('scripts').put(proj); 
+                req.onsuccess = res; 
+            }),
+            loadAll: () => new Promise((res) => { 
+                const req = db.transaction(['scripts'], 'readonly').objectStore('scripts').getAll(); 
+                req.onsuccess = () => res(req.result); 
+            }),
+            delete: (id) => new Promise((res) => { 
+                const req = db.transaction(['scripts'], 'readwrite').objectStore('scripts').delete(id); 
+                req.onsuccess = res; 
+            })
         };
 
         const APP_STATE = { projects: [], activeProjectId: null, editingId: null };
@@ -511,7 +576,10 @@
             const p1 = { id: 'seed1', title: 'John F. Kennedy (Apr 27, 1961)', mode: 'standard', paragraphs: parseText(PRELOAD_TEXTS.standard, 'standard'), timestamp: Date.now() };
             const p2 = { id: 'seed2', title: 'Shadowing Demo (NY Dating)', mode: 'shadowing', paragraphs: parseText(PRELOAD_TEXTS.shadowing, 'shadowing'), timestamp: Date.now() - 1000 };
             const p3 = { id: 'seed3', title: 'La donna è mobile (Verdi)', mode: 'musical', musicKey: 'C', musicClef: 'G', paragraphs: parseText(PRELOAD_TEXTS.musical, 'musical'), timestamp: Date.now() - 2000 };
-            await dbOps.save(p1); await dbOps.save(p2); await dbOps.save(p3);
+            
+            await dbOps.save(p1); 
+            await dbOps.save(p2); 
+            await dbOps.save(p3);
             APP_STATE.projects = [p1, p2, p3];
         };
 
@@ -535,7 +603,9 @@
                 contextRibbon.innerText = currentLang === 'es' ? `Texto fluido.  ${tPause}` : `Fluid Text.  ${tPause}`;
             }
         };
+        
         modeRadios.forEach(radio => radio.addEventListener('change', updateRibbon));
+        
         document.getElementById('btn-load-example').addEventListener('click', () => { 
             contentArea.value = PRELOAD_TEXTS[document.querySelector('input[name="script-mode"]:checked').value]; 
         });
@@ -544,9 +614,11 @@
         const extractTimeTags = (text) => {
             let pMatch = text.match(/\(P:([\d.]+)s\)/i);
             let vMatch = text.match(/\(V:([\d.]+)x\)/i);
+            
             let pause = pMatch ? parseFloat(pMatch[1]) : 0;
             let speed = vMatch ? parseFloat(vMatch[1]) : 1.0;
             let clean = text.replace(/\(P:[\d.]+s\)/gi, '').replace(/\(V:[\d.]+x\)/gi, '').trim();
+            
             return { clean, pause, speed };
         };
 
@@ -557,7 +629,14 @@
                 
                 if (mode === 'shadowing' && tags.clean.includes('|')) {
                     const parts = tags.clean.split('|'); 
-                    return { id: i, text: parts[0].trim(), phonetic: parts[1].trim(), weight: parts[0].trim().length*1.5, pause: tags.pause, speed: tags.speed };
+                    return { 
+                        id: i, 
+                        text: parts[0].trim(), 
+                        phonetic: parts[1].trim(), 
+                        weight: parts[0].trim().length * 1.5, 
+                        pause: tags.pause, 
+                        speed: tags.speed 
+                    };
                 }
                 
                 if (mode === 'musical') {
@@ -571,10 +650,22 @@
                             segments.push({ chord: splitPart[0].trim(), text: splitPart[1] }); 
                         }
                     });
-                    return { id: i, segments: segments, weight: wBase*1.2, pause: tags.pause, speed: tags.speed };
+                    return { 
+                        id: i, 
+                        segments: segments, 
+                        weight: wBase * 1.2, 
+                        pause: tags.pause, 
+                        speed: tags.speed 
+                    };
                 }
                 
-                return { id: i, text: tags.clean, weight: wBase + (tags.clean.match(/,/g)||[]).length*15 + (tags.clean.match(/\./g)||[]).length*25, pause: tags.pause, speed: tags.speed };
+                return { 
+                    id: i, 
+                    text: tags.clean, 
+                    weight: wBase + (tags.clean.match(/,/g)||[]).length*15 + (tags.clean.match(/\./g)||[]).length*25, 
+                    pause: tags.pause, 
+                    speed: tags.speed 
+                };
             });
         };
 
@@ -599,6 +690,7 @@
             };
             
             await dbOps.save(proj); 
+            
             if (APP_STATE.editingId) { 
                 APP_STATE.projects = APP_STATE.projects.map(p => p.id === proj.id ? proj : p); 
                 APP_STATE.editingId = null; 
@@ -616,6 +708,7 @@
         const loadForEditing = (id) => {
             const p = APP_STATE.projects.find(x => x.id === id); 
             if(!p) return;
+            
             APP_STATE.editingId = id; 
             titleInput.value = p.title;
             
@@ -632,10 +725,12 @@
             
             contentArea.value = rawContent; 
             document.querySelector(`input[name="script-mode"][value="${p.mode}"]`).checked = true;
+            
             if(p.mode === 'musical'){ 
                 document.getElementById('music-key').value = p.musicKey; 
                 document.getElementById('music-clef').value = p.musicClef; 
             }
+            
             updateRibbon(); 
             btnSave.classList.add('update-mode'); 
             btnSave.innerText = currentLang === 'es' ? "🔄 Actualizar Cambios" : "🔄 Update Changes";
@@ -650,6 +745,7 @@
             if(!confirm(currentLang === 'es' ? "¿Borrar definitivamente?" : "Delete permanently?")) return;
             await dbOps.delete(id); 
             APP_STATE.projects = APP_STATE.projects.filter(p => p.id !== id);
+            
             if(APP_STATE.activeProjectId === id) { 
                 APP_STATE.activeProjectId = null; 
                 document.getElementById('studio-active-title').innerText = "Sin Guion"; 
@@ -662,7 +758,10 @@
         const renderList = () => {
             const container = document.getElementById('projects-container'); 
             container.innerHTML = '';
-            if(APP_STATE.projects.length === 0) return container.innerHTML = '<div style="color:#888;font-size:14px;text-align:center;">Empty</div>';
+            
+            if(APP_STATE.projects.length === 0) {
+                return container.innerHTML = '<div style="color:#888;font-size:14px;text-align:center;">Empty</div>';
+            }
             
             [...APP_STATE.projects].sort((a,b) => b.timestamp - a.timestamp).forEach(p => {
                 const isActive = p.id === APP_STATE.activeProjectId;
@@ -719,6 +818,7 @@
                                 }, tPause * 1000);
                             }
                         }
+                        
                         pr.forEach(p => { 
                             const pId = parseInt(p.dataset.id); 
                             p.className = `paragraph ${pId < id ? 'past' : (pId === id ? 'present' : 'future')}`; 
@@ -834,12 +934,28 @@
 
         // --- CONTROLES MENÚ LATERAL ---
         const rootStyles = document.documentElement.style; let cFont = 28;
-        document.getElementById('btn-font-plus').addEventListener('click', () => { cFont = Math.min(cFont+2, 48); document.getElementById('font-size-display').innerText = `${cFont}px`; rootStyles.setProperty('--font-size-p', `${cFont}px`); });
-        document.getElementById('btn-font-minus').addEventListener('click', () => { cFont = Math.max(cFont-2, 16); document.getElementById('font-size-display').innerText = `${cFont}px`; rootStyles.setProperty('--font-size-p', `${cFont}px`); });
+        
+        document.getElementById('btn-font-plus').addEventListener('click', () => { 
+            cFont = Math.min(cFont+2, 48); 
+            document.getElementById('font-size-display').innerText = `${cFont}px`; 
+            rootStyles.setProperty('--font-size-p', `${cFont}px`); 
+        });
+        
+        document.getElementById('btn-font-minus').addEventListener('click', () => { 
+            cFont = Math.max(cFont-2, 16); 
+            document.getElementById('font-size-display').innerText = `${cFont}px`; 
+            rootStyles.setProperty('--font-size-p', `${cFont}px`); 
+        });
 
         const cdValues = [0, 3, 5, 10]; let cdIndex = 1;
-        document.getElementById('btn-cd-plus').addEventListener('click', () => { cdIndex = Math.min(cdIndex+1, cdValues.length-1); document.getElementById('cd-display').innerText = cdValues[cdIndex] + 's'; });
-        document.getElementById('btn-cd-minus').addEventListener('click', () => { cdIndex = Math.max(cdIndex-1, 0); document.getElementById('cd-display').innerText = cdValues[cdIndex] + 's'; });
+        document.getElementById('btn-cd-plus').addEventListener('click', () => { 
+            cdIndex = Math.min(cdIndex+1, cdValues.length-1); 
+            document.getElementById('cd-display').innerText = cdValues[cdIndex] + 's'; 
+        });
+        document.getElementById('btn-cd-minus').addEventListener('click', () => { 
+            cdIndex = Math.max(cdIndex-1, 0); 
+            document.getElementById('cd-display').innerText = cdValues[cdIndex] + 's'; 
+        });
 
         const switchView = (target) => { 
             document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active')); 
@@ -904,8 +1020,19 @@
             }
         };
         
-        const nextNote = () => { const secondsPerBeat = 60.0 / metroBpm; metroNextNoteTime += secondsPerBeat; currentBeat = (currentBeat + 1) % metroBeats; };
-        const scheduler = () => { while (metroNextNoteTime < audioCtxMetro.currentTime + scheduleAheadTime ) { scheduleNote(currentBeat, metroNextNoteTime); nextNote(); } metroTimerID = setTimeout(scheduler, lookahead); };
+        const nextNote = () => { 
+            const secondsPerBeat = 60.0 / metroBpm; 
+            metroNextNoteTime += secondsPerBeat; 
+            currentBeat = (currentBeat + 1) % metroBeats; 
+        };
+        
+        const scheduler = () => { 
+            while (metroNextNoteTime < audioCtxMetro.currentTime + scheduleAheadTime ) { 
+                scheduleNote(currentBeat, metroNextNoteTime); 
+                nextNote(); 
+            } 
+            metroTimerID = setTimeout(scheduler, lookahead); 
+        };
         
         const startMetronome = () => { 
             if (metroModeSelect.value === 'off') return; 
@@ -915,7 +1042,11 @@
             metroNextNoteTime = audioCtxMetro.currentTime + 0.05; 
             scheduler(); 
         };
-        const stopMetronome = () => { clearTimeout(metroTimerID); metroDot.className = 'metro-indicator'; };
+        
+        const stopMetronome = () => { 
+            clearTimeout(metroTimerID); 
+            metroDot.className = 'metro-indicator'; 
+        };
 
         // --- SISTEMA DE MICRÓFONO Y AUDIO (UNIFICADO) ---
         let globalStream = null;
@@ -927,8 +1058,10 @@
         
         async function getMicStream() {
             if(!globalStream) {
-                // Pedimos el micrófono (con cancelación de eco por defecto)
-                globalStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: false });
+                globalStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: { echoCancellation: true, noiseSuppression: true }, 
+                    video: false 
+                });
             }
             if(!audioContext) {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -937,13 +1070,13 @@
             
             const source = audioContext.createMediaStreamSource(globalStream);
             
-            // Analizador para VU Meter
+            // Analizador VU Meter
             analyserVu = audioContext.createAnalyser(); 
             analyserVu.fftSize = 256; 
             dataArrayVu = new Uint8Array(analyserVu.frequencyBinCount);
             source.connect(analyserVu);
             
-            // Analizador para el Afinador (Mayor resolución)
+            // Analizador Afinador
             analyserTuner = audioContext.createAnalyser();
             analyserTuner.fftSize = 2048;
             source.connect(analyserTuner);
@@ -956,9 +1089,9 @@
             }
         }
 
-        // --- EL AFINADOR (ALGORITMO YIN / AUTOCORRELACIÓN) ---
+        // --- EL AFINADOR (HUD FLOTANTE Y ALGORITMO YIN) ---
         const noteStrings = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
-        const tunerDisplay = document.getElementById('tuner-display');
+        const floatingTuner = document.getElementById('floating-tuner');
         const tunerToggle = document.getElementById('tuner-toggle');
         let reqFrameTuner = null;
 
@@ -1006,9 +1139,11 @@
                 let note = Math.round(12 * (Math.log(freq / 440) / Math.log(2))) + 69;
                 let octave = Math.floor(note / 12) - 1;
                 let noteName = noteStrings[note % 12];
-                tunerDisplay.innerText = noteName + octave;
+                floatingTuner.innerText = noteName + octave;
+                floatingTuner.style.opacity = 1;
             } else {
-                tunerDisplay.innerText = "--";
+                floatingTuner.innerText = "--";
+                floatingTuner.style.opacity = 0.6;
             }
             reqFrameTuner = requestAnimationFrame(updateTunerLoop);
         }
@@ -1023,27 +1158,30 @@
         
         viewportStudio.addEventListener('touchstart', (e) => { 
             if(!APP_STATE.activeProjectId) return; 
-            isDragging = true; startDragY = e.touches[0].clientY; startCurrentY = currentYStudio; 
+            isDragging = true; 
+            startDragY = e.touches[0].clientY; 
+            startCurrentY = currentYStudio; 
             if(isPlayingStudio) togglePlayStudio(false); 
         });
+        
         viewportStudio.addEventListener('touchmove', (e) => { 
             if(!isDragging) return; 
             currentYStudio = startCurrentY - (e.touches[0].clientY - startDragY); 
             if(currentYStudio < 0) currentYStudio = 0; 
             scrollerStudio.style.transform = `translateY(-${currentYStudio}px)`; 
         });
+        
         viewportStudio.addEventListener('touchend', () => { isDragging = false; });
 
         const togglePlayStudio = async (forceState = null) => {
             let nextState = forceState !== null ? forceState : !isPlayingStudio;
             
-            // Lógica de encendido
             if (nextState) { 
                 if (tunerToggle.value === 'on' && !isRecording) {
                     try {
                         await getMicStream();
-                        tunerDisplay.style.display = 'block';
-                        tunerDisplay.innerText = '--';
+                        floatingTuner.style.display = 'block';
+                        floatingTuner.innerText = '--';
                     } catch(e) {
                         alert(currentLang==='es'?"El afinador requiere micrófono.":"Mic required for Tuner.");
                         tunerToggle.value = 'off';
@@ -1062,7 +1200,6 @@
                     updateTunerLoop();
                 }
             } 
-            // Lógica de apagado
             else { 
                 isPlayingStudio = false;
                 btnPlayStudio.innerHTML = currentLang==='es'?'▶ ENSAYAR':'▶ REHEARSE'; 
@@ -1071,21 +1208,29 @@
                 cancelAnimationFrame(reqFrameTuner);
                 stopMetronome(); 
                 
-                tunerDisplay.style.display = 'none';
-                if(isScrollPaused) { clearTimeout(activePauseTimeout); isScrollPaused = false; }
+                floatingTuner.style.display = 'none';
+                if(isScrollPaused) { 
+                    clearTimeout(activePauseTimeout); 
+                    isScrollPaused = false; 
+                }
                 releaseMicStream();
             }
         };
 
-        btnPlayStudio.addEventListener('click', () => { if(APP_STATE.activeProjectId && !isRecording) togglePlayStudio(); });
+        btnPlayStudio.addEventListener('click', () => { 
+            if(APP_STATE.activeProjectId && !isRecording) togglePlayStudio(); 
+        });
         
         document.getElementById('btn-restart-studio').addEventListener('click', () => {
             if(isPlayingStudio) togglePlayStudio(false); 
             if(isRecording) stopAudioEngine();
+            
             currentYStudio = 0; dPacing = 1.0; currentSpeedModifier = 1.0; 
             isScrollPaused = false; clearTimeout(activePauseTimeout);
             scrollerStudio.style.transform = `translateY(0px)`; 
-            Array.from(scrollerStudio.querySelectorAll('.paragraph')).forEach((p, i) => p.className = `paragraph ${i===0?'present':'future'}`);
+            Array.from(scrollerStudio.querySelectorAll('.paragraph')).forEach((p, i) => {
+                p.className = `paragraph ${i===0?'present':'future'}`;
+            });
         });
 
         function loopStudio(time) {
@@ -1098,8 +1243,14 @@
             reqFrameStudio = requestAnimationFrame(loopStudio);
         }
 
-        document.getElementById('btn-plus').addEventListener('click', () => { gSpeed+=0.05; document.getElementById('speed-display').innerText = gSpeed.toFixed(2); });
-        document.getElementById('btn-minus').addEventListener('click', () => { gSpeed=Math.max(0,gSpeed-0.05); document.getElementById('speed-display').innerText = gSpeed.toFixed(2); });
+        document.getElementById('btn-plus').addEventListener('click', () => { 
+            gSpeed+=0.05; 
+            document.getElementById('speed-display').innerText = gSpeed.toFixed(2); 
+        });
+        document.getElementById('btn-minus').addEventListener('click', () => { 
+            gSpeed=Math.max(0,gSpeed-0.05); 
+            document.getElementById('speed-display').innerText = gSpeed.toFixed(2); 
+        });
 
         // --- MOTOR GRABACIÓN ---
         let isRecording = false; let isRecordingPaused = false; 
@@ -1119,14 +1270,19 @@
             if (!APP_STATE.activeProjectId) return alert(currentLang==='es'?"Selecciona un guion para grabar.":"Select a script to record.");
             if (isRecording) { stopAudioEngine(); togglePlayStudio(false); return; }
             try {
-                await getMicStream(); // Activa micro principal
+                await getMicStream(); 
                 let timeLeft = cdValues[cdIndex];
                 if (timeLeft > 0) {
-                    overlay.classList.add('active'); overlayNum.innerText = timeLeft;
+                    overlay.classList.add('active'); 
+                    overlayNum.innerText = timeLeft;
                     const cdInterval = setInterval(() => { 
                         timeLeft--; 
                         if(timeLeft > 0) overlayNum.innerText = timeLeft; 
-                        else { clearInterval(cdInterval); overlay.classList.remove('active'); startAudioEngineAndScroll(); } 
+                        else { 
+                            clearInterval(cdInterval); 
+                            overlay.classList.remove('active'); 
+                            startAudioEngineAndScroll(); 
+                        } 
                     }, 1000);
                 } else { 
                     startAudioEngineAndScroll(); 
@@ -1139,11 +1295,15 @@
         btnPauseRec.addEventListener('click', () => {
             if(!isRecording || !mediaRecorder) return;
             if(isRecordingPaused) { 
-                mediaRecorder.resume(); isRecordingPaused = false; timerStudio.classList.remove('paused'); 
+                mediaRecorder.resume(); 
+                isRecordingPaused = false; 
+                timerStudio.classList.remove('paused'); 
                 btnPauseRec.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>'; 
                 togglePlayStudio(true); 
             } else { 
-                mediaRecorder.pause(); isRecordingPaused = true; timerStudio.classList.add('paused'); 
+                mediaRecorder.pause(); 
+                isRecordingPaused = true; 
+                timerStudio.classList.add('paused'); 
                 btnPauseRec.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M8 5v14l11-7z"/></svg>'; 
                 togglePlayStudio(false); 
             }
@@ -1191,12 +1351,15 @@
             focusIndicator.style.background = 'var(--danger-color)';
             
             if(tunerToggle.value === 'on') {
-                tunerDisplay.style.display = 'block';
+                floatingTuner.style.display = 'block';
             }
             
-            recordingSeconds = 0; timerStudio.innerText = "00:00";
+            recordingSeconds = 0; 
+            timerStudio.innerText = "00:00";
+            
             timerInterval = setInterval(() => {
-                if(isRecordingPaused) return; recordingSeconds++;
+                if(isRecordingPaused) return; 
+                recordingSeconds++;
                 const m = Math.floor((recordingSeconds % 3600) / 60).toString().padStart(2, '0'); 
                 const s = (recordingSeconds % 60).toString().padStart(2, '0');
                 timerStudio.innerText = `${m}:${s}`;
@@ -1208,7 +1371,8 @@
 
         const stopAudioEngine = () => {
             if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
-            isRecording = false; isRecordingPaused = false; 
+            isRecording = false; 
+            isRecordingPaused = false; 
             btnRec.classList.remove('recording'); 
             btnPauseRec.classList.remove('visible');
             vuMeter.classList.remove('recording'); 
