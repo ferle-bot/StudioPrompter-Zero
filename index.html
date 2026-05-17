@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="./assets/images/icon-192.png">
+    <link rel="apple-touch-icon" href="./assets/images/icon-192.png">
+    
     <meta name="theme-color" content="#121212">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -69,7 +72,7 @@
         .vu-meter.recording { opacity: 1; }
         .vu-bar { width: 6px; background-color: var(--theme-studio); border-radius: 2px; height: 4px; transition: height 0.05s ease, background-color 0.1s; }
 
-        /* Controles de Grabación (REC y PAUSA) */
+        /* Controles de Grabación */
         .record-controls { display: flex; align-items: center; gap: 10px; }
         
         .btn-pause-rec {
@@ -322,7 +325,7 @@
             delete: (id) => new Promise((res, rej) => { const req = db.transaction(['scripts'], 'readwrite').objectStore('scripts').delete(id); req.onsuccess = res; })
         };
 
-        // --- 3. ESTADO GLOBAL ---
+        // --- 3. ESTADO GLOBAL Y PARSER ---
         const APP_STATE = { projects: [], activeProjectId: null };
         const parseText = (raw) => raw.split(/\n+/).map(p=>p.trim()).filter(p=>p.length>0).map((t, i) => ({ id: i, text: t, weight: t.length + (t.match(/,/g)||[]).length*15 + (t.match(/\./g)||[]).length*25 }));
 
@@ -361,20 +364,16 @@
         let obsStudio = null;
         let obsPlayer = null;
 
-        // EL SENSOR OPTICO (Se usa tanto en Estudio como en Reproductor)
+        // EL SENSOR ÓPTICO UNIFICADO
         const createIntersectionObserver = (scrollerElement, rootViewportId) => {
             const pr = Array.from(scrollerElement.querySelectorAll('.paragraph'));
             return new IntersectionObserver((entries) => {
                 entries.forEach(e => {
                     if(e.isIntersecting) {
                         const act = e.target; const id = parseInt(act.dataset.id);
-                        
-                        // Si estamos en el estudio, calculamos el freno por densidad
                         if (scrollerElement.id === 'scroller-studio') {
                             dPacing = Math.max(0.4, Math.min(1.0 / (parseInt(act.dataset.chars) / (act.getBoundingClientRect().height || 1) || 1.0), 1.5));
                         }
-                        
-                        // Asignación de colores instantánea y exacta (La Magia Reparada)
                         pr.forEach(p => { 
                             const pId = parseInt(p.dataset.id); 
                             p.className = `paragraph ${pId < id ? 'past' : (pId === id ? 'present' : 'future')}`; 
@@ -404,10 +403,8 @@
                 const pTagPlayer = pTag.cloneNode(true);
                 scrPlayer.appendChild(pTagPlayer);
             });
-            currentYStudio = 0; 
-            scrStudio.style.transform = `translateY(0px)`; scrPlayer.style.transform = `translateY(0px)`;
+            currentYStudio = 0; scrStudio.style.transform = `translateY(0px)`; scrPlayer.style.transform = `translateY(0px)`;
             
-            // Reconectar los dos sensores ópticos independientes
             if(obsStudio) obsStudio.disconnect();
             obsStudio = createIntersectionObserver(scrStudio, 'viewport-studio');
             Array.from(scrStudio.querySelectorAll('.paragraph')).forEach(p => obsStudio.observe(p));
@@ -416,7 +413,7 @@
             obsPlayer = createIntersectionObserver(scrPlayer, 'viewport-player');
             Array.from(scrPlayer.querySelectorAll('.paragraph')).forEach(p => obsPlayer.observe(p));
 
-            // Cargar audio en Reproductor
+            // Configuración del Reproductor Audio
             const masterAudio = document.getElementById('master-audio');
             const btnPlayAudio = document.getElementById('btn-play-audio');
             const btnExport = document.getElementById('btn-export-audio');
@@ -445,7 +442,7 @@
             if(btnPlayAudio.classList.contains('active')) btnPlayAudio.click(); 
         };
 
-        // --- 4. CONFIGURACIONES ---
+        // --- 4. CONFIGURACIONES UI ---
         const rootStyles = document.documentElement.style;
         let cFont = 28;
         const setFont = (s) => { cFont = Math.max(16, Math.min(s, 48)); document.getElementById('font-size-display').innerText = `${cFont}px`; rootStyles.setProperty('--font-size-p', `${cFont}px`); };
@@ -470,9 +467,8 @@
             });
         });
 
-        // --- 5. MOTOR SCROLL GPU Y TOUCH DRAG NATIVO ---
-        let isPlayingStudio = false;
-        let gSpeed = 0.60; let dPacing = 1.0; let currentYStudio = 0; let reqFrameStudio = null; let lastTStudio = 0;
+        // --- 5. MOTOR ESTUDIO ---
+        let isPlayingStudio = false; let gSpeed = 0.60; let dPacing = 1.0; let currentYStudio = 0; let reqFrameStudio = null; let lastTStudio = 0;
         const scrollerStudio = document.getElementById('scroller-studio');
         const btnPlayStudio = document.getElementById('btn-play-studio');
 
@@ -521,7 +517,7 @@
         document.getElementById('btn-plus').addEventListener('click', () => { gSpeed+=0.05; document.getElementById('speed-display').innerText = gSpeed.toFixed(2); });
         document.getElementById('btn-minus').addEventListener('click', () => { gSpeed=Math.max(0,gSpeed-0.05); document.getElementById('speed-display').innerText = gSpeed.toFixed(2); });
 
-        // --- 6. MOTOR AUDIO DSP Y GRABACIÓN ---
+        // --- 6. MOTOR GRABACIÓN AUDIO ---
         let isRecording = false; let isRecordingPaused = false;
         let mediaRecorder = null; let audioContext = null; let analyser = null; let dataArray = null; let audioChunks = []; let reqFrameVu = null;
         let recordingSeconds = 0; let timerInterval = null; let globalStream = null;
@@ -670,7 +666,6 @@
                 const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
                 if(proj && proj.recordedScrollY) {
                     scrollerPlayer.style.transform = `translateY(-${percent * proj.recordedScrollY}px)`;
-                    // El coloreado del texto en Reproductor ahora lo maneja el IntersectionObserver (obsPlayer) de forma 100% óptica.
                 }
                 reqFramePlayer = requestAnimationFrame(loopPlayer);
             }
