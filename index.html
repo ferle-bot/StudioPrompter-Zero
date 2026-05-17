@@ -172,7 +172,6 @@
 
     <div id="countdown-overlay"><div id="countdown-number">3</div></div>
 
-    <!-- SIDEBAR Y CONFIGURACIÓN -->
     <div id="sidebar-overlay"></div>
     <div id="sidebar">
         <div class="sidebar-header">StudioPrompter Zero</div>
@@ -210,7 +209,6 @@
         </div>
     </div>
 
-    <!-- VISTA 1: GESTOR DE GUIONES -->
     <div id="view-scripts" class="view-container active">
         <div class="top-bar" id="top-bar-scripts">
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -220,7 +218,7 @@
         </div>
         <div class="workspace-scripts">
             <div class="editor-card">
-                <input type="text" id="script-title" class="editor-input" placeholder="Título del Proyecto (Ej: Revelaciones)">
+                <input type="text" id="script-title" class="editor-input" placeholder="Título del Proyecto (Ej: Análisis)">
                 <textarea id="script-content" class="editor-input" placeholder="Pega o escribe tu guion aquí..."></textarea>
                 <button class="btn-action" id="btn-save">Guardar Proyecto Local</button>
             </div>
@@ -229,7 +227,6 @@
         </div>
     </div>
 
-    <!-- VISTA 2: EL ESTUDIO -->
     <div id="view-studio" class="view-container">
         <div class="top-bar" id="top-bar-studio">
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -266,7 +263,6 @@
         </div>
     </div>
 
-    <!-- VISTA 3: EL REPRODUCTOR -->
     <div id="view-player" class="view-container">
         <div class="top-bar" id="top-bar-player">
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -282,13 +278,10 @@
         <audio id="master-audio" style="display: none;"></audio>
         <div class="bottom-bar-wrapper">
             <div class="bottom-bar">
-                <!-- Botón Escuchar -->
                 <button class="btn btn-play-audio" id="btn-play-audio" disabled style="background: rgba(0,204,255,0.15); color: var(--theme-player); border: 1px solid var(--theme-player); padding: 0 15px; font-size:14px; width:130px;">SIN AUDIO</button>
-                <!-- Línea de tiempo (Barra de progreso) -->
                 <div style="flex-grow: 1; height: 6px; background: #333; border-radius: 3px; margin: 0 10px; position: relative; overflow: hidden;">
                     <div id="audio-progress" style="position: absolute; left: 0; top: 0; height: 100%; background: var(--theme-player); width: 0%; transition: width 0.1s linear;"></div>
                 </div>
-                <!-- NUEVO: Botón Exportar -->
                 <button class="btn" id="btn-export-audio" disabled style="background: rgba(212,175,55,0.15); color: var(--theme-scripts); border: 1px solid var(--theme-scripts); padding: 0 15px;" title="Descargar Audio">
                     <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
                 </button>
@@ -296,9 +289,6 @@
         </div>
     </div>
 
-    <!-- =========================================
-         MÓDULO: LÓGICA JAVASCRIPT CORE
-         ========================================= -->
     <script>
         // --- 1. REGISTRO PWA ---
         if ('serviceWorker' in navigator) {
@@ -368,7 +358,32 @@
             });
         };
 
-        let obs = null;
+        let obsStudio = null;
+        let obsPlayer = null;
+
+        // EL SENSOR OPTICO (Se usa tanto en Estudio como en Reproductor)
+        const createIntersectionObserver = (scrollerElement, rootViewportId) => {
+            const pr = Array.from(scrollerElement.querySelectorAll('.paragraph'));
+            return new IntersectionObserver((entries) => {
+                entries.forEach(e => {
+                    if(e.isIntersecting) {
+                        const act = e.target; const id = parseInt(act.dataset.id);
+                        
+                        // Si estamos en el estudio, calculamos el freno por densidad
+                        if (scrollerElement.id === 'scroller-studio') {
+                            dPacing = Math.max(0.4, Math.min(1.0 / (parseInt(act.dataset.chars) / (act.getBoundingClientRect().height || 1) || 1.0), 1.5));
+                        }
+                        
+                        // Asignación de colores instantánea y exacta (La Magia Reparada)
+                        pr.forEach(p => { 
+                            const pId = parseInt(p.dataset.id); 
+                            p.className = `paragraph ${pId < id ? 'past' : (pId === id ? 'present' : 'future')}`; 
+                        });
+                    }
+                });
+            }, { root: document.getElementById(rootViewportId), rootMargin: '-48% 0px', threshold: 0 });
+        };
+
         window.selectProject = (id) => {
             APP_STATE.activeProjectId = id;
             const p = APP_STATE.projects.find(x => x.id === id); if(!p) return;
@@ -379,20 +394,29 @@
             document.getElementById('studio-active-title').innerText = p.title;
             document.getElementById('player-active-title').innerText = p.title;
             
-            const scr = document.getElementById('scroller-studio'); scr.innerHTML = '';
+            const scrStudio = document.getElementById('scroller-studio'); scrStudio.innerHTML = '';
             const scrPlayer = document.getElementById('scroller-player'); scrPlayer.innerHTML = '';
             
             p.paragraphs.forEach((d, i) => {
                 const pTag = document.createElement('p'); pTag.className = `paragraph ${i === 0 ? 'present' : 'future'}`;
                 pTag.dataset.id = d.id; pTag.dataset.chars = d.weight; pTag.innerText = d.text; 
-                scr.appendChild(pTag);
+                scrStudio.appendChild(pTag);
                 const pTagPlayer = pTag.cloneNode(true);
                 scrPlayer.appendChild(pTagPlayer);
             });
-            currentYStudio = 0; scr.style.transform = `translateY(0px)`; scrPlayer.style.transform = `translateY(0px)`;
-            reconnectObserver(scr);
+            currentYStudio = 0; 
+            scrStudio.style.transform = `translateY(0px)`; scrPlayer.style.transform = `translateY(0px)`;
+            
+            // Reconectar los dos sensores ópticos independientes
+            if(obsStudio) obsStudio.disconnect();
+            obsStudio = createIntersectionObserver(scrStudio, 'viewport-studio');
+            Array.from(scrStudio.querySelectorAll('.paragraph')).forEach(p => obsStudio.observe(p));
 
-            // Cargar audio en Reproductor desde ArrayBuffer Seguro
+            if(obsPlayer) obsPlayer.disconnect();
+            obsPlayer = createIntersectionObserver(scrPlayer, 'viewport-player');
+            Array.from(scrPlayer.querySelectorAll('.paragraph')).forEach(p => obsPlayer.observe(p));
+
+            // Cargar audio en Reproductor
             const masterAudio = document.getElementById('master-audio');
             const btnPlayAudio = document.getElementById('btn-play-audio');
             const btnExport = document.getElementById('btn-export-audio');
@@ -403,13 +427,10 @@
                 masterAudio.src = URL.createObjectURL(blob);
                 
                 btnPlayAudio.disabled = false; btnPlayAudio.innerHTML = '▶ ESCUCHAR';
-                btnExport.disabled = false; // Habilitar descarga
+                btnExport.disabled = false; 
                 
-                // Lógica de descarga (Exportar)
                 btnExport.onclick = () => {
-                    const a = document.createElement('a');
-                    a.href = masterAudio.src;
-                    // Limpia el título para usarlo como nombre de archivo
+                    const a = document.createElement('a'); a.href = masterAudio.src;
                     const safeTitle = p.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
                     const extension = mime.includes('mp4') ? 'mp4' : 'webm';
                     a.download = `Audio_${safeTitle}.${extension}`;
@@ -455,7 +476,6 @@
         const scrollerStudio = document.getElementById('scroller-studio');
         const btnPlayStudio = document.getElementById('btn-play-studio');
 
-        // Touch Drag (Avance Manual en Estudio)
         let isDragging = false; let startDragY = 0; let startCurrentY = 0;
         const viewportStudio = document.getElementById('viewport-studio');
         
@@ -500,21 +520,6 @@
 
         document.getElementById('btn-plus').addEventListener('click', () => { gSpeed+=0.05; document.getElementById('speed-display').innerText = gSpeed.toFixed(2); });
         document.getElementById('btn-minus').addEventListener('click', () => { gSpeed=Math.max(0,gSpeed-0.05); document.getElementById('speed-display').innerText = gSpeed.toFixed(2); });
-
-        const reconnectObserver = (scr) => {
-            const pr = Array.from(scr.querySelectorAll('.paragraph'));
-            if(obs) obs.disconnect();
-            obs = new IntersectionObserver((entries) => {
-                entries.forEach(e => {
-                    if(e.isIntersecting) {
-                        const act = e.target; const id = parseInt(act.dataset.id);
-                        dPacing = Math.max(0.4, Math.min(1.0 / (parseInt(act.dataset.chars) / (act.getBoundingClientRect().height || 1) || 1.0), 1.5));
-                        pr.forEach(p => { const pId = parseInt(p.dataset.id); p.className = `paragraph ${pId < id ? 'past' : (pId === id ? 'present' : 'future')}`; });
-                    }
-                });
-            }, { root: document.getElementById('view-studio').querySelector('.viewport'), rootMargin: '-48% 0px', threshold: 0 });
-            pr.forEach(p => obs.observe(p));
-        };
 
         // --- 6. MOTOR AUDIO DSP Y GRABACIÓN ---
         let isRecording = false; let isRecordingPaused = false;
@@ -580,9 +585,7 @@
             mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) audioChunks.push(e.data); };
             
             mediaRecorder.onstop = async () => {
-                // CAPTURA VITAL: El momento exacto donde el usuario detuvo el scroll (Evita Desfase)
                 const finalY = currentYStudio; 
-                
                 setTimeout(async () => {
                     const mime = mediaRecorder.mimeType || 'audio/webm';
                     const audioBlob = new Blob(audioChunks, { type: mime }); 
@@ -593,7 +596,7 @@
                         try {
                             proj.audioData = await audioBlob.arrayBuffer(); 
                             proj.audioMimeType = mime;
-                            proj.recordedScrollY = finalY; // LA MAGIA: Guardar coordenada
+                            proj.recordedScrollY = finalY; 
                             await dbOps.save(proj);
                             
                             const titleEl = document.getElementById('studio-active-title');
@@ -666,13 +669,8 @@
                 
                 const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
                 if(proj && proj.recordedScrollY) {
-                    // Ahora se mueve solo hasta la coordenada Y donde paraste de grabar
                     scrollerPlayer.style.transform = `translateY(-${percent * proj.recordedScrollY}px)`;
-                    
-                    const prs = Array.from(scrollerPlayer.querySelectorAll('.paragraph'));
-                    // Determinar qué párrafo está activo matemáticamente (aproximación visual)
-                    const aIdx = Math.floor(percent * (proj.recordedScrollY / (scrollerPlayer.scrollHeight / prs.length)));
-                    prs.forEach((p, i) => { p.className = `paragraph ${i < aIdx ? 'past' : (i === aIdx ? 'present' : 'future')}`; });
+                    // El coloreado del texto en Reproductor ahora lo maneja el IntersectionObserver (obsPlayer) de forma 100% óptica.
                 }
                 reqFramePlayer = requestAnimationFrame(loopPlayer);
             }
