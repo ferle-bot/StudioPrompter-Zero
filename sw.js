@@ -1,18 +1,19 @@
-const CACHE_NAME = 'studioprompter-cache-v2.0';
+const CACHE_NAME = 'studioprompter-cache-v3.0';
 
+// RUTAS ABSOLUTAS: El antídoto para el 404 de GitHub Pages
 const ASSETS = [
-    './',
-    'index.html',
-    'manifest.json',
-    'assets/images/icon-192.png',
-    'assets/images/icon-512.png'
+    '/StudioPrompter-Zero/',
+    '/StudioPrompter-Zero/index.html',
+    '/StudioPrompter-Zero/manifest.json',
+    '/StudioPrompter-Zero/assets/images/icon-192.png',
+    '/StudioPrompter-Zero/assets/images/icon-512.png'
 ];
 
-// Instalación Segura: Promise.allSettled asegura que si falta un icono, no colapse todo.
 self.addEventListener('install', (event) => {
     self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
+            console.log('[SW] Instalando caché estricta...');
             return Promise.allSettled(
                 ASSETS.map(asset => cache.add(asset).catch(err => console.warn(`Fallo al cachear: ${asset}`, err)))
             );
@@ -20,7 +21,6 @@ self.addEventListener('install', (event) => {
     );
 });
 
-// Limpieza de memoria vieja
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((cacheNames) => {
@@ -33,12 +33,9 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-// Interceptor "Network First" con protección contra bots
+// Network First con filtro de seguridad
 self.addEventListener('fetch', (event) => {
-    // Filtro antibloqueo para PWABuilder (Ignora extensiones y esquemas raros)
-    if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) {
-        return;
-    }
+    if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) return;
 
     event.respondWith(
         fetch(event.request)
