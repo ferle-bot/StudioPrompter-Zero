@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
-    <!-- RUTAS ABSOLUTAS PARA GITHUB PAGES -->
     <link rel="manifest" href="/StudioPrompter-Zero/manifest.json">
     <link rel="icon" type="image/png" sizes="192x192" href="/StudioPrompter-Zero/assets/images/icon-192.png">
     <link rel="apple-touch-icon" href="/StudioPrompter-Zero/assets/images/icon-192.png">
@@ -97,7 +96,7 @@
         .sidebar-item[data-target="view-studio"].active { border-left-color: var(--theme-studio); color: var(--theme-studio); background: rgba(57,255,20,0.05); }
         .sidebar-item[data-target="view-player"].active { border-left-color: var(--theme-player); color: var(--theme-player); background: rgba(0,204,255,0.05); }
 
-        #btn-install { display: none; background: linear-gradient(45deg, var(--theme-scripts), #B8860B); color: #000; font-weight: bold; margin: 10px; border-radius: 8px; border: none; justify-content: center; }
+        #btn-install { display: flex; background: linear-gradient(45deg, var(--theme-scripts), #B8860B); color: #000; font-weight: bold; margin: 10px; border-radius: 8px; border: none; justify-content: center; }
 
         .sidebar-config-panel { padding: 20px; border-bottom: 1px solid #222; display: flex; flex-direction: column; gap: 10px; }
         .config-label { font-size: 12px; color: #888; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
@@ -110,16 +109,24 @@
         .editor-card { background: var(--surface-color); border: 1px solid #333; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 15px; max-width: 900px; margin: 0 auto; width: 100%;}
         .editor-input { width: 100%; background: var(--surface-light); border: 1px solid #444; color: #FFF; padding: 15px; border-radius: 8px; font-size: 16px; font-family: var(--font-main); }
         .editor-input:focus { outline: 1px solid var(--theme-scripts); border-color: var(--theme-scripts); }
-        textarea.editor-input { resize: none; height: 180px; user-select: text; }
+        textarea.editor-input { resize: none; height: 220px; user-select: text; }
         .btn-action { background: var(--theme-scripts); color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; text-transform: uppercase; }
         
+        .mode-selector { display: flex; flex-wrap: wrap; gap: 10px; font-size: 14px; background: #0A0A0A; padding: 10px; border-radius: 8px; border: 1px solid #222; }
+        .mode-option { display: flex; align-items: center; gap: 5px; color: #CCC; cursor: pointer; padding: 5px 10px; border-radius: 4px; transition: 0.2s;}
+        .mode-option:hover { background: rgba(255,255,255,0.05); }
+        .mode-option input[type="radio"] { accent-color: var(--theme-scripts); }
+        .mode-option.disabled { opacity: 0.4; cursor: not-allowed; }
+        #helper-text { font-size: 12px; color: #888; font-style: italic; margin-top: -5px; }
+
         .project-list-header { font-size: 14px; color: var(--text-future); text-transform: uppercase; font-weight: bold; margin-top: 10px; border-bottom: 1px solid #333; padding-bottom: 10px; max-width: 900px; margin: 10px auto 0; width: 100%;}
         #projects-container { max-width: 900px; margin: 0 auto; width: 100%; }
         .project-card { background: var(--surface-color); border: 1px solid #333; border-radius: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;}
         .project-card.active-project { border-color: var(--theme-scripts); background: rgba(212,175,55,0.05); }
         .project-info { display: flex; flex-direction: column; gap: 5px; flex-grow: 1; min-width: 150px;}
         .project-title { font-weight: bold; font-size: 18px; color: #FFF; }
-        .project-meta { font-size: 12px; color: var(--text-future); }
+        .project-meta { font-size: 12px; color: var(--text-future); display: flex; align-items: center; gap: 8px;}
+        .badge-mode { background: #333; padding: 2px 6px; border-radius: 4px; font-size: 10px; color: #FFF; text-transform: uppercase;}
         
         .card-actions { display: flex; gap: 10px; }
         .btn-select { background: var(--surface-light); color: var(--theme-scripts); border: 1px solid #444; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer;}
@@ -133,10 +140,17 @@
 
         .scroller { position: absolute; width: 95%; max-width: 900px; padding-top: calc(50vh - (var(--ui-height-top) + var(--ui-height-bottom))/2); padding-bottom: 50vh; will-change: transform; }
 
-        .paragraph { font-size: var(--font-size-p); font-weight: 500; line-height: 1.5; margin-bottom: 45px; text-align: center; color: var(--text-future); transform-origin: center center; transition: color 0.3s, transform 0.3s, opacity 0.3s; opacity: 0.5; }
+        /* Renderizado Dual Shadowing */
+        .paragraph { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: var(--font-size-p); font-weight: 500; line-height: 1.5; margin-bottom: 45px; text-align: center; color: var(--text-future); transform-origin: center center; transition: color 0.3s, transform 0.3s, opacity 0.3s; opacity: 0.5; }
+        .formal-text { display: block; width: 100%; }
+        .phonetic-text { display: block; font-size: 0.75em; color: var(--theme-scripts); opacity: 0.7; margin-top: 4px; line-height: 1.2;}
+        
         .paragraph.past { color: var(--text-past); transform: scale(0.95); opacity: 0.3; }
         #scroller-studio .paragraph.present { color: var(--text-present); transform: scale(1.08); opacity: 1; text-shadow: 0 0 8px rgba(255,255,255,0.15); }
+        #scroller-studio .paragraph.present .phonetic-text { opacity: 1; text-shadow: 0 0 8px rgba(212,175,55,0.3); }
+        
         #scroller-player .paragraph.present { color: var(--theme-player); transform: scale(1.08); opacity: 1; text-shadow: 0 0 10px rgba(0,204,255,0.3); }
+        #scroller-player .paragraph.present .phonetic-text { opacity: 1; text-shadow: 0 0 8px rgba(212,175,55,0.3); color: #FFF;}
 
         #countdown-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         #countdown-overlay.active { opacity: 1; pointer-events: auto; }
@@ -204,7 +218,6 @@
         </div>
     </div>
 
-    <!-- VISTA 1: GESTOR DE GUIONES -->
     <div id="view-scripts" class="view-container active">
         <div class="top-bar" id="top-bar-scripts">
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -214,7 +227,15 @@
         </div>
         <div class="workspace-scripts">
             <div class="editor-card">
-                <input type="text" id="script-title" class="editor-input" placeholder="Título del Proyecto (Ej: Análisis)">
+                <input type="text" id="script-title" class="editor-input" placeholder="Título del Proyecto (Ej: Práctica Doblaje)">
+                
+                <div class="mode-selector">
+                    <label class="mode-option"><input type="radio" name="script-mode" value="standard" checked> 🎙️ Estándar</label>
+                    <label class="mode-option"><input type="radio" name="script-mode" value="shadowing"> 🗣️ Shadowing</label>
+                    <label class="mode-option disabled" title="Próximamente en V3"><input type="radio" name="script-mode" value="musical" disabled> 🎵 Musical</label>
+                </div>
+                <div id="helper-text">Modo texto puro. Pega tu guion normalmente.</div>
+
                 <textarea id="script-content" class="editor-input" placeholder="Pega o escribe tu guion aquí..."></textarea>
                 <button class="btn-action" id="btn-save">Guardar Proyecto Local</button>
             </div>
@@ -223,7 +244,6 @@
         </div>
     </div>
 
-    <!-- VISTA 2: EL ESTUDIO -->
     <div id="view-studio" class="view-container">
         <div class="top-bar" id="top-bar-studio">
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -260,7 +280,6 @@
         </div>
     </div>
 
-    <!-- VISTA 3: EL REPRODUCTOR -->
     <div id="view-player" class="view-container">
         <div class="top-bar" id="top-bar-player">
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -287,23 +306,18 @@
         </div>
     </div>
 
-    <!-- =========================================
-         MÓDULO: LÓGICA JAVASCRIPT CORE
-         ========================================= -->
     <script>
-        // --- 1. REGISTRO PWA SEGURO PARA GITHUB PAGES ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                // Forzar Scope absoluto
                 navigator.serviceWorker.register('/StudioPrompter-Zero/sw.js', { scope: '/StudioPrompter-Zero/' })
                     .then(reg => console.log('SW Listo.', reg.scope))
                     .catch(err => console.log('SW Error:', err));
             });
         }
-        let deferredPrompt;
+        let deferredPrompt = null;
         const btnInstall = document.getElementById('btn-install');
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); deferredPrompt = e; btnInstall.style.display = 'flex'; 
+            e.preventDefault(); deferredPrompt = e; 
         });
         btnInstall.addEventListener('click', async () => {
             if (deferredPrompt) {
@@ -311,10 +325,11 @@
                 const { outcome } = await deferredPrompt.userChoice;
                 if (outcome === 'accepted') btnInstall.style.display = 'none';
                 deferredPrompt = null;
+            } else {
+                alert("Tu navegador bloquea el instalador automático. Para instalar: Abre el menú nativo (los 3 puntos) y selecciona 'Instalar aplicación' o 'Agregar a inicio'.");
             }
         });
 
-        // --- 2. BASE DE DATOS LOCAL (IndexedDB) ---
         const DB_NAME = 'StudioPrompterDB'; let db;
         const initDB = () => new Promise((res, rej) => {
             const req = indexedDB.open(DB_NAME, 1);
@@ -328,15 +343,49 @@
             delete: (id) => new Promise((res, rej) => { const req = db.transaction(['scripts'], 'readwrite').objectStore('scripts').delete(id); req.onsuccess = res; })
         };
 
-        // --- 3. ESTADO GLOBAL ---
         const APP_STATE = { projects: [], activeProjectId: null };
-        const parseText = (raw) => raw.split(/\n+/).map(p=>p.trim()).filter(p=>p.length>0).map((t, i) => ({ id: i, text: t, weight: t.length + (t.match(/,/g)||[]).length*15 + (t.match(/\./g)||[]).length*25 }));
+        
+        const modeRadios = document.querySelectorAll('input[name="script-mode"]');
+        const helperText = document.getElementById('helper-text');
+        modeRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if(e.target.value === 'shadowing') {
+                    helperText.innerText = "Modo Shadowing: Usa la barra vertical (|) para separar el texto formal de la pronunciación. Ej: Hello world | Jelou uorld";
+                } else {
+                    helperText.innerText = "Modo texto puro. Pega tu guion normalmente.";
+                }
+            });
+        });
+
+        const parseText = (raw, mode) => {
+            return raw.split(/\n+/).map(p=>p.trim()).filter(p=>p.length>0).map((t, i) => {
+                if (mode === 'shadowing' && t.includes('|')) {
+                    const parts = t.split('|');
+                    const formal = parts[0].trim();
+                    const verbal = parts[1].trim();
+                    const weight = formal.length + (formal.match(/,/g)||[]).length*15 + (formal.match(/\./g)||[]).length*25;
+                    return { id: i, text: formal, phonetic: verbal, weight: weight };
+                }
+                const baseWeight = t.length + (t.match(/,/g)||[]).length*15 + (t.match(/\./g)||[]).length*25;
+                return { id: i, text: t, weight: baseWeight };
+            });
+        };
 
         document.getElementById('btn-save').addEventListener('click', async () => {
             const t = document.getElementById('script-title').value.trim() || `Proyecto sin título`;
             const c = document.getElementById('script-content').value.trim();
             if (!c) return;
-            const proj = { id: Date.now().toString(), title: t, paragraphs: parseText(c), timestamp: Date.now() };
+            
+            const selectedMode = document.querySelector('input[name="script-mode"]:checked').value;
+            
+            const proj = { 
+                id: Date.now().toString(), 
+                title: t, 
+                mode: selectedMode,
+                paragraphs: parseText(c, selectedMode), 
+                timestamp: Date.now() 
+            };
+            
             await dbOps.save(proj); APP_STATE.projects.push(proj);
             document.getElementById('script-title').value = ''; document.getElementById('script-content').value = '';
             selectProject(proj.id);
@@ -355,7 +404,16 @@
             [...APP_STATE.projects].sort((a,b) => b.timestamp - a.timestamp).forEach(p => {
                 const isActive = p.id === APP_STATE.activeProjectId;
                 const card = document.createElement('div'); card.className = `project-card ${isActive ? 'active-project' : ''}`;
-                card.innerHTML = `<div class="project-info"><div class="project-title">${p.title}</div><div class="project-meta">${p.paragraphs.length} fragmentos | ${p.audioData ? '🎙️ Audio OK' : 'Sin Audio'}</div></div>
+                
+                const modeLabel = p.mode === 'shadowing' ? '🗣️ SHADOWING' : '🎙️ ESTÁNDAR';
+                
+                card.innerHTML = `<div class="project-info">
+                        <div class="project-title">${p.title}</div>
+                        <div class="project-meta">
+                            <span class="badge-mode">${modeLabel}</span>
+                            <span>${p.paragraphs.length} fragmentos | ${p.audioData ? '🎙️ Audio OK' : 'Sin Audio'}</span>
+                        </div>
+                    </div>
                     <div class="card-actions">
                         <button class="btn-delete" onclick="deleteProject('${p.id}')"><svg viewBox="0 0 24 24" style="width:18px;height:18px;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
                         <button class="btn-select" onclick="selectProject('${p.id}')">${isActive ? 'CARGADO' : 'CARGAR'}</button>
@@ -393,9 +451,25 @@
             const scrPlayer = document.getElementById('scroller-player'); scrPlayer.innerHTML = '';
             
             p.paragraphs.forEach((d, i) => {
-                const pTag = document.createElement('p'); pTag.className = `paragraph ${i === 0 ? 'present' : 'future'}`;
-                pTag.dataset.id = d.id; pTag.dataset.chars = d.weight; pTag.innerText = d.text; 
-                scrStudio.appendChild(pTag); const pTagPlayer = pTag.cloneNode(true); scrPlayer.appendChild(pTagPlayer);
+                const pTag = document.createElement('div'); 
+                pTag.className = `paragraph ${i === 0 ? 'present' : 'future'}`;
+                pTag.dataset.id = d.id; pTag.dataset.chars = d.weight; 
+                
+                const fSpan = document.createElement('span');
+                fSpan.className = 'formal-text';
+                fSpan.innerText = d.text;
+                pTag.appendChild(fSpan);
+
+                if(d.phonetic) {
+                    const vSpan = document.createElement('span');
+                    vSpan.className = 'phonetic-text';
+                    vSpan.innerText = d.phonetic;
+                    pTag.appendChild(vSpan);
+                }
+
+                scrStudio.appendChild(pTag); 
+                const pTagPlayer = pTag.cloneNode(true); 
+                scrPlayer.appendChild(pTagPlayer);
             });
             currentYStudio = 0; scrStudio.style.transform = `translateY(0px)`; scrPlayer.style.transform = `translateY(0px)`;
             
@@ -419,7 +493,6 @@
             if(btnPlayAudio.classList.contains('active')) btnPlayAudio.click(); 
         };
 
-        // --- 4. CONFIGURACIONES UI ---
         const rootStyles = document.documentElement.style; let cFont = 28;
         const setFont = (s) => { cFont = Math.max(16, Math.min(s, 48)); document.getElementById('font-size-display').innerText = `${cFont}px`; rootStyles.setProperty('--font-size-p', `${cFont}px`); };
         document.getElementById('btn-font-plus').addEventListener('click', () => setFont(cFont + 2));
@@ -443,7 +516,6 @@
             });
         });
 
-        // --- 5. MOTOR ESTUDIO ---
         let isPlayingStudio = false; let gSpeed = 0.60; let dPacing = 1.0; let currentYStudio = 0; let reqFrameStudio = null; let lastTStudio = 0;
         const scrollerStudio = document.getElementById('scroller-studio'); const btnPlayStudio = document.getElementById('btn-play-studio');
         let isDragging = false; let startDragY = 0; let startCurrentY = 0; const viewportStudio = document.getElementById('viewport-studio');
@@ -474,7 +546,6 @@
         document.getElementById('btn-plus').addEventListener('click', () => { gSpeed+=0.05; document.getElementById('speed-display').innerText = gSpeed.toFixed(2); });
         document.getElementById('btn-minus').addEventListener('click', () => { gSpeed=Math.max(0,gSpeed-0.05); document.getElementById('speed-display').innerText = gSpeed.toFixed(2); });
 
-        // --- 6. MOTOR GRABACIÓN AUDIO ---
         let isRecording = false; let isRecordingPaused = false;
         let mediaRecorder = null; let audioContext = null; let analyser = null; let dataArray = null; let audioChunks = []; let reqFrameVu = null;
         let recordingSeconds = 0; let timerInterval = null; let globalStream = null;
@@ -574,7 +645,6 @@
             reqFrameVu = requestAnimationFrame(drawVUMeter);
         };
 
-        // --- 7. MOTOR REPRODUCTOR ESCLAVO FLUIDO ---
         const masterAudio = document.getElementById('master-audio'); const btnPlayAudio = document.getElementById('btn-play-audio');
         const audioProgress = document.getElementById('audio-progress'); const scrollerPlayer = document.getElementById('scroller-player');
         let reqFramePlayer = null;
