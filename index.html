@@ -5,9 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/icon-192.png">
-    <link rel="apple-touch-icon" href="assets/images/icon-192.png">
+    <!-- RUTAS ABSOLUTAS PARA GITHUB PAGES -->
+    <link rel="manifest" href="/StudioPrompter-Zero/manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="/StudioPrompter-Zero/assets/images/icon-192.png">
+    <link rel="apple-touch-icon" href="/StudioPrompter-Zero/assets/images/icon-192.png">
     
     <meta name="theme-color" content="#121212">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,9 +16,6 @@
     <title>StudioPrompter Zero</title>
     
     <style>
-        /* =========================================
-           MÓDULO: CSS ENGINE & VARIABLES GLOBALES
-           ========================================= */
         :root {
             --bg-color: #000000;
             --surface-color: #121212;
@@ -293,12 +291,14 @@
          MÓDULO: LÓGICA JAVASCRIPT CORE
          ========================================= -->
     <script>
-        // --- 1. REGISTRO PWA SEGURO ---
+        // --- 1. REGISTRO PWA SEGURO PARA GITHUB PAGES ---
         if ('serviceWorker' in navigator) {
-            // Se registra en la raíz para garantizar acceso a todos los archivos
-            navigator.serviceWorker.register('sw.js', { scope: './' })
-                .then(reg => console.log('SW Listo.', reg.scope))
-                .catch(err => console.log('SW Error:', err));
+            window.addEventListener('load', () => {
+                // Forzar Scope absoluto
+                navigator.serviceWorker.register('/StudioPrompter-Zero/sw.js', { scope: '/StudioPrompter-Zero/' })
+                    .then(reg => console.log('SW Listo.', reg.scope))
+                    .catch(err => console.log('SW Error:', err));
+            });
         }
         let deferredPrompt;
         const btnInstall = document.getElementById('btn-install');
