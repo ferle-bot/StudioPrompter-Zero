@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" sizes="192x192" href="./assets/images/icon-192.png">
-    <link rel="apple-touch-icon" href="./assets/images/icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/icon-192.png">
+    <link rel="apple-touch-icon" href="assets/images/icon-192.png">
     
     <meta name="theme-color" content="#121212">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -35,7 +35,6 @@
             --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             --font-size-p: 28px; 
             
-            /* Safe Areas dinámicas para móviles con "Notch" y bordes curvados */
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 0px);
             --safe-left: env(safe-area-inset-left, 0px);
@@ -52,7 +51,6 @@
         .view-container { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; flex-direction: column; }
         .view-container.active { display: flex; }
 
-        /* Top Bars (HUD) */
         .top-bar {
             position: fixed; top: 0; left: 0; width: 100%; height: var(--ui-height-top);
             background-color: var(--surface-color); border-bottom: 1px solid #333;
@@ -76,30 +74,19 @@
 
         @keyframes pulse { 0% { opacity: 1; } 100% { opacity: 0.5; } }
 
-        /* Vúmetro Real */
         .vu-meter { display: flex; gap: 3px; height: 20px; align-items: flex-end; opacity: 0.3; margin-right: 15px;}
         .vu-meter.recording { opacity: 1; }
         .vu-bar { width: 6px; background-color: var(--theme-studio); border-radius: 2px; height: 4px; transition: height 0.05s ease, background-color 0.1s; }
 
-        /* Controles de Grabación */
         .record-controls { display: flex; align-items: center; gap: 10px; }
-        
-        .btn-pause-rec {
-            background: rgba(255,221,0,0.1); border: 1px solid var(--warning-color); color: var(--warning-color);
-            border-radius: 8px; width: 40px; height: 40px; display: none; justify-content: center; align-items: center; cursor: pointer;
-        }
+        .btn-pause-rec { background: rgba(255,221,0,0.1); border: 1px solid var(--warning-color); color: var(--warning-color); border-radius: 8px; width: 40px; height: 40px; display: none; justify-content: center; align-items: center; cursor: pointer; }
         .btn-pause-rec.visible { display: flex; }
         .btn-pause-rec:active { background: rgba(255,221,0,0.3); }
-
-        .btn-rec {
-            background: transparent; border: 2px solid var(--danger-color); border-radius: 50%;
-            width: 50px; height: 50px; position: relative; display: flex; justify-content: center; align-items: center; cursor: pointer;
-        }
+        .btn-rec { background: transparent; border: 2px solid var(--danger-color); border-radius: 50%; width: 50px; height: 50px; position: relative; display: flex; justify-content: center; align-items: center; cursor: pointer; }
         .btn-rec::after { content: ''; position: absolute; width: 20px; height: 20px; background: var(--danger-color); border-radius: 50%; transition: 0.3s; }
         .btn-rec.recording { background: rgba(255,51,51,0.1); }
         .btn-rec.recording::after { border-radius: 4px; transform: scale(0.8); }
 
-        /* Sidebar & Overlay */
         #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s; }
         #sidebar-overlay.active { opacity: 1; pointer-events: auto; }
         #sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--surface-color); z-index: 1001; transition: 0.3s cubic-bezier(0.4,0,0.2,1); display: flex; flex-direction: column; overflow-y: auto;}
@@ -121,7 +108,6 @@
         .settings-controls .btn-cfg:active { background: #333; }
         .settings-display { font-family: monospace; font-size: 16px; color: var(--theme-scripts); }
 
-        /* VISTA 1: Scripts Workspace */
         .workspace-scripts { position: absolute; top: var(--ui-height-top); bottom: 0; width: 100%; display: flex; flex-direction: column; background: var(--bg-color); overflow-y: auto; padding: 20px; gap: 20px; }
         .editor-card { background: var(--surface-color); border: 1px solid #333; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 15px; max-width: 900px; margin: 0 auto; width: 100%;}
         .editor-input { width: 100%; background: var(--surface-light); border: 1px solid #444; color: #FFF; padding: 15px; border-radius: 8px; font-size: 16px; font-family: var(--font-main); }
@@ -142,13 +128,11 @@
         .project-card.active-project .btn-select { background: var(--theme-scripts); color: #000; border-color: var(--theme-scripts); }
         .btn-delete { background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 8px 10px; border-radius: 6px; cursor: pointer;}
 
-        /* VISTAS 2 & 3: Teleprompter */
         .viewport { position: absolute; top: var(--ui-height-top); bottom: var(--ui-height-bottom); width: 100%; display: flex; justify-content: center; overflow: hidden; background-color: var(--bg-color); touch-action: none; }
         .focus-container { position: absolute; top: 50%; left: 0; width: 100%; height: 60px; transform: translateY(-50%); border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 10; pointer-events: none; }
         .indicator-studio { position: absolute; left: calc(10px + var(--safe-left)); top: 50%; transform: translateY(-50%); width: 4px; height: 40px; background: var(--theme-studio); border-radius: 2px; transition: background 0.3s; }
         .indicator-player { position: absolute; left: calc(10px + var(--safe-left)); top: 50%; transform: translateY(-50%); width: 4px; height: 40px; background: var(--theme-player); border-radius: 2px; }
 
-        /* SCROLLER ADAPTATIVO (Protege cuellos en Tablets) */
         .scroller { position: absolute; width: 95%; max-width: 900px; padding-top: calc(50vh - (var(--ui-height-top) + var(--ui-height-bottom))/2); padding-bottom: 50vh; will-change: transform; }
 
         .paragraph { font-size: var(--font-size-p); font-weight: 500; line-height: 1.5; margin-bottom: 45px; text-align: center; color: var(--text-future); transform-origin: center center; transition: color 0.3s, transform 0.3s, opacity 0.3s; opacity: 0.5; }
@@ -156,23 +140,12 @@
         #scroller-studio .paragraph.present { color: var(--text-present); transform: scale(1.08); opacity: 1; text-shadow: 0 0 8px rgba(255,255,255,0.15); }
         #scroller-player .paragraph.present { color: var(--theme-player); transform: scale(1.08); opacity: 1; text-shadow: 0 0 10px rgba(0,204,255,0.3); }
 
-        /* OVERLAY CUENTA REGRESIVA */
-        #countdown-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 2000;
-            display: flex; justify-content: center; align-items: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-        }
+        #countdown-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         #countdown-overlay.active { opacity: 1; pointer-events: auto; }
         #countdown-number { font-size: 150px; font-weight: bold; color: var(--danger-color); text-shadow: 0 0 30px rgba(255,51,51,0.5); }
 
-        /* Bottom Bars Adaptativos */
         .bottom-bar-wrapper { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--surface-color); border-top: 1px solid #333; z-index: 100; padding-bottom: var(--safe-area-bottom); }
-        .bottom-bar { 
-            height: calc(var(--ui-height-bottom) - var(--safe-area-bottom)); display: flex; justify-content: space-between; align-items: center; 
-            padding: 0 calc(15px + var(--safe-right)) 0 calc(15px + var(--safe-left)); 
-            max-width: 1200px; margin: 0 auto; 
-        }
+        .bottom-bar { height: calc(var(--ui-height-bottom) - var(--safe-area-bottom)); display: flex; justify-content: space-between; align-items: center; padding: 0 calc(15px + var(--safe-right)) 0 calc(15px + var(--safe-left)); max-width: 1200px; margin: 0 auto; }
         .btn { background: var(--surface-light); color: #FFF; border: none; border-radius: 8px; height: 55px; min-width: 55px; font-size: 16px; font-weight: bold; display: flex; justify-content: center; align-items: center; touch-action: manipulation;}
         .btn:active { background: #333; }
         .btn:disabled { opacity: 0.3; cursor: not-allowed; }
@@ -184,7 +157,6 @@
         .btn-play-studio { background: rgba(57,255,20,0.15); color: var(--theme-studio); border: 1px solid var(--theme-studio); padding: 0 25px; flex-grow: 1; margin-left: 15px; }
         .btn-play-studio.active { background: rgba(57,255,20,0.3); }
 
-        /* Medias Queries para Tablets (Landscape) */
         @media (min-width: 768px) {
             .bottom-bar { padding: 0 40px; }
             .top-bar { padding: var(--safe-top) 40px 0; }
@@ -197,7 +169,6 @@
 
     <div id="countdown-overlay"><div id="countdown-number">3</div></div>
 
-    <!-- SIDEBAR Y CONFIGURACIÓN -->
     <div id="sidebar-overlay"></div>
     <div id="sidebar">
         <div class="sidebar-header">StudioPrompter Zero</div>
@@ -322,9 +293,12 @@
          MÓDULO: LÓGICA JAVASCRIPT CORE
          ========================================= -->
     <script>
-        // --- 1. REGISTRO PWA ---
+        // --- 1. REGISTRO PWA SEGURO ---
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+            // Se registra en la raíz para garantizar acceso a todos los archivos
+            navigator.serviceWorker.register('sw.js', { scope: './' })
+                .then(reg => console.log('SW Listo.', reg.scope))
+                .catch(err => console.log('SW Error:', err));
         }
         let deferredPrompt;
         const btnInstall = document.getElementById('btn-install');
@@ -412,7 +386,9 @@
             if(isPlayingStudio) togglePlayStudio(false);
             if(isRecording) stopAudioEngine();
             
-            document.getElementById('studio-active-title').innerText = p.title; document.getElementById('player-active-title').innerText = p.title;
+            document.getElementById('studio-active-title').innerText = p.title;
+            document.getElementById('player-active-title').innerText = p.title;
+            
             const scrStudio = document.getElementById('scroller-studio'); scrStudio.innerHTML = '';
             const scrPlayer = document.getElementById('scroller-player'); scrPlayer.innerHTML = '';
             
