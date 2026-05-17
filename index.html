@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
-    <!-- CONEXIÓN PWA -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#121212">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -23,10 +22,13 @@
             --text-past: #444444;
             --text-present: #FFFFFF;
             --text-future: #888888;
+            
+            /* Paleta Semántica Actualizada */
             --theme-studio: #39FF14; 
             --theme-player: #00CCFF; 
-            --theme-scripts: #FFB300; 
+            --theme-scripts: #D4AF37; /* Oro Premium (Sustituye al mostaza) */
             --danger-color: #FF3333; 
+            
             --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             --font-size-p: 28px; 
             --ui-height-top: 80px; 
@@ -53,7 +55,7 @@
         #top-bar-studio .brand span { color: var(--theme-studio); }
         #top-bar-player { border-bottom-color: rgba(0,204,255,0.3); }
         #top-bar-player .brand span { color: var(--theme-player); }
-        #top-bar-scripts { border-bottom-color: rgba(255,179,0,0.3); }
+        #top-bar-scripts { border-bottom-color: rgba(212,175,55,0.3); } /* Borde Oro */
         #top-bar-scripts .brand span { color: var(--theme-scripts); }
 
         #timer-studio { font-family: monospace; font-size: 20px; color: var(--text-future); }
@@ -75,25 +77,25 @@
         /* Sidebar & Overlay */
         #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s; }
         #sidebar-overlay.active { opacity: 1; pointer-events: auto; }
-        #sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--surface-color); z-index: 1001; transition: 0.3s cubic-bezier(0.4,0,0.2,1); display: flex; flex-direction: column; }
+        #sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--surface-color); z-index: 1001; transition: 0.3s cubic-bezier(0.4,0,0.2,1); display: flex; flex-direction: column; overflow-y: auto;}
         #sidebar.active { transform: translateX(280px); }
         
         .sidebar-header { padding: 25px 20px; border-bottom: 1px solid #333; font-size: 20px; font-weight: bold; color: #FFF; }
         .sidebar-item { padding: 20px; border-bottom: 1px solid #222; display: flex; align-items: center; gap: 15px; color: #CCC; transition: 0.2s; cursor: pointer; }
         .sidebar-item.active { background: rgba(255,255,255,0.05); color: #FFF; border-left: 4px solid #FFF; }
-        .sidebar-item[data-target="view-scripts"].active { border-left-color: var(--theme-scripts); color: var(--theme-scripts); background: rgba(255,179,0,0.05); }
+        .sidebar-item[data-target="view-scripts"].active { border-left-color: var(--theme-scripts); color: var(--theme-scripts); background: rgba(212,175,55,0.05); }
         .sidebar-item[data-target="view-studio"].active { border-left-color: var(--theme-studio); color: var(--theme-studio); background: rgba(57,255,20,0.05); }
         .sidebar-item[data-target="view-player"].active { border-left-color: var(--theme-player); color: var(--theme-player); background: rgba(0,204,255,0.05); }
 
-        /* Botón Instalación */
-        #btn-install { display: none; background: linear-gradient(45deg, var(--theme-scripts), #FF8C00); color: #000; font-weight: bold; margin: 10px; border-radius: 8px; border: none; justify-content: center; }
+        #btn-install { display: none; background: linear-gradient(45deg, var(--theme-scripts), #B8860B); color: #000; font-weight: bold; margin: 10px; border-radius: 8px; border: none; justify-content: center; }
 
+        /* Paneles de Configuración en Menú */
         .sidebar-config-panel { padding: 20px; border-bottom: 1px solid #222; display: flex; flex-direction: column; gap: 10px; }
         .config-label { font-size: 12px; color: #888; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
-        .font-size-controls { display: flex; align-items: center; justify-content: space-between; background: #0A0A0A; border-radius: 8px; padding: 5px; border: 1px solid #333; }
-        .font-size-controls .btn-cfg { background: transparent; color: #FFF; border: none; width: 40px; height: 40px; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; }
-        .font-size-controls .btn-cfg:active { background: #333; }
-        #font-size-display { font-family: monospace; font-size: 16px; color: var(--theme-scripts); }
+        .settings-controls { display: flex; align-items: center; justify-content: space-between; background: #0A0A0A; border-radius: 8px; padding: 5px; border: 1px solid #333; }
+        .settings-controls .btn-cfg { background: transparent; color: #FFF; border: none; width: 40px; height: 40px; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        .settings-controls .btn-cfg:active { background: #333; }
+        .settings-display { font-family: monospace; font-size: 16px; color: var(--theme-scripts); }
 
         /* VISTA 1: Scripts Workspace */
         .workspace-scripts { position: absolute; top: var(--ui-height-top); bottom: 0; width: 100%; display: flex; flex-direction: column; background: var(--bg-color); overflow-y: auto; padding: 20px; gap: 20px; }
@@ -105,7 +107,7 @@
         
         .project-list-header { font-size: 14px; color: var(--text-future); text-transform: uppercase; font-weight: bold; margin-top: 10px; border-bottom: 1px solid #333; padding-bottom: 10px; }
         .project-card { background: var(--surface-color); border: 1px solid #333; border-radius: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;}
-        .project-card.active-project { border-color: var(--theme-scripts); background: rgba(255,179,0,0.05); }
+        .project-card.active-project { border-color: var(--theme-scripts); background: rgba(212,175,55,0.05); }
         .project-info { display: flex; flex-direction: column; gap: 5px; flex-grow: 1; min-width: 150px;}
         .project-title { font-weight: bold; font-size: 18px; color: #FFF; }
         .project-meta { font-size: 12px; color: var(--text-future); }
@@ -128,6 +130,16 @@
         #scroller-studio .paragraph.present { color: var(--text-present); transform: scale(1.08); opacity: 1; text-shadow: 0 0 8px rgba(255,255,255,0.15); }
         #scroller-player .paragraph.present { color: var(--theme-player); transform: scale(1.08); opacity: 1; text-shadow: 0 0 10px rgba(0,204,255,0.3); }
 
+        /* OVERLAY CUENTA REGRESIVA */
+        #countdown-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 2000;
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        #countdown-overlay.active { opacity: 1; pointer-events: auto; }
+        #countdown-number { font-size: 150px; font-weight: bold; color: var(--danger-color); text-shadow: 0 0 30px rgba(255,51,51,0.5); }
+
         /* Bottom Bars */
         .bottom-bar-wrapper { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--surface-color); border-top: 1px solid #333; z-index: 100; padding-bottom: var(--safe-area-bottom); }
         .bottom-bar { height: calc(var(--ui-height-bottom) - var(--safe-area-bottom)); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; }
@@ -145,6 +157,11 @@
 </head>
 <body>
 
+    <!-- OVERLAY CUENTA REGRESIVA -->
+    <div id="countdown-overlay">
+        <div id="countdown-number">3</div>
+    </div>
+
     <!-- SIDEBAR Y CONFIGURACIÓN -->
     <div id="sidebar-overlay"></div>
     <div id="sidebar">
@@ -152,10 +169,19 @@
         
         <div class="sidebar-config-panel">
             <div class="config-label">Tamaño de Texto</div>
-            <div class="font-size-controls">
+            <div class="settings-controls">
                 <button class="btn-cfg" id="btn-font-minus">-</button>
-                <span id="font-size-display">28px</span>
+                <span class="settings-display" id="font-size-display">28px</span>
                 <button class="btn-cfg" id="btn-font-plus">+</button>
+            </div>
+        </div>
+
+        <div class="sidebar-config-panel" style="border-top:none; padding-top:0;">
+            <div class="config-label">Cuenta Regresiva (REC)</div>
+            <div class="settings-controls">
+                <button class="btn-cfg" id="btn-cd-minus">-</button>
+                <span class="settings-display" id="cd-display">3s</span>
+                <button class="btn-cfg" id="btn-cd-plus">+</button>
             </div>
         </div>
 
@@ -188,7 +214,7 @@
         </div>
         <div class="workspace-scripts">
             <div class="editor-card">
-                <input type="text" id="script-title" class="editor-input" placeholder="Título del Proyecto...">
+                <input type="text" id="script-title" class="editor-input" placeholder="Título del Proyecto (Ej: Revelaciones)">
                 <textarea id="script-content" class="editor-input" placeholder="Pega o escribe tu guion aquí..."></textarea>
                 <button class="btn-action" id="btn-save">Guardar Proyecto Local</button>
             </div>
@@ -197,7 +223,7 @@
         </div>
     </div>
 
-    <!-- VISTA 2: EL ESTUDIO (AHORA CON AUDIO REAL) -->
+    <!-- VISTA 2: EL ESTUDIO -->
     <div id="view-studio" class="view-container">
         <div class="top-bar" id="top-bar-studio">
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -205,13 +231,8 @@
                 <div class="brand"><span id="studio-active-title">Sin Guion</span></div>
             </div>
             <div style="display: flex; align-items: center; gap: 15px;">
-                <!-- Vúmetro Matemático -->
                 <div class="vu-meter" id="vu-meter">
-                    <div class="vu-bar" id="vu-1"></div>
-                    <div class="vu-bar" id="vu-2"></div>
-                    <div class="vu-bar" id="vu-3"></div>
-                    <div class="vu-bar" id="vu-4"></div>
-                    <div class="vu-bar" id="vu-5"></div>
+                    <div class="vu-bar" id="vu-1"></div><div class="vu-bar" id="vu-2"></div><div class="vu-bar" id="vu-3"></div><div class="vu-bar" id="vu-4"></div><div class="vu-bar" id="vu-5"></div>
                 </div>
                 <div id="timer-studio">00:00:00</div>
                 <button class="btn-rec" id="btn-rec" title="Grabar"></button>
@@ -251,26 +272,18 @@
     </div>
 
     <!-- =========================================
-         MÓDULO: VANILLA JS CORE, PWA & AUDIO DSP
+         MÓDULO: LÓGICA JAVASCRIPT CORE
          ========================================= -->
     <script>
         // --- 1. REGISTRO PWA ---
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('SW Listo.', reg.scope))
-                    .catch(err => console.log('SW Error:', err));
-            });
+            window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
         }
-
         let deferredPrompt;
         const btnInstall = document.getElementById('btn-install');
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            btnInstall.style.display = 'flex'; 
+            e.preventDefault(); deferredPrompt = e; btnInstall.style.display = 'flex'; 
         });
-
         btnInstall.addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
@@ -281,25 +294,17 @@
         });
 
         // --- 2. BASE DE DATOS LOCAL (IndexedDB) ---
-        const DB_NAME = 'StudioPrompterDB';
-        let db;
-
-        const initDB = () => {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open(DB_NAME, 1);
-                request.onerror = () => reject();
-                request.onsuccess = (e) => { db = e.target.result; resolve(); };
-                request.onupgradeneeded = (e) => {
-                    db = e.target.result;
-                    if (!db.objectStoreNames.contains('scripts')) db.createObjectStore('scripts', { keyPath: 'id' });
-                };
-            });
-        };
-
+        const DB_NAME = 'StudioPrompterDB'; let db;
+        const initDB = () => new Promise((res, rej) => {
+            const req = indexedDB.open(DB_NAME, 1);
+            req.onerror = () => rej();
+            req.onsuccess = (e) => { db = e.target.result; res(); };
+            req.onupgradeneeded = (e) => { db = e.target.result; if (!db.objectStoreNames.contains('scripts')) db.createObjectStore('scripts', { keyPath: 'id' }); };
+        });
         const dbOps = {
-            save: (proj) => new Promise((res, rej) => { const req = db.transaction(['scripts'], 'readwrite').objectStore('scripts').put(proj); req.onsuccess = res; req.onerror = rej; }),
-            loadAll: () => new Promise((res, rej) => { const req = db.transaction(['scripts'], 'readonly').objectStore('scripts').getAll(); req.onsuccess = () => res(req.result); req.onerror = rej; }),
-            delete: (id) => new Promise((res, rej) => { const req = db.transaction(['scripts'], 'readwrite').objectStore('scripts').delete(id); req.onsuccess = res; req.onerror = rej; })
+            save: (proj) => new Promise((res, rej) => { const req = db.transaction(['scripts'], 'readwrite').objectStore('scripts').put(proj); req.onsuccess = res; }),
+            loadAll: () => new Promise((res, rej) => { const req = db.transaction(['scripts'], 'readonly').objectStore('scripts').getAll(); req.onsuccess = () => res(req.result); }),
+            delete: (id) => new Promise((res, rej) => { const req = db.transaction(['scripts'], 'readwrite').objectStore('scripts').delete(id); req.onsuccess = res; })
         };
 
         // --- 3. ESTADO GLOBAL ---
@@ -311,28 +316,24 @@
             const c = document.getElementById('script-content').value.trim();
             if (!c) return;
             const proj = { id: Date.now().toString(), title: t, paragraphs: parseText(c), timestamp: Date.now() };
-            await dbOps.save(proj);
-            APP_STATE.projects.push(proj);
+            await dbOps.save(proj); APP_STATE.projects.push(proj);
             document.getElementById('script-title').value = ''; document.getElementById('script-content').value = '';
             selectProject(proj.id);
         });
 
         window.deleteProject = async (id) => {
             if(!confirm("¿Borrar definitivamente?")) return;
-            await dbOps.delete(id);
-            APP_STATE.projects = APP_STATE.projects.filter(p => p.id !== id);
+            await dbOps.delete(id); APP_STATE.projects = APP_STATE.projects.filter(p => p.id !== id);
             if(APP_STATE.activeProjectId === id) { APP_STATE.activeProjectId = null; document.getElementById('studio-active-title').innerText = "Sin Guion"; document.getElementById('scroller-studio').innerHTML = ""; }
             renderList();
         };
 
         const renderList = () => {
-            const container = document.getElementById('projects-container');
-            container.innerHTML = '';
+            const container = document.getElementById('projects-container'); container.innerHTML = '';
             if(APP_STATE.projects.length === 0) return container.innerHTML = '<div style="color:#888;font-size:14px;text-align:center;">No hay proyectos.</div>';
             [...APP_STATE.projects].sort((a,b) => b.timestamp - a.timestamp).forEach(p => {
                 const isActive = p.id === APP_STATE.activeProjectId;
-                const card = document.createElement('div');
-                card.className = `project-card ${isActive ? 'active-project' : ''}`;
+                const card = document.createElement('div'); card.className = `project-card ${isActive ? 'active-project' : ''}`;
                 card.innerHTML = `<div class="project-info"><div class="project-title">${p.title}</div><div class="project-meta">${p.paragraphs.length} fragmentos</div></div>
                     <div class="card-actions">
                         <button class="btn-delete" onclick="deleteProject('${p.id}')"><svg viewBox="0 0 24 24" style="width:18px;height:18px;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
@@ -345,186 +346,81 @@
         let obs = null;
         window.selectProject = (id) => {
             APP_STATE.activeProjectId = id;
-            const p = APP_STATE.projects.find(x => x.id === id);
-            if(!p) return;
+            const p = APP_STATE.projects.find(x => x.id === id); if(!p) return;
             renderList();
-            if(isPlayingStudio) document.getElementById('btn-play-studio').click();
-            document.getElementById('studio-active-title').innerText = p.title;
+            if(isPlayingStudio) togglePlayStudio(false); // Forzar detención si estaba corriendo
             
+            document.getElementById('studio-active-title').innerText = p.title;
             const scr = document.getElementById('scroller-studio'); scr.innerHTML = '';
             p.paragraphs.forEach((d, i) => {
-                const pTag = document.createElement('p');
-                pTag.className = `paragraph ${i === 0 ? 'present' : 'future'}`;
-                pTag.dataset.id = d.id; pTag.dataset.chars = d.weight; pTag.innerText = d.text;
-                scr.appendChild(pTag);
+                const pTag = document.createElement('p'); pTag.className = `paragraph ${i === 0 ? 'present' : 'future'}`;
+                pTag.dataset.id = d.id; pTag.dataset.chars = d.weight; pTag.innerText = d.text; scr.appendChild(pTag);
             });
             currentYStudio = 0; scr.style.transform = `translateY(0px)`;
             reconnectObserver(scr);
         };
 
-        // --- 4. ENRUTAMIENTO Y UI CORE ---
+        // --- 4. CONFIGURACIONES DEL MENÚ (Fuente y Cuenta Regresiva) ---
         const rootStyles = document.documentElement.style;
         let cFont = 28;
         const setFont = (s) => { cFont = Math.max(16, Math.min(s, 48)); document.getElementById('font-size-display').innerText = `${cFont}px`; rootStyles.setProperty('--font-size-p', `${cFont}px`); };
         document.getElementById('btn-font-plus').addEventListener('click', () => setFont(cFont + 2));
         document.getElementById('btn-font-minus').addEventListener('click', () => setFont(cFont - 2));
 
+        const cdValues = [0, 3, 5, 10];
+        let cdIndex = 1; // Default 3s
+        const setCountdown = (idx) => {
+            if(idx < 0) idx = 0; if(idx >= cdValues.length) idx = cdValues.length - 1;
+            cdIndex = idx;
+            document.getElementById('cd-display').innerText = cdValues[cdIndex] + 's';
+        };
+        document.getElementById('btn-cd-plus').addEventListener('click', () => setCountdown(cdIndex + 1));
+        document.getElementById('btn-cd-minus').addEventListener('click', () => setCountdown(cdIndex - 1));
+
         const toggleMenu = () => { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('sidebar-overlay').classList.toggle('active'); };
         document.querySelectorAll('.menu-btn, #sidebar-overlay').forEach(e => e.addEventListener('click', toggleMenu));
-
         document.querySelectorAll('.sidebar-item[data-target]').forEach(item => {
             item.addEventListener('click', () => {
                 const t = item.getAttribute('data-target');
                 if ((t === 'view-studio' || t === 'view-player') && !APP_STATE.activeProjectId) return alert("Selecciona un Guion primero.");
-                if(isPlayingStudio) document.getElementById('btn-play-studio').click();
+                if(isPlayingStudio) togglePlayStudio(false);
                 document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active')); item.classList.add('active');
                 document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active')); document.getElementById(t).classList.add('active');
                 toggleMenu();
             });
         });
 
-        // --- 5. MOTOR AUDIO DSP & GRABACIÓN (¡NUEVO!) ---
-        let isRecording = false;
-        let mediaRecorder = null;
-        let audioContext = null;
-        let analyser = null;
-        let dataArray = null;
-        let audioChunks = [];
-        let reqFrameVu = null;
-        
-        let recordingSeconds = 0;
-        let timerInterval = null;
-
-        const btnRec = document.getElementById('btn-rec');
-        const vuMeter = document.getElementById('vu-meter');
-        const timerStudio = document.getElementById('timer-studio');
-        const focusIndicator = document.getElementById('studio-focus-indicator');
-        
-        // Barras del Vúmetro DOM
-        const vus = [document.getElementById('vu-1'), document.getElementById('vu-2'), document.getElementById('vu-3'), document.getElementById('vu-4'), document.getElementById('vu-5')];
-
-        const startAudioEngine = async () => {
-            try {
-                // Solicitar permisos nativos al Hardware (Android/PC)
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-                
-                // Inicializar Web Audio API para DSP Matemático (Vúmetro)
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const source = audioContext.createMediaStreamSource(stream);
-                analyser = audioContext.createAnalyser();
-                analyser.fftSize = 256; // Ventana de muestreo
-                source.connect(analyser);
-                dataArray = new Uint8Array(analyser.frequencyBinCount);
-                
-                // Iniciar Grabador a memoria (Chunks crudos)
-                audioChunks = [];
-                mediaRecorder = new MediaRecorder(stream);
-                mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
-                mediaRecorder.start(500); // Guardar buffer cada 500ms
-
-                // Iniciar UI de Grabación
-                isRecording = true;
-                btnRec.classList.add('recording');
-                vuMeter.classList.add('recording');
-                timerStudio.classList.add('recording');
-                focusIndicator.style.background = 'var(--danger-color)';
-                
-                recordingSeconds = 0;
-                timerStudio.innerText = "00:00:00";
-                timerInterval = setInterval(() => {
-                    recordingSeconds++;
-                    const h = Math.floor(recordingSeconds / 3600).toString().padStart(2, '0');
-                    const m = Math.floor((recordingSeconds % 3600) / 60).toString().padStart(2, '0');
-                    const s = (recordingSeconds % 60).toString().padStart(2, '0');
-                    timerStudio.innerText = `${h}:${m}:${s}`;
-                }, 1000);
-
-                // Iniciar Bucle del Vúmetro
-                drawVUMeter();
-
-            } catch (err) {
-                console.error("Permiso denegado o Hardware no encontrado:", err);
-                alert("Para grabar, debes permitir el acceso al micrófono de tu dispositivo en la configuración del navegador.");
-            }
-        };
-
-        const stopAudioEngine = () => {
-            if (mediaRecorder && mediaRecorder.state !== "inactive") {
-                mediaRecorder.stop();
-                mediaRecorder.stream.getTracks().forEach(track => track.stop()); // Apagar Micrófono físico
-            }
-            if (audioContext) audioContext.close();
-            
-            isRecording = false;
-            btnRec.classList.remove('recording');
-            vuMeter.classList.remove('recording');
-            timerStudio.classList.remove('recording');
-            focusIndicator.style.background = 'var(--theme-studio)';
-            clearInterval(timerInterval);
-            cancelAnimationFrame(reqFrameVu);
-            
-            // Apagar barras visualmente
-            vus.forEach(v => { v.style.height = '4px'; v.style.backgroundColor = 'var(--theme-studio)'; });
-
-            // (FUTURO: Aquí guardaremos los audioChunks al OPFS)
-            console.log("Grabación finalizada en RAM temporal. Fragmentos capturados:", audioChunks.length);
-        };
-
-        const drawVUMeter = () => {
-            if (!isRecording) return;
-            analyser.getByteFrequencyData(dataArray);
-            
-            // Calcular volumen medio RMS
-            let sum = 0;
-            for(let i = 0; i < dataArray.length; i++) sum += dataArray[i];
-            let average = sum / dataArray.length; // Valor de 0 a 255
-            
-            // Convertir a nivel lógico para 5 barras
-            let level = (average / 128) * 5; // Escalado básico
-            
-            vus.forEach((bar, index) => {
-                if (index < level) {
-                    bar.style.height = '100%';
-                    if(index === 3) bar.style.backgroundColor = '#FFDD00'; // Amarillo
-                    else if(index === 4) bar.style.backgroundColor = 'var(--danger-color)'; // Rojo
-                    else bar.style.backgroundColor = 'var(--theme-studio)'; // Verde
-                } else {
-                    bar.style.height = '4px';
-                    bar.style.backgroundColor = 'var(--theme-studio)';
-                }
-            });
-
-            reqFrameVu = requestAnimationFrame(drawVUMeter);
-        };
-
-        btnRec.addEventListener('click', () => {
-            if (!APP_STATE.activeProjectId) return alert("Selecciona un guion para grabar.");
-            if (!isRecording) startAudioEngine();
-            else stopAudioEngine();
-        });
-
-
-        // --- 6. MOTOR SCROLL GPU ---
+        // --- 5. MOTOR SCROLL GPU & PLAY/PAUSA ---
         let isPlayingStudio = false;
         let gSpeed = 0.60;
         let dPacing = 1.0;
         let currentYStudio = 0;
         let reqFrameStudio = null;
         let lastTStudio = 0;
+        const btnPlayStudio = document.getElementById('btn-play-studio');
 
-        document.getElementById('btn-play-studio').addEventListener('click', () => {
+        // Función separada para poder ser llamada programáticamente
+        const togglePlayStudio = (forceState = null) => {
+            isPlayingStudio = forceState !== null ? forceState : !isPlayingStudio;
+            if (isPlayingStudio) { 
+                btnPlayStudio.innerHTML = '⏸ PAUSA'; btnPlayStudio.classList.add('active'); 
+                lastTStudio = performance.now(); loopStudio(lastTStudio); 
+            } else { 
+                btnPlayStudio.innerHTML = '▶ ENSAYAR'; btnPlayStudio.classList.remove('active'); 
+                cancelAnimationFrame(reqFrameStudio); 
+            }
+        };
+
+        btnPlayStudio.addEventListener('click', () => {
             if(!APP_STATE.activeProjectId) return;
-            isPlayingStudio = !isPlayingStudio;
-            const btn = document.getElementById('btn-play-studio');
-            if (isPlayingStudio) { btn.innerHTML = '⏸ PAUSA'; btn.classList.add('active'); lastTStudio = performance.now(); loopStudio(lastTStudio); } 
-            else { btn.innerHTML = '▶ ENSAYAR'; btn.classList.remove('active'); cancelAnimationFrame(reqFrameStudio); }
+            togglePlayStudio();
         });
 
         document.getElementById('btn-restart-studio').addEventListener('click', () => {
-            if(isPlayingStudio) document.getElementById('btn-play-studio').click();
+            if(isPlayingStudio) togglePlayStudio(false);
+            if(isRecording) stopAudioEngine();
             currentYStudio = 0; dPacing = 1.0;
-            const scr = document.getElementById('scroller-studio');
-            scr.style.transform = `translateY(0px)`;
+            const scr = document.getElementById('scroller-studio'); scr.style.transform = `translateY(0px)`;
             Array.from(scr.querySelectorAll('.paragraph')).forEach((p, i) => p.className = `paragraph ${i===0?'present':'future'}`);
         });
 
@@ -552,6 +448,127 @@
                 });
             }, { root: document.getElementById('view-studio').querySelector('.viewport'), rootMargin: '-48% 0px', threshold: 0 });
             pr.forEach(p => obs.observe(p));
+        };
+
+        // --- 6. MOTOR AUDIO DSP Y ENCADENAMIENTO DE GRABACIÓN ---
+        let isRecording = false;
+        let mediaRecorder = null; let audioContext = null; let analyser = null; let dataArray = null; let audioChunks = []; let reqFrameVu = null;
+        let recordingSeconds = 0; let timerInterval = null; let globalStream = null;
+
+        const btnRec = document.getElementById('btn-rec');
+        const vuMeter = document.getElementById('vu-meter');
+        const timerStudio = document.getElementById('timer-studio');
+        const focusIndicator = document.getElementById('studio-focus-indicator');
+        const overlay = document.getElementById('countdown-overlay');
+        const overlayNum = document.getElementById('countdown-number');
+        const vus = [document.getElementById('vu-1'), document.getElementById('vu-2'), document.getElementById('vu-3'), document.getElementById('vu-4'), document.getElementById('vu-5')];
+
+        // 1. Pedir permisos al instante y arrancar cuenta regresiva
+        btnRec.addEventListener('click', async () => {
+            if (!APP_STATE.activeProjectId) return alert("Selecciona un guion para grabar.");
+            
+            // Si ya está grabando, detenemos audio y scroll.
+            if (isRecording) {
+                stopAudioEngine();
+                togglePlayStudio(false);
+                return;
+            }
+
+            // Iniciar flujo seguro de permisos -> Countdown -> Grabación
+            try {
+                // Pedimos permiso de micrófono explícitamente en el evento del clic (vital para Chrome)
+                if (!globalStream) {
+                    globalStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                }
+                
+                // Ejecutamos la cuenta regresiva seleccionada por el usuario
+                let timeLeft = cdValues[cdIndex];
+                
+                if (timeLeft > 0) {
+                    overlay.classList.add('active');
+                    overlayNum.innerText = timeLeft;
+                    
+                    const cdInterval = setInterval(() => {
+                        timeLeft--;
+                        if(timeLeft > 0) {
+                            overlayNum.innerText = timeLeft;
+                        } else {
+                            clearInterval(cdInterval);
+                            overlay.classList.remove('active');
+                            startAudioEngineAndScroll(); // Encadenamiento
+                        }
+                    }, 1000);
+                } else {
+                    // Si el usuario puso 0 segundos, arranca de inmediato
+                    startAudioEngineAndScroll();
+                }
+
+            } catch (err) {
+                console.error("Permiso denegado:", err);
+                alert("Debes permitir el acceso al micrófono de tu dispositivo. Revisa el icono del candado en la barra de Chrome.");
+            }
+        });
+
+        const startAudioEngineAndScroll = () => {
+            if(!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            if(audioContext.state === 'suspended') audioContext.resume();
+            
+            const source = audioContext.createMediaStreamSource(globalStream);
+            analyser = audioContext.createAnalyser(); analyser.fftSize = 256;
+            source.connect(analyser); dataArray = new Uint8Array(analyser.frequencyBinCount);
+            
+            audioChunks = [];
+            mediaRecorder = new MediaRecorder(globalStream);
+            mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+            mediaRecorder.start(500); 
+
+            isRecording = true;
+            btnRec.classList.add('recording'); vuMeter.classList.add('recording'); timerStudio.classList.add('recording');
+            focusIndicator.style.background = 'var(--danger-color)';
+            
+            recordingSeconds = 0; timerStudio.innerText = "00:00:00";
+            timerInterval = setInterval(() => {
+                recordingSeconds++;
+                const h = Math.floor(recordingSeconds / 3600).toString().padStart(2, '0');
+                const m = Math.floor((recordingSeconds % 3600) / 60).toString().padStart(2, '0');
+                const s = (recordingSeconds % 60).toString().padStart(2, '0');
+                timerStudio.innerText = `${h}:${m}:${s}`;
+            }, 1000);
+
+            drawVUMeter();
+            
+            // EL ENCADENAMIENTO: Arrancar el texto automáticamente
+            togglePlayStudio(true); 
+        };
+
+        const stopAudioEngine = () => {
+            if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
+            // No detenemos los tracks del globalStream para no tener que volver a pedir permisos en la misma sesión
+            
+            isRecording = false;
+            btnRec.classList.remove('recording'); vuMeter.classList.remove('recording'); timerStudio.classList.remove('recording');
+            focusIndicator.style.background = 'var(--theme-studio)';
+            clearInterval(timerInterval); cancelAnimationFrame(reqFrameVu);
+            vus.forEach(v => { v.style.height = '4px'; v.style.backgroundColor = 'var(--theme-studio)'; });
+            
+            console.log("Fragmentos capturados en sesión:", audioChunks.length);
+        };
+
+        const drawVUMeter = () => {
+            if (!isRecording) return;
+            analyser.getByteFrequencyData(dataArray);
+            let sum = 0; for(let i=0; i<dataArray.length; i++) sum += dataArray[i];
+            let level = ((sum / dataArray.length) / 128) * 5; 
+            
+            vus.forEach((bar, index) => {
+                if (index < level) {
+                    bar.style.height = '100%';
+                    if(index === 3) bar.style.backgroundColor = '#FFDD00'; else if(index === 4) bar.style.backgroundColor = 'var(--danger-color)'; else bar.style.backgroundColor = 'var(--theme-studio)';
+                } else {
+                    bar.style.height = '4px'; bar.style.backgroundColor = 'var(--theme-studio)';
+                }
+            });
+            reqFrameVu = requestAnimationFrame(drawVUMeter);
         };
 
         window.addEventListener('DOMContentLoaded', async () => { try { await initDB(); APP_STATE.projects = await dbOps.loadAll(); renderList(); } catch(e) {} });
