@@ -25,8 +25,9 @@
             
             --theme-studio: #39FF14; 
             --theme-player: #00CCFF; 
-            --theme-scripts: #D4AF37; /* Oro Premium */
+            --theme-scripts: #D4AF37; 
             --danger-color: #FF3333; 
+            --warning-color: #FFDD00;
             
             --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             --font-size-p: 28px; 
@@ -41,7 +42,7 @@
         .view-container { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; flex-direction: column; }
         .view-container.active { display: flex; }
 
-        /* Top Bars (HUD) */
+        /* Top Bars */
         .top-bar {
             position: fixed; top: 0; left: 0; width: 100%; height: var(--ui-height-top);
             background-color: var(--surface-color); border-bottom: 1px solid #333;
@@ -59,11 +60,24 @@
 
         #timer-studio { font-family: monospace; font-size: 20px; color: var(--text-future); }
         #timer-studio.recording { color: var(--danger-color); font-weight: bold; }
+        #timer-studio.paused { color: var(--warning-color); font-weight: bold; animation: pulse 1s infinite alternate; }
+
+        @keyframes pulse { 0% { opacity: 1; } 100% { opacity: 0.5; } }
 
         /* Vúmetro Real */
         .vu-meter { display: flex; gap: 3px; height: 20px; align-items: flex-end; opacity: 0.3; margin-right: 15px;}
         .vu-meter.recording { opacity: 1; }
         .vu-bar { width: 6px; background-color: var(--theme-studio); border-radius: 2px; height: 4px; transition: height 0.05s ease, background-color 0.1s; }
+
+        /* Controles de Grabación (REC y PAUSA) */
+        .record-controls { display: flex; align-items: center; gap: 10px; }
+        
+        .btn-pause-rec {
+            background: rgba(255,221,0,0.1); border: 1px solid var(--warning-color); color: var(--warning-color);
+            border-radius: 8px; width: 40px; height: 40px; display: none; justify-content: center; align-items: center; cursor: pointer;
+        }
+        .btn-pause-rec.visible { display: flex; }
+        .btn-pause-rec:active { background: rgba(255,221,0,0.3); }
 
         .btn-rec {
             background: transparent; border: 2px solid var(--danger-color); border-radius: 50%;
@@ -88,7 +102,6 @@
 
         #btn-install { display: none; background: linear-gradient(45deg, var(--theme-scripts), #B8860B); color: #000; font-weight: bold; margin: 10px; border-radius: 8px; border: none; justify-content: center; }
 
-        /* Paneles de Configuración */
         .sidebar-config-panel { padding: 20px; border-bottom: 1px solid #222; display: flex; flex-direction: column; gap: 10px; }
         .config-label { font-size: 12px; color: #888; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
         .settings-controls { display: flex; align-items: center; justify-content: space-between; background: #0A0A0A; border-radius: 8px; padding: 5px; border: 1px solid #333; }
@@ -117,7 +130,7 @@
         .btn-delete { background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 8px 10px; border-radius: 6px; cursor: pointer;}
 
         /* VISTAS 2 & 3: Teleprompter */
-        .viewport { position: absolute; top: var(--ui-height-top); bottom: var(--ui-height-bottom); width: 100%; display: flex; justify-content: center; overflow: hidden; background-color: var(--bg-color); }
+        .viewport { position: absolute; top: var(--ui-height-top); bottom: var(--ui-height-bottom); width: 100%; display: flex; justify-content: center; overflow: hidden; background-color: var(--bg-color); touch-action: none; /* Previene scroll nativo, lo manejamos nosotros */ }
         .focus-container { position: absolute; top: 50%; left: 0; width: 100%; height: 60px; transform: translateY(-50%); border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 10; pointer-events: none; }
         .indicator-studio { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 4px; height: 40px; background: var(--theme-studio); border-radius: 2px; transition: background 0.3s; }
         .indicator-player { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 4px; height: 40px; background: var(--theme-player); border-radius: 2px; }
@@ -213,7 +226,7 @@
         </div>
         <div class="workspace-scripts">
             <div class="editor-card">
-                <input type="text" id="script-title" class="editor-input" placeholder="Título del Proyecto (Ej: Análisis y Doctrina)">
+                <input type="text" id="script-title" class="editor-input" placeholder="Título del Proyecto (Ej: Revelaciones)">
                 <textarea id="script-content" class="editor-input" placeholder="Pega o escribe tu guion aquí..."></textarea>
                 <button class="btn-action" id="btn-save">Guardar Proyecto Local</button>
             </div>
@@ -234,10 +247,15 @@
                     <div class="vu-bar" id="vu-1"></div><div class="vu-bar" id="vu-2"></div><div class="vu-bar" id="vu-3"></div><div class="vu-bar" id="vu-4"></div><div class="vu-bar" id="vu-5"></div>
                 </div>
                 <div id="timer-studio">00:00:00</div>
-                <button class="btn-rec" id="btn-rec" title="Grabar"></button>
+                <div class="record-controls">
+                    <button class="btn-pause-rec" id="btn-pause-rec" title="Pausar Grabación">
+                        <svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                    </button>
+                    <button class="btn-rec" id="btn-rec" title="Grabar/Detener"></button>
+                </div>
             </div>
         </div>
-        <div class="viewport">
+        <div class="viewport" id="viewport-studio">
             <div class="focus-container"><div class="indicator-studio" id="studio-focus-indicator"></div></div>
             <div class="scroller" id="scroller-studio"></div>
         </div>
@@ -264,7 +282,7 @@
                 <div class="brand"><span id="player-active-title">Sin Guion</span></div>
             </div>
         </div>
-        <div class="viewport">
+        <div class="viewport" id="viewport-player">
             <div class="focus-container"><div class="indicator-player"></div></div>
             <div class="scroller" id="scroller-player"></div>
         </div>
@@ -358,6 +376,7 @@
             const p = APP_STATE.projects.find(x => x.id === id); if(!p) return;
             renderList();
             if(isPlayingStudio) togglePlayStudio(false);
+            if(isRecording) stopAudioEngine();
             
             document.getElementById('studio-active-title').innerText = p.title;
             document.getElementById('player-active-title').innerText = p.title;
@@ -375,7 +394,7 @@
             currentYStudio = 0; scr.style.transform = `translateY(0px)`; scrPlayer.style.transform = `translateY(0px)`;
             reconnectObserver(scr);
 
-            // Cargar audio en Reproductor desde ArrayBuffer Seguro
+            // Cargar audio en Reproductor
             const masterAudio = document.getElementById('master-audio');
             const btnPlayAudio = document.getElementById('btn-play-audio');
             
@@ -394,7 +413,7 @@
             if(btnPlayAudio.classList.contains('active')) btnPlayAudio.click(); 
         };
 
-        // --- 4. CONFIGURACIONES DEL MENÚ ---
+        // --- 4. CONFIGURACIONES ---
         const rootStyles = document.documentElement.style;
         let cFont = 28;
         const setFont = (s) => { cFont = Math.max(16, Math.min(s, 48)); document.getElementById('font-size-display').innerText = `${cFont}px`; rootStyles.setProperty('--font-size-p', `${cFont}px`); };
@@ -419,10 +438,31 @@
             });
         });
 
-        // --- 5. MOTOR SCROLL GPU & PLAY/PAUSA ---
+        // --- 5. MOTOR SCROLL GPU Y TOUCH DRAG NATIVO ---
         let isPlayingStudio = false;
         let gSpeed = 0.60; let dPacing = 1.0; let currentYStudio = 0; let reqFrameStudio = null; let lastTStudio = 0;
+        const scrollerStudio = document.getElementById('scroller-studio');
         const btnPlayStudio = document.getElementById('btn-play-studio');
+
+        // Touch Drag (Avance Manual)
+        let isDragging = false; let startDragY = 0; let startCurrentY = 0;
+        const viewportStudio = document.getElementById('viewport-studio');
+        
+        viewportStudio.addEventListener('touchstart', (e) => {
+            if(!APP_STATE.activeProjectId) return;
+            isDragging = true; startDragY = e.touches[0].clientY; startCurrentY = currentYStudio;
+            if(isPlayingStudio) cancelAnimationFrame(reqFrameStudio);
+        });
+        viewportStudio.addEventListener('touchmove', (e) => {
+            if(!isDragging) return;
+            currentYStudio = startCurrentY - (e.touches[0].clientY - startDragY);
+            if(currentYStudio < 0) currentYStudio = 0;
+            scrollerStudio.style.transform = `translateY(-${currentYStudio}px)`;
+        });
+        viewportStudio.addEventListener('touchend', () => {
+            isDragging = false;
+            if(isPlayingStudio && !isRecordingPaused) { lastTStudio = performance.now(); loopStudio(lastTStudio); }
+        });
 
         const togglePlayStudio = (forceState = null) => {
             isPlayingStudio = forceState !== null ? forceState : !isPlayingStudio;
@@ -430,20 +470,20 @@
             else { btnPlayStudio.innerHTML = '▶ ENSAYAR'; btnPlayStudio.classList.remove('active'); cancelAnimationFrame(reqFrameStudio); }
         };
 
-        btnPlayStudio.addEventListener('click', () => { if(APP_STATE.activeProjectId) togglePlayStudio(); });
+        btnPlayStudio.addEventListener('click', () => { if(APP_STATE.activeProjectId && !isRecording) togglePlayStudio(); });
         document.getElementById('btn-restart-studio').addEventListener('click', () => {
             if(isPlayingStudio) togglePlayStudio(false);
             if(isRecording) stopAudioEngine();
             currentYStudio = 0; dPacing = 1.0;
-            const scr = document.getElementById('scroller-studio'); scr.style.transform = `translateY(0px)`;
-            Array.from(scr.querySelectorAll('.paragraph')).forEach((p, i) => p.className = `paragraph ${i===0?'present':'future'}`);
+            scrollerStudio.style.transform = `translateY(0px)`;
+            Array.from(scrollerStudio.querySelectorAll('.paragraph')).forEach((p, i) => p.className = `paragraph ${i===0?'present':'future'}`);
         });
 
         function loopStudio(time) {
-            if (!isPlayingStudio) return;
+            if (!isPlayingStudio || isDragging) return;
             currentYStudio += 0.05 * (time - lastTStudio) * gSpeed * dPacing;
             lastTStudio = time;
-            document.getElementById('scroller-studio').style.transform = `translateY(-${currentYStudio}px)`;
+            scrollerStudio.style.transform = `translateY(-${currentYStudio}px)`;
             reqFrameStudio = requestAnimationFrame(loopStudio);
         }
 
@@ -465,12 +505,13 @@
             pr.forEach(p => obs.observe(p));
         };
 
-        // --- 6. MOTOR AUDIO DSP Y COMPILADOR BINARIO ---
-        let isRecording = false;
+        // --- 6. MOTOR AUDIO DSP Y GRABACIÓN ENCADEADA ---
+        let isRecording = false; let isRecordingPaused = false;
         let mediaRecorder = null; let audioContext = null; let analyser = null; let dataArray = null; let audioChunks = []; let reqFrameVu = null;
         let recordingSeconds = 0; let timerInterval = null; let globalStream = null;
 
         const btnRec = document.getElementById('btn-rec');
+        const btnPauseRec = document.getElementById('btn-pause-rec');
         const vuMeter = document.getElementById('vu-meter');
         const timerStudio = document.getElementById('timer-studio');
         const focusIndicator = document.getElementById('studio-focus-indicator');
@@ -480,7 +521,10 @@
 
         btnRec.addEventListener('click', async () => {
             if (!APP_STATE.activeProjectId) return alert("Selecciona un guion para grabar.");
+            
+            // Si ya está grabando, este botón actúa como STOP
             if (isRecording) { stopAudioEngine(); togglePlayStudio(false); return; }
+            
             try {
                 if (!globalStream) globalStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
                 let timeLeft = cdValues[cdIndex];
@@ -495,6 +539,25 @@
             } catch (err) { alert("Permiso de micrófono denegado."); }
         });
 
+        // Botón Pausar Grabación
+        btnPauseRec.addEventListener('click', () => {
+            if(!isRecording || !mediaRecorder) return;
+            
+            if(isRecordingPaused) {
+                mediaRecorder.resume();
+                isRecordingPaused = false;
+                timerStudio.classList.remove('paused');
+                btnPauseRec.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+                togglePlayStudio(true); // Reanudar texto
+            } else {
+                mediaRecorder.pause();
+                isRecordingPaused = true;
+                timerStudio.classList.add('paused');
+                btnPauseRec.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M8 5v14l11-7z"/></svg>';
+                togglePlayStudio(false); // Pausar texto
+            }
+        });
+
         const startAudioEngineAndScroll = () => {
             if(!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
             if(audioContext.state === 'suspended') audioContext.resume();
@@ -504,8 +567,6 @@
             source.connect(analyser); dataArray = new Uint8Array(analyser.frequencyBinCount);
             
             audioChunks = [];
-            
-            // Detección de MimeType seguro para Móviles
             let options = {};
             if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) { options = { mimeType: 'audio/webm;codecs=opus' }; } 
             else if (MediaRecorder.isTypeSupported('audio/mp4')) { options = { mimeType: 'audio/mp4' }; }
@@ -513,45 +574,39 @@
             mediaRecorder = new MediaRecorder(globalStream, options);
             mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) audioChunks.push(e.data); };
             
-            // EL COMPILADOR: Convierte el Blob a ArrayBuffer para evitar DataCloneError
             mediaRecorder.onstop = async () => {
                 setTimeout(async () => {
                     const mime = mediaRecorder.mimeType || 'audio/webm';
                     const audioBlob = new Blob(audioChunks, { type: mime }); 
                     
-                    if(audioBlob.size === 0) {
-                        alert("Error Crítico de Hardware: El micrófono capturó 0 bytes.");
-                        return;
-                    }
+                    if(audioBlob.size === 0) return alert("El micrófono capturó 0 bytes.");
 
                     const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
                     if(proj) {
                         try {
-                            const buffer = await audioBlob.arrayBuffer(); // <-- LA MAGIA (ArrayBuffer puro)
-                            proj.audioData = buffer;
+                            proj.audioData = await audioBlob.arrayBuffer(); 
                             proj.audioMimeType = mime;
                             await dbOps.save(proj);
                             
-                            // Feedback Visual de Éxito
                             const titleEl = document.getElementById('studio-active-title');
-                            titleEl.innerText = "¡AUDIO GUARDADO!";
-                            titleEl.style.color = "#FFDD00";
+                            titleEl.innerText = "¡AUDIO GUARDADO!"; titleEl.style.color = "#FFDD00";
                             setTimeout(() => selectProject(proj.id), 2000); 
-
-                        } catch (e) {
-                            alert("Error al guardar en memoria local: " + e);
-                        }
+                        } catch (e) { alert("Error al guardar: " + e); }
                     }
-                }, 100); // Pequeño delay para asegurar que el último chunk se empujó
+                }, 100);
             };
 
             mediaRecorder.start(500); 
-            isRecording = true;
-            btnRec.classList.add('recording'); vuMeter.classList.add('recording'); timerStudio.classList.add('recording');
+            isRecording = true; isRecordingPaused = false;
+            
+            btnRec.classList.add('recording'); 
+            btnPauseRec.classList.add('visible'); btnPauseRec.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+            vuMeter.classList.add('recording'); timerStudio.classList.add('recording'); timerStudio.classList.remove('paused');
             focusIndicator.style.background = 'var(--danger-color)';
             
             recordingSeconds = 0; timerStudio.innerText = "00:00:00";
             timerInterval = setInterval(() => {
+                if(isRecordingPaused) return; // No contar si está pausado
                 recordingSeconds++;
                 const h = Math.floor(recordingSeconds / 3600).toString().padStart(2, '0');
                 const m = Math.floor((recordingSeconds % 3600) / 60).toString().padStart(2, '0');
@@ -560,13 +615,21 @@
             }, 1000);
 
             drawVUMeter();
-            togglePlayStudio(true); // Arranca texto
+            togglePlayStudio(true); 
         };
 
         const stopAudioEngine = () => {
             if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
-            isRecording = false;
-            btnRec.classList.remove('recording'); vuMeter.classList.remove('recording'); timerStudio.classList.remove('recording');
+            
+            // APAGADO DEFINITIVO DEL MICRÓFONO (Apaga la luz de Android)
+            if (globalStream) {
+                globalStream.getTracks().forEach(track => track.stop());
+                globalStream = null;
+            }
+
+            isRecording = false; isRecordingPaused = false;
+            btnRec.classList.remove('recording'); btnPauseRec.classList.remove('visible');
+            vuMeter.classList.remove('recording'); timerStudio.classList.remove('recording', 'paused');
             focusIndicator.style.background = 'var(--theme-studio)';
             clearInterval(timerInterval); cancelAnimationFrame(reqFrameVu);
             vus.forEach(v => { v.style.height = '4px'; v.style.backgroundColor = 'var(--theme-studio)'; });
@@ -574,46 +637,62 @@
 
         const drawVUMeter = () => {
             if (!isRecording) return;
-            analyser.getByteFrequencyData(dataArray);
-            let sum = 0; for(let i=0; i<dataArray.length; i++) sum += dataArray[i];
-            let level = ((sum / dataArray.length) / 128) * 5; 
-            vus.forEach((bar, index) => {
-                if (index < level) { bar.style.height = '100%'; if(index === 3) bar.style.backgroundColor = '#FFDD00'; else if(index === 4) bar.style.backgroundColor = 'var(--danger-color)'; else bar.style.backgroundColor = 'var(--theme-studio)'; } 
-                else { bar.style.height = '4px'; bar.style.backgroundColor = 'var(--theme-studio)'; }
-            });
+            if (!isRecordingPaused) {
+                analyser.getByteFrequencyData(dataArray);
+                let sum = 0; for(let i=0; i<dataArray.length; i++) sum += dataArray[i];
+                let level = ((sum / dataArray.length) / 128) * 5; 
+                vus.forEach((bar, index) => {
+                    if (index < level) { bar.style.height = '100%'; if(index === 3) bar.style.backgroundColor = '#FFDD00'; else if(index === 4) bar.style.backgroundColor = 'var(--danger-color)'; else bar.style.backgroundColor = 'var(--theme-studio)'; } 
+                    else { bar.style.height = '4px'; bar.style.backgroundColor = 'var(--theme-studio)'; }
+                });
+            }
             reqFrameVu = requestAnimationFrame(drawVUMeter);
         };
 
-        // --- 7. MOTOR REPRODUCTOR ESCLAVO ---
+        // --- 7. MOTOR REPRODUCTOR FLUIDO (60 FPS) ---
         const masterAudio = document.getElementById('master-audio');
         const btnPlayAudio = document.getElementById('btn-play-audio');
         const audioProgress = document.getElementById('audio-progress');
         const scrollerPlayer = document.getElementById('scroller-player');
+        let reqFramePlayer = null;
+
+        function loopPlayer() {
+            if (!masterAudio.paused && masterAudio.duration) {
+                const percent = masterAudio.currentTime / masterAudio.duration;
+                audioProgress.style.width = `${percent * 100}%`;
+                
+                const viewport = document.getElementById('viewport-player');
+                if(viewport) {
+                    const totalScroll = scrollerPlayer.scrollHeight - (viewport.clientHeight / 2);
+                    if (totalScroll > 0) {
+                        // Desplazamiento matemático ultrasuave
+                        scrollerPlayer.style.transform = `translateY(-${percent * totalScroll}px)`;
+                        
+                        // Actualización de colores
+                        const prs = Array.from(scrollerPlayer.querySelectorAll('.paragraph'));
+                        const aIdx = Math.floor(percent * prs.length);
+                        prs.forEach((p, i) => { p.className = `paragraph ${i < aIdx ? 'past' : (i === aIdx ? 'present' : 'future')}`; });
+                    }
+                }
+                reqFramePlayer = requestAnimationFrame(loopPlayer);
+            }
+        }
 
         if (btnPlayAudio && masterAudio) {
             btnPlayAudio.addEventListener('click', () => {
-                if (masterAudio.paused) { masterAudio.play(); btnPlayAudio.innerHTML = '⏸ PAUSA'; btnPlayAudio.classList.add('active'); } 
-                else { masterAudio.pause(); btnPlayAudio.innerHTML = '▶ ESCUCHAR'; btnPlayAudio.classList.remove('active'); }
-            });
-
-            masterAudio.addEventListener('timeupdate', () => {
-                if (masterAudio.duration) {
-                    const percent = (masterAudio.currentTime / masterAudio.duration);
-                    audioProgress.style.width = `${percent * 100}%`;
-                    const viewport = document.querySelector('#view-player .viewport');
-                    if(viewport) {
-                        const totalScroll = scrollerPlayer.scrollHeight - (viewport.clientHeight / 2);
-                        if (totalScroll > 0) {
-                            scrollerPlayer.style.transform = `translateY(-${percent * totalScroll}px)`;
-                            const prs = Array.from(scrollerPlayer.querySelectorAll('.paragraph'));
-                            const aIdx = Math.floor(percent * prs.length);
-                            prs.forEach((p, i) => { p.className = `paragraph ${i < aIdx ? 'past' : (i === aIdx ? 'present' : 'future')}`; });
-                        }
-                    }
+                if (masterAudio.paused) { 
+                    masterAudio.play(); btnPlayAudio.innerHTML = '⏸ PAUSA'; btnPlayAudio.classList.add('active'); 
+                    reqFramePlayer = requestAnimationFrame(loopPlayer);
+                } else { 
+                    masterAudio.pause(); btnPlayAudio.innerHTML = '▶ ESCUCHAR'; btnPlayAudio.classList.remove('active'); 
+                    cancelAnimationFrame(reqFramePlayer);
                 }
             });
 
-            masterAudio.addEventListener('ended', () => { btnPlayAudio.innerHTML = '▶ ESCUCHAR'; btnPlayAudio.classList.remove('active'); });
+            masterAudio.addEventListener('ended', () => { 
+                btnPlayAudio.innerHTML = '▶ ESCUCHAR'; btnPlayAudio.classList.remove('active'); 
+                cancelAnimationFrame(reqFramePlayer);
+            });
         }
 
         window.addEventListener('DOMContentLoaded', async () => { try { await initDB(); APP_STATE.projects = await dbOps.loadAll(); renderList(); } catch(e) {} });
