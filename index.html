@@ -130,7 +130,7 @@
         .btn-delete { background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 8px 10px; border-radius: 6px; cursor: pointer;}
 
         /* VISTAS 2 & 3: Teleprompter */
-        .viewport { position: absolute; top: var(--ui-height-top); bottom: var(--ui-height-bottom); width: 100%; display: flex; justify-content: center; overflow: hidden; background-color: var(--bg-color); touch-action: none; /* Previene scroll nativo, lo manejamos nosotros */ }
+        .viewport { position: absolute; top: var(--ui-height-top); bottom: var(--ui-height-bottom); width: 100%; display: flex; justify-content: center; overflow: hidden; background-color: var(--bg-color); touch-action: none; }
         .focus-container { position: absolute; top: 50%; left: 0; width: 100%; height: 60px; transform: translateY(-50%); border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 10; pointer-events: none; }
         .indicator-studio { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 4px; height: 40px; background: var(--theme-studio); border-radius: 2px; transition: background 0.3s; }
         .indicator-player { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 4px; height: 40px; background: var(--theme-player); border-radius: 2px; }
@@ -157,7 +157,7 @@
         .bottom-bar { height: calc(var(--ui-height-bottom) - var(--safe-area-bottom)); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; }
         .btn { background: var(--surface-light); color: #FFF; border: none; border-radius: 8px; height: 55px; min-width: 55px; font-size: 16px; font-weight: bold; display: flex; justify-content: center; align-items: center; touch-action: manipulation;}
         .btn:active { background: #333; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
         svg { width: 24px; height: 24px; fill: currentColor; }
 
         .speed-panel { background: #0A0A0A; border-radius: 27px; display: flex; align-items: center; padding: 5px; border: 1px solid #222; }
@@ -170,9 +170,7 @@
 </head>
 <body>
 
-    <div id="countdown-overlay">
-        <div id="countdown-number">3</div>
-    </div>
+    <div id="countdown-overlay"><div id="countdown-number">3</div></div>
 
     <!-- SIDEBAR Y CONFIGURACIÓN -->
     <div id="sidebar-overlay"></div>
@@ -198,21 +196,17 @@
         </div>
 
         <div class="sidebar-item" id="btn-install">
-            <svg viewBox="0 0 24 24" style="margin-right: 8px;"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-            Instalar App
+            <svg viewBox="0 0 24 24" style="margin-right: 8px;"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg> Instalar App
         </div>
 
         <div class="sidebar-item active" data-target="view-scripts">
-            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-            Gestor de Guiones
+            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> Gestor de Guiones
         </div>
         <div class="sidebar-item" data-target="view-studio">
-            <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
-            Estudio (Grabar)
+            <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg> Estudio (Grabar)
         </div>
         <div class="sidebar-item" data-target="view-player">
-            <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-            Reproductor (Revisar)
+            <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg> Reproductor (Revisar)
         </div>
     </div>
 
@@ -248,9 +242,7 @@
                 </div>
                 <div id="timer-studio">00:00:00</div>
                 <div class="record-controls">
-                    <button class="btn-pause-rec" id="btn-pause-rec" title="Pausar Grabación">
-                        <svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-                    </button>
+                    <button class="btn-pause-rec" id="btn-pause-rec" title="Pausar Grabación"><svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
                     <button class="btn-rec" id="btn-rec" title="Grabar/Detener"></button>
                 </div>
             </div>
@@ -290,10 +282,16 @@
         <audio id="master-audio" style="display: none;"></audio>
         <div class="bottom-bar-wrapper">
             <div class="bottom-bar">
-                <button class="btn btn-play-audio" id="btn-play-audio" disabled style="background: rgba(0,204,255,0.15); color: var(--theme-player); border: 1px solid var(--theme-player); padding: 0 20px; font-size:14px; width:130px;">SIN AUDIO</button>
-                <div style="flex-grow: 1; height: 6px; background: #333; border-radius: 3px; margin: 0 15px; position: relative; overflow: hidden;">
+                <!-- Botón Escuchar -->
+                <button class="btn btn-play-audio" id="btn-play-audio" disabled style="background: rgba(0,204,255,0.15); color: var(--theme-player); border: 1px solid var(--theme-player); padding: 0 15px; font-size:14px; width:130px;">SIN AUDIO</button>
+                <!-- Línea de tiempo (Barra de progreso) -->
+                <div style="flex-grow: 1; height: 6px; background: #333; border-radius: 3px; margin: 0 10px; position: relative; overflow: hidden;">
                     <div id="audio-progress" style="position: absolute; left: 0; top: 0; height: 100%; background: var(--theme-player); width: 0%; transition: width 0.1s linear;"></div>
                 </div>
+                <!-- NUEVO: Botón Exportar -->
+                <button class="btn" id="btn-export-audio" disabled style="background: rgba(212,175,55,0.15); color: var(--theme-scripts); border: 1px solid var(--theme-scripts); padding: 0 15px;" title="Descargar Audio">
+                    <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                </button>
             </div>
         </div>
     </div>
@@ -394,20 +392,33 @@
             currentYStudio = 0; scr.style.transform = `translateY(0px)`; scrPlayer.style.transform = `translateY(0px)`;
             reconnectObserver(scr);
 
-            // Cargar audio en Reproductor
+            // Cargar audio en Reproductor desde ArrayBuffer Seguro
             const masterAudio = document.getElementById('master-audio');
             const btnPlayAudio = document.getElementById('btn-play-audio');
+            const btnExport = document.getElementById('btn-export-audio');
             
             if (p.audioData) {
                 const mime = p.audioMimeType || 'audio/webm';
                 const blob = new Blob([p.audioData], { type: mime });
                 masterAudio.src = URL.createObjectURL(blob);
-                btnPlayAudio.disabled = false;
-                btnPlayAudio.innerHTML = '▶ ESCUCHAR';
+                
+                btnPlayAudio.disabled = false; btnPlayAudio.innerHTML = '▶ ESCUCHAR';
+                btnExport.disabled = false; // Habilitar descarga
+                
+                // Lógica de descarga (Exportar)
+                btnExport.onclick = () => {
+                    const a = document.createElement('a');
+                    a.href = masterAudio.src;
+                    // Limpia el título para usarlo como nombre de archivo
+                    const safeTitle = p.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                    const extension = mime.includes('mp4') ? 'mp4' : 'webm';
+                    a.download = `Audio_${safeTitle}.${extension}`;
+                    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                };
             } else {
                 masterAudio.removeAttribute('src');
-                btnPlayAudio.disabled = true;
-                btnPlayAudio.innerHTML = 'SIN AUDIO';
+                btnPlayAudio.disabled = true; btnPlayAudio.innerHTML = 'SIN AUDIO';
+                btnExport.disabled = true; btnExport.onclick = null;
             }
             document.getElementById('audio-progress').style.width = '0%';
             if(btnPlayAudio.classList.contains('active')) btnPlayAudio.click(); 
@@ -444,7 +455,7 @@
         const scrollerStudio = document.getElementById('scroller-studio');
         const btnPlayStudio = document.getElementById('btn-play-studio');
 
-        // Touch Drag (Avance Manual)
+        // Touch Drag (Avance Manual en Estudio)
         let isDragging = false; let startDragY = 0; let startCurrentY = 0;
         const viewportStudio = document.getElementById('viewport-studio');
         
@@ -505,7 +516,7 @@
             pr.forEach(p => obs.observe(p));
         };
 
-        // --- 6. MOTOR AUDIO DSP Y GRABACIÓN ENCADEADA ---
+        // --- 6. MOTOR AUDIO DSP Y GRABACIÓN ---
         let isRecording = false; let isRecordingPaused = false;
         let mediaRecorder = null; let audioContext = null; let analyser = null; let dataArray = null; let audioChunks = []; let reqFrameVu = null;
         let recordingSeconds = 0; let timerInterval = null; let globalStream = null;
@@ -521,8 +532,6 @@
 
         btnRec.addEventListener('click', async () => {
             if (!APP_STATE.activeProjectId) return alert("Selecciona un guion para grabar.");
-            
-            // Si ya está grabando, este botón actúa como STOP
             if (isRecording) { stopAudioEngine(); togglePlayStudio(false); return; }
             
             try {
@@ -539,22 +548,18 @@
             } catch (err) { alert("Permiso de micrófono denegado."); }
         });
 
-        // Botón Pausar Grabación
         btnPauseRec.addEventListener('click', () => {
             if(!isRecording || !mediaRecorder) return;
-            
             if(isRecordingPaused) {
-                mediaRecorder.resume();
-                isRecordingPaused = false;
+                mediaRecorder.resume(); isRecordingPaused = false;
                 timerStudio.classList.remove('paused');
                 btnPauseRec.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
-                togglePlayStudio(true); // Reanudar texto
+                togglePlayStudio(true); 
             } else {
-                mediaRecorder.pause();
-                isRecordingPaused = true;
+                mediaRecorder.pause(); isRecordingPaused = true;
                 timerStudio.classList.add('paused');
                 btnPauseRec.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M8 5v14l11-7z"/></svg>';
-                togglePlayStudio(false); // Pausar texto
+                togglePlayStudio(false); 
             }
         });
 
@@ -575,10 +580,12 @@
             mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) audioChunks.push(e.data); };
             
             mediaRecorder.onstop = async () => {
+                // CAPTURA VITAL: El momento exacto donde el usuario detuvo el scroll (Evita Desfase)
+                const finalY = currentYStudio; 
+                
                 setTimeout(async () => {
                     const mime = mediaRecorder.mimeType || 'audio/webm';
                     const audioBlob = new Blob(audioChunks, { type: mime }); 
-                    
                     if(audioBlob.size === 0) return alert("El micrófono capturó 0 bytes.");
 
                     const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
@@ -586,6 +593,7 @@
                         try {
                             proj.audioData = await audioBlob.arrayBuffer(); 
                             proj.audioMimeType = mime;
+                            proj.recordedScrollY = finalY; // LA MAGIA: Guardar coordenada
                             await dbOps.save(proj);
                             
                             const titleEl = document.getElementById('studio-active-title');
@@ -606,7 +614,7 @@
             
             recordingSeconds = 0; timerStudio.innerText = "00:00:00";
             timerInterval = setInterval(() => {
-                if(isRecordingPaused) return; // No contar si está pausado
+                if(isRecordingPaused) return; 
                 recordingSeconds++;
                 const h = Math.floor(recordingSeconds / 3600).toString().padStart(2, '0');
                 const m = Math.floor((recordingSeconds % 3600) / 60).toString().padStart(2, '0');
@@ -620,12 +628,7 @@
 
         const stopAudioEngine = () => {
             if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
-            
-            // APAGADO DEFINITIVO DEL MICRÓFONO (Apaga la luz de Android)
-            if (globalStream) {
-                globalStream.getTracks().forEach(track => track.stop());
-                globalStream = null;
-            }
+            if (globalStream) { globalStream.getTracks().forEach(track => track.stop()); globalStream = null; }
 
             isRecording = false; isRecordingPaused = false;
             btnRec.classList.remove('recording'); btnPauseRec.classList.remove('visible');
@@ -649,7 +652,7 @@
             reqFrameVu = requestAnimationFrame(drawVUMeter);
         };
 
-        // --- 7. MOTOR REPRODUCTOR FLUIDO (60 FPS) ---
+        // --- 7. MOTOR REPRODUCTOR ESCLAVO FLUIDO ---
         const masterAudio = document.getElementById('master-audio');
         const btnPlayAudio = document.getElementById('btn-play-audio');
         const audioProgress = document.getElementById('audio-progress');
@@ -661,18 +664,15 @@
                 const percent = masterAudio.currentTime / masterAudio.duration;
                 audioProgress.style.width = `${percent * 100}%`;
                 
-                const viewport = document.getElementById('viewport-player');
-                if(viewport) {
-                    const totalScroll = scrollerPlayer.scrollHeight - (viewport.clientHeight / 2);
-                    if (totalScroll > 0) {
-                        // Desplazamiento matemático ultrasuave
-                        scrollerPlayer.style.transform = `translateY(-${percent * totalScroll}px)`;
-                        
-                        // Actualización de colores
-                        const prs = Array.from(scrollerPlayer.querySelectorAll('.paragraph'));
-                        const aIdx = Math.floor(percent * prs.length);
-                        prs.forEach((p, i) => { p.className = `paragraph ${i < aIdx ? 'past' : (i === aIdx ? 'present' : 'future')}`; });
-                    }
+                const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
+                if(proj && proj.recordedScrollY) {
+                    // Ahora se mueve solo hasta la coordenada Y donde paraste de grabar
+                    scrollerPlayer.style.transform = `translateY(-${percent * proj.recordedScrollY}px)`;
+                    
+                    const prs = Array.from(scrollerPlayer.querySelectorAll('.paragraph'));
+                    // Determinar qué párrafo está activo matemáticamente (aproximación visual)
+                    const aIdx = Math.floor(percent * (proj.recordedScrollY / (scrollerPlayer.scrollHeight / prs.length)));
+                    prs.forEach((p, i) => { p.className = `paragraph ${i < aIdx ? 'past' : (i === aIdx ? 'present' : 'future')}`; });
                 }
                 reqFramePlayer = requestAnimationFrame(loopPlayer);
             }
