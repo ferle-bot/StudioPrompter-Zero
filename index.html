@@ -26,7 +26,7 @@
             /* Paleta Semántica Actualizada */
             --theme-studio: #39FF14; 
             --theme-player: #00CCFF; 
-            --theme-scripts: #D4AF37; /* Oro Premium (Sustituye al mostaza) */
+            --theme-scripts: #D4AF37; /* Oro Premium */
             --danger-color: #FF3333; 
             
             --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -55,7 +55,7 @@
         #top-bar-studio .brand span { color: var(--theme-studio); }
         #top-bar-player { border-bottom-color: rgba(0,204,255,0.3); }
         #top-bar-player .brand span { color: var(--theme-player); }
-        #top-bar-scripts { border-bottom-color: rgba(212,175,55,0.3); } /* Borde Oro */
+        #top-bar-scripts { border-bottom-color: rgba(212,175,55,0.3); }
         #top-bar-scripts .brand span { color: var(--theme-scripts); }
 
         #timer-studio { font-family: monospace; font-size: 20px; color: var(--text-future); }
@@ -270,6 +270,16 @@
             <div class="focus-container"><div class="indicator-player"></div></div>
             <div class="scroller" id="scroller-player"></div>
         </div>
+        
+        <audio id="master-audio" style="display: none;"></audio>
+        <div class="bottom-bar-wrapper">
+            <div class="bottom-bar">
+                <button class="btn btn-play-audio" id="btn-play-audio" disabled style="background: rgba(0,204,255,0.15); color: var(--theme-player); border: 1px solid var(--theme-player); padding: 0 20px; font-size:14px; width:130px;">SIN AUDIO</button>
+                <div style="flex-grow: 1; height: 6px; background: #333; border-radius: 3px; margin: 0 15px; position: relative; overflow: hidden;">
+                    <div id="audio-progress" style="position: absolute; left: 0; top: 0; height: 100%; background: var(--theme-player); width: 0%; transition: width 0.1s linear;"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- =========================================
@@ -325,7 +335,7 @@
         window.deleteProject = async (id) => {
             if(!confirm("¿Borrar definitivamente?")) return;
             await dbOps.delete(id); APP_STATE.projects = APP_STATE.projects.filter(p => p.id !== id);
-            if(APP_STATE.activeProjectId === id) { APP_STATE.activeProjectId = null; document.getElementById('studio-active-title').innerText = "Sin Guion"; document.getElementById('scroller-studio').innerHTML = ""; }
+            if(APP_STATE.activeProjectId === id) { APP_STATE.activeProjectId = null; document.getElementById('studio-active-title').innerText = "Sin Guion"; document.getElementById('scroller-studio').innerHTML = ""; document.getElementById('scroller-player').innerHTML = ""; }
             renderList();
         };
 
@@ -349,32 +359,50 @@
             APP_STATE.activeProjectId = id;
             const p = APP_STATE.projects.find(x => x.id === id); if(!p) return;
             renderList();
-            if(isPlayingStudio) togglePlayStudio(false); // Forzar detención si estaba corriendo
+            if(isPlayingStudio) togglePlayStudio(false);
             
             document.getElementById('studio-active-title').innerText = p.title;
+            document.getElementById('player-active-title').innerText = p.title;
+            
             const scr = document.getElementById('scroller-studio'); scr.innerHTML = '';
+            const scrPlayer = document.getElementById('scroller-player'); scrPlayer.innerHTML = '';
+            
             p.paragraphs.forEach((d, i) => {
                 const pTag = document.createElement('p'); pTag.className = `paragraph ${i === 0 ? 'present' : 'future'}`;
-                pTag.dataset.id = d.id; pTag.dataset.chars = d.weight; pTag.innerText = d.text; scr.appendChild(pTag);
+                pTag.dataset.id = d.id; pTag.dataset.chars = d.weight; pTag.innerText = d.text; 
+                scr.appendChild(pTag);
+                const pTagPlayer = pTag.cloneNode(true);
+                scrPlayer.appendChild(pTagPlayer);
             });
-            currentYStudio = 0; scr.style.transform = `translateY(0px)`;
+            currentYStudio = 0; scr.style.transform = `translateY(0px)`; scrPlayer.style.transform = `translateY(0px)`;
             reconnectObserver(scr);
+
+            // Cargar audio en Reproductor
+            const masterAudio = document.getElementById('master-audio');
+            const btnPlayAudio = document.getElementById('btn-play-audio');
+            
+            if (p.audioBlob) {
+                masterAudio.src = URL.createObjectURL(p.audioBlob);
+                btnPlayAudio.disabled = false;
+                btnPlayAudio.innerHTML = '▶ ESCUCHAR';
+            } else {
+                masterAudio.removeAttribute('src');
+                btnPlayAudio.disabled = true;
+                btnPlayAudio.innerHTML = 'SIN AUDIO';
+            }
+            document.getElementById('audio-progress').style.width = '0%';
+            if(btnPlayAudio.classList.contains('active')) btnPlayAudio.click(); 
         };
 
-        // --- 4. CONFIGURACIONES DEL MENÚ (Fuente y Cuenta Regresiva) ---
+        // --- 4. CONFIGURACIONES DEL MENÚ ---
         const rootStyles = document.documentElement.style;
         let cFont = 28;
         const setFont = (s) => { cFont = Math.max(16, Math.min(s, 48)); document.getElementById('font-size-display').innerText = `${cFont}px`; rootStyles.setProperty('--font-size-p', `${cFont}px`); };
         document.getElementById('btn-font-plus').addEventListener('click', () => setFont(cFont + 2));
         document.getElementById('btn-font-minus').addEventListener('click', () => setFont(cFont - 2));
 
-        const cdValues = [0, 3, 5, 10];
-        let cdIndex = 1; // Default 3s
-        const setCountdown = (idx) => {
-            if(idx < 0) idx = 0; if(idx >= cdValues.length) idx = cdValues.length - 1;
-            cdIndex = idx;
-            document.getElementById('cd-display').innerText = cdValues[cdIndex] + 's';
-        };
+        const cdValues = [0, 3, 5, 10]; let cdIndex = 1;
+        const setCountdown = (idx) => { if(idx < 0) idx = 0; if(idx >= cdValues.length) idx = cdValues.length - 1; cdIndex = idx; document.getElementById('cd-display').innerText = cdValues[cdIndex] + 's'; };
         document.getElementById('btn-cd-plus').addEventListener('click', () => setCountdown(cdIndex + 1));
         document.getElementById('btn-cd-minus').addEventListener('click', () => setCountdown(cdIndex - 1));
 
@@ -393,30 +421,16 @@
 
         // --- 5. MOTOR SCROLL GPU & PLAY/PAUSA ---
         let isPlayingStudio = false;
-        let gSpeed = 0.60;
-        let dPacing = 1.0;
-        let currentYStudio = 0;
-        let reqFrameStudio = null;
-        let lastTStudio = 0;
+        let gSpeed = 0.60; let dPacing = 1.0; let currentYStudio = 0; let reqFrameStudio = null; let lastTStudio = 0;
         const btnPlayStudio = document.getElementById('btn-play-studio');
 
-        // Función separada para poder ser llamada programáticamente
         const togglePlayStudio = (forceState = null) => {
             isPlayingStudio = forceState !== null ? forceState : !isPlayingStudio;
-            if (isPlayingStudio) { 
-                btnPlayStudio.innerHTML = '⏸ PAUSA'; btnPlayStudio.classList.add('active'); 
-                lastTStudio = performance.now(); loopStudio(lastTStudio); 
-            } else { 
-                btnPlayStudio.innerHTML = '▶ ENSAYAR'; btnPlayStudio.classList.remove('active'); 
-                cancelAnimationFrame(reqFrameStudio); 
-            }
+            if (isPlayingStudio) { btnPlayStudio.innerHTML = '⏸ PAUSA'; btnPlayStudio.classList.add('active'); lastTStudio = performance.now(); loopStudio(lastTStudio); } 
+            else { btnPlayStudio.innerHTML = '▶ ENSAYAR'; btnPlayStudio.classList.remove('active'); cancelAnimationFrame(reqFrameStudio); }
         };
 
-        btnPlayStudio.addEventListener('click', () => {
-            if(!APP_STATE.activeProjectId) return;
-            togglePlayStudio();
-        });
-
+        btnPlayStudio.addEventListener('click', () => { if(APP_STATE.activeProjectId) togglePlayStudio(); });
         document.getElementById('btn-restart-studio').addEventListener('click', () => {
             if(isPlayingStudio) togglePlayStudio(false);
             if(isRecording) stopAudioEngine();
@@ -451,7 +465,7 @@
             pr.forEach(p => obs.observe(p));
         };
 
-        // --- 6. MOTOR AUDIO DSP Y ENCADENAMIENTO DE GRABACIÓN ---
+        // --- 6. MOTOR AUDIO DSP & ENCADENAMIENTO DE GRABACIÓN ---
         let isRecording = false;
         let mediaRecorder = null; let audioContext = null; let analyser = null; let dataArray = null; let audioChunks = []; let reqFrameVu = null;
         let recordingSeconds = 0; let timerInterval = null; let globalStream = null;
@@ -464,50 +478,21 @@
         const overlayNum = document.getElementById('countdown-number');
         const vus = [document.getElementById('vu-1'), document.getElementById('vu-2'), document.getElementById('vu-3'), document.getElementById('vu-4'), document.getElementById('vu-5')];
 
-        // 1. Pedir permisos al instante y arrancar cuenta regresiva
         btnRec.addEventListener('click', async () => {
             if (!APP_STATE.activeProjectId) return alert("Selecciona un guion para grabar.");
-            
-            // Si ya está grabando, detenemos audio y scroll.
-            if (isRecording) {
-                stopAudioEngine();
-                togglePlayStudio(false);
-                return;
-            }
-
-            // Iniciar flujo seguro de permisos -> Countdown -> Grabación
+            if (isRecording) { stopAudioEngine(); togglePlayStudio(false); return; }
             try {
-                // Pedimos permiso de micrófono explícitamente en el evento del clic (vital para Chrome)
-                if (!globalStream) {
-                    globalStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-                }
-                
-                // Ejecutamos la cuenta regresiva seleccionada por el usuario
+                if (!globalStream) globalStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
                 let timeLeft = cdValues[cdIndex];
-                
                 if (timeLeft > 0) {
-                    overlay.classList.add('active');
-                    overlayNum.innerText = timeLeft;
-                    
+                    overlay.classList.add('active'); overlayNum.innerText = timeLeft;
                     const cdInterval = setInterval(() => {
                         timeLeft--;
-                        if(timeLeft > 0) {
-                            overlayNum.innerText = timeLeft;
-                        } else {
-                            clearInterval(cdInterval);
-                            overlay.classList.remove('active');
-                            startAudioEngineAndScroll(); // Encadenamiento
-                        }
+                        if(timeLeft > 0) overlayNum.innerText = timeLeft;
+                        else { clearInterval(cdInterval); overlay.classList.remove('active'); startAudioEngineAndScroll(); }
                     }, 1000);
-                } else {
-                    // Si el usuario puso 0 segundos, arranca de inmediato
-                    startAudioEngineAndScroll();
-                }
-
-            } catch (err) {
-                console.error("Permiso denegado:", err);
-                alert("Debes permitir el acceso al micrófono de tu dispositivo. Revisa el icono del candado en la barra de Chrome.");
-            }
+                } else { startAudioEngineAndScroll(); }
+            } catch (err) { alert("Permiso denegado. Revisa configuración de Chrome."); }
         });
 
         const startAudioEngineAndScroll = () => {
@@ -521,8 +506,19 @@
             audioChunks = [];
             mediaRecorder = new MediaRecorder(globalStream);
             mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
-            mediaRecorder.start(500); 
+            
+            // EL ENSAMBLADOR: Compila y guarda al detener
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' }); 
+                const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
+                if(proj) {
+                    proj.audioBlob = audioBlob;
+                    await dbOps.save(proj);
+                    selectProject(proj.id); // Recarga la UI
+                }
+            };
 
+            mediaRecorder.start(500); 
             isRecording = true;
             btnRec.classList.add('recording'); vuMeter.classList.add('recording'); timerStudio.classList.add('recording');
             focusIndicator.style.background = 'var(--danger-color)';
@@ -537,22 +533,16 @@
             }, 1000);
 
             drawVUMeter();
-            
-            // EL ENCADENAMIENTO: Arrancar el texto automáticamente
-            togglePlayStudio(true); 
+            togglePlayStudio(true); // Arranca texto
         };
 
         const stopAudioEngine = () => {
             if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
-            // No detenemos los tracks del globalStream para no tener que volver a pedir permisos en la misma sesión
-            
             isRecording = false;
             btnRec.classList.remove('recording'); vuMeter.classList.remove('recording'); timerStudio.classList.remove('recording');
             focusIndicator.style.background = 'var(--theme-studio)';
             clearInterval(timerInterval); cancelAnimationFrame(reqFrameVu);
             vus.forEach(v => { v.style.height = '4px'; v.style.backgroundColor = 'var(--theme-studio)'; });
-            
-            console.log("Fragmentos capturados en sesión:", audioChunks.length);
         };
 
         const drawVUMeter = () => {
@@ -560,23 +550,49 @@
             analyser.getByteFrequencyData(dataArray);
             let sum = 0; for(let i=0; i<dataArray.length; i++) sum += dataArray[i];
             let level = ((sum / dataArray.length) / 128) * 5; 
-            
             vus.forEach((bar, index) => {
-                if (index < level) {
-                    bar.style.height = '100%';
-                    if(index === 3) bar.style.backgroundColor = '#FFDD00'; else if(index === 4) bar.style.backgroundColor = 'var(--danger-color)'; else bar.style.backgroundColor = 'var(--theme-studio)';
-                } else {
-                    bar.style.height = '4px'; bar.style.backgroundColor = 'var(--theme-studio)';
-                }
+                if (index < level) { bar.style.height = '100%'; if(index === 3) bar.style.backgroundColor = '#FFDD00'; else if(index === 4) bar.style.backgroundColor = 'var(--danger-color)'; else bar.style.backgroundColor = 'var(--theme-studio)'; } 
+                else { bar.style.height = '4px'; bar.style.backgroundColor = 'var(--theme-studio)'; }
             });
             reqFrameVu = requestAnimationFrame(drawVUMeter);
         };
+
+        // --- 7. MOTOR REPRODUCTOR ESCLAVO ---
+        const masterAudio = document.getElementById('master-audio');
+        const btnPlayAudio = document.getElementById('btn-play-audio');
+        const audioProgress = document.getElementById('audio-progress');
+        const scrollerPlayer = document.getElementById('scroller-player');
+
+        if (btnPlayAudio && masterAudio) {
+            btnPlayAudio.addEventListener('click', () => {
+                if (masterAudio.paused) { masterAudio.play(); btnPlayAudio.innerHTML = '⏸ PAUSA'; btnPlayAudio.classList.add('active'); } 
+                else { masterAudio.pause(); btnPlayAudio.innerHTML = '▶ ESCUCHAR'; btnPlayAudio.classList.remove('active'); }
+            });
+
+            masterAudio.addEventListener('timeupdate', () => {
+                if (masterAudio.duration) {
+                    const percent = (masterAudio.currentTime / masterAudio.duration);
+                    audioProgress.style.width = `${percent * 100}%`;
+                    const viewport = document.querySelector('#view-player .viewport');
+                    if(viewport) {
+                        const totalScroll = scrollerPlayer.scrollHeight - (viewport.clientHeight / 2);
+                        if (totalScroll > 0) {
+                            scrollerPlayer.style.transform = `translateY(-${percent * totalScroll}px)`;
+                            const prs = Array.from(scrollerPlayer.querySelectorAll('.paragraph'));
+                            const aIdx = Math.floor(percent * prs.length);
+                            prs.forEach((p, i) => { p.className = `paragraph ${i < aIdx ? 'past' : (i === aIdx ? 'present' : 'future')}`; });
+                        }
+                    }
+                }
+            });
+
+            masterAudio.addEventListener('ended', () => { btnPlayAudio.innerHTML = '▶ ESCUCHAR'; btnPlayAudio.classList.remove('active'); });
+        }
 
         window.addEventListener('DOMContentLoaded', async () => { try { await initDB(); APP_STATE.projects = await dbOps.loadAll(); renderList(); } catch(e) {} });
     </script>
 </body>
 </html>
-
 
 
 ```
