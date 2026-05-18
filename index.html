@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -98,7 +97,8 @@
         .sidebar-item[data-target="view-player"].active { border-left-color: var(--theme-player); color: var(--theme-player); background: rgba(0,204,255,0.05); }
         .sidebar-item[data-target="view-help"].active { border-left-color: #FFF; color: #FFF; background: rgba(255,255,255,0.05); }
 
-        #btn-install { display: flex; background: linear-gradient(45deg, var(--theme-scripts), #B8860B); color: #000; font-weight: bold; margin: 10px; border-radius: 8px; border: none; justify-content: center; }
+        /* EL BOTÓN NACE OCULTO (display: none) HASTA QUE ANDROID APRUEBA LA PWA */
+        #btn-install { display: none; background: linear-gradient(45deg, var(--theme-scripts), #B8860B); color: #000; font-weight: bold; margin: 10px; border-radius: 8px; border: none; justify-content: center; }
         #btn-donate { color: var(--theme-scripts); border-top: 1px solid #333; margin-top: auto; }
         #btn-donate:hover { background: rgba(212,175,55,0.1); }
 
@@ -207,7 +207,6 @@
 
     <div id="countdown-overlay"><div id="countdown-number">3</div></div>
 
-    <!-- SIDEBAR -->
     <div id="sidebar-overlay"></div>
     <div id="sidebar">
         <div class="sidebar-header">
@@ -284,7 +283,6 @@
         </a>
     </div>
 
-    <!-- VISTA 1: GESTOR DE GUIONES -->
     <div id="view-scripts" class="view-container active">
         <div class="top-bar" id="top-bar-scripts">
             <div class="top-bar-left">
@@ -302,7 +300,6 @@
                     <label class="mode-option"><input type="radio" name="script-mode" value="musical"> 🎵 <span class="i18n" data-es="Musical" data-en="Musical">Musical</span></label>
                 </div>
                 
-                <!-- CINTA CONTEXTUAL -->
                 <div id="context-ribbon">Sintaxis Normal. ⏱️ Pausa: (P:2s)  ⚡ Vel: (V:1.5x)</div>
 
                 <div class="musical-settings" id="musical-settings">
@@ -319,7 +316,6 @@
 
                 <textarea id="script-content" class="editor-input i18n-ph" data-es="Pega tu texto copiado o escribe tu guion aquí..." data-en="Paste your copied text or write your script here..." placeholder="Pega tu texto copiado o escribe tu guion aquí..."></textarea>
                 
-                <!-- PISTA DE REFERENCIA (AUDIO BASE) -->
                 <div class="reference-audio-box">
                     <div>
                         <span class="i18n" data-es="Pista Base:" data-en="Base Track:">Pista Base:</span> 
@@ -340,7 +336,6 @@
         </div>
     </div>
 
-    <!-- VISTA 2: EL ESTUDIO -->
     <div id="view-studio" class="view-container">
         <div class="top-bar" id="top-bar-studio">
             <div class="top-bar-left">
@@ -361,10 +356,8 @@
             </div>
         </div>
         
-        <!-- MONITOR FLOTANTE HUD -->
         <div id="floating-tuner" class="floating-tuner">--</div>
 
-        <!-- REPRODUCTOR INVISIBLE PARA AUDIO DE REFERENCIA (SHADOWING) -->
         <audio id="studio-ref-audio" style="display: none;"></audio>
 
         <div class="viewport" id="viewport-studio">
@@ -386,7 +379,6 @@
         </div>
     </div>
 
-    <!-- VISTA 3: EL REPRODUCTOR -->
     <div id="view-player" class="view-container">
         <div class="top-bar" id="top-bar-player">
             <div class="top-bar-left">
@@ -416,7 +408,6 @@
         </div>
     </div>
 
-    <!-- VISTA 4: HELP -->
     <div id="view-help" class="view-container">
         <div class="top-bar" id="top-bar-help">
             <div class="top-bar-left">
@@ -477,9 +468,6 @@
         </div>
     </div>
 
-    <!-- =========================================
-         MÓDULO: LÓGICA JAVASCRIPT CORE
-         ========================================= -->
     <script>
         // --- 0. INTERNACIONALIZACIÓN (I18n) ---
         let currentLang = 'es';
@@ -519,12 +507,16 @@
                 navigator.serviceWorker.register('/StudioPrompter-Zero/sw.js', { scope: '/StudioPrompter-Zero/' }).catch(()=>{});
             });
         }
+        
         let deferredPrompt = null;
         const btnInstall = document.getElementById('btn-install');
         
+        // El botón nace oculto por CSS (display: none)
         window.addEventListener('beforeinstallprompt', (e) => { 
             e.preventDefault(); 
             deferredPrompt = e; 
+            // Chrome nos da luz verde: hacemos visible el botón
+            btnInstall.style.display = 'flex';
         });
         
         btnInstall.addEventListener('click', async () => {
@@ -533,8 +525,6 @@
                 const { outcome } = await deferredPrompt.userChoice; 
                 if (outcome === 'accepted') btnInstall.style.display = 'none'; 
                 deferredPrompt = null; 
-            } else { 
-                alert(currentLang==='es' ? "Usa el menú nativo (3 puntos) y selecciona 'Instalar aplicación'." : "Use your browser's native menu and select 'Install app'."); 
             }
         });
 
@@ -586,7 +576,6 @@
             let sampleAudioData = null;
             let sampleAudioMime = null;
             try {
-                // Buscamos el archivo subido en el repositorio GitHub
                 const response = await fetch('./assets/audio/shadowing_muestra.wav');
                 if (response.ok) {
                     sampleAudioData = await response.arrayBuffer();
@@ -1545,6 +1534,3 @@
     </script>
 </body>
 </html>
-
-
-```
