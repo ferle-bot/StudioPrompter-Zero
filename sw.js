@@ -1,8 +1,6 @@
-const CACHE_NAME = 'studioprompter-cache-v3.0';
+const CACHE_NAME = 'studioprompter-cache-v4.0'; // Cambio de versión para forzar actualización
 
-// RUTAS ABSOLUTAS: El antídoto para el 404 de GitHub Pages
 const ASSETS = [
-    '/StudioPrompter-Zero/',
     '/StudioPrompter-Zero/index.html',
     '/StudioPrompter-Zero/manifest.json',
     '/StudioPrompter-Zero/assets/images/icon-192.png',
@@ -13,9 +11,10 @@ self.addEventListener('install', (event) => {
     self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            console.log('[SW] Instalando caché estricta...');
+            console.log('[SW] Instalando caché estricta para PWABuilder...');
+            // Promise.allSettled evita que el SW muera si un solo archivo falla
             return Promise.allSettled(
-                ASSETS.map(asset => cache.add(asset).catch(err => console.warn(`Fallo al cachear: ${asset}`, err)))
+                ASSETS.map(asset => cache.add(asset))
             );
         })
     );
@@ -33,7 +32,7 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-// Network First con filtro de seguridad
+// Network First con Fallback Estratégico (Lo que pide PWABuilder)
 self.addEventListener('fetch', (event) => {
     if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) return;
 
@@ -46,6 +45,15 @@ self.addEventListener('fetch', (event) => {
                 });
                 return response;
             })
-            .catch(() => caches.match(event.request))
+            .catch(async () => {
+                // 1. Buscamos coincidencia exacta en caché
+                const cachedResponse = await caches.match(event.request);
+                if (cachedResponse) return cachedResponse;
+                
+                // 2. EL TRUCO PARA PWABUILDER: Si está offline y pide navegar, forzamos el index
+                if (event.request.mode === 'navigate') {
+                    return caches.match('/StudioPrompter-Zero/index.html');
+                }
+            })
     );
 });
