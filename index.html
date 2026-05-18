@@ -56,6 +56,12 @@
             --border-color: #D1D1D6;
             --border-light: #E5E5EA;
             --input-bg: #FFFFFF;
+            
+            /* Ajustes de contraste estricto (WCAG) para visibilidad en fondo blanco */
+            --theme-studio: #0056D2; /* Azul Rey en lugar de Verde Neón */
+            --theme-scripts: #C8102E; /* Rojo Intenso en lugar de Dorado */
+            --theme-player: #0056D2;
+            --warning-color: #D97700;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -386,6 +392,7 @@
             </div>
             <div class="top-bar-right">
                 <button id="btn-edit-studio" class="btn-edit-active" title="Editar Guion Actual">✏️</button>
+                <button id="btn-mute-ref" class="menu-btn" style="display:none; font-size:18px;" title="Silenciar Pista Base">🔊</button>
                 <div class="metro-indicator" id="metro-dot"></div>
                 <div class="vu-meter" id="vu-meter">
                     <div class="vu-bar" id="vu-1"></div><div class="vu-bar" id="vu-2"></div><div class="vu-bar" id="vu-3"></div><div class="vu-bar" id="vu-4"></div><div class="vu-bar" id="vu-5"></div>
@@ -490,7 +497,7 @@
                 <p><i>Ej:</i> <code>[C4]La don[C4]na è [F4]mobile (P:2s)</code></p>
 
                 <div class="alert-box">
-                    <b>Nota de Grabación (Metrónomo / Pista Base):</b> Si reproduces audio de fondo mientras grabas sin auriculares, tu voz podría sonar robótica debido al filtro de cancelación de eco del teléfono. <b>Usa auriculares</b> para obtener grabaciones profesionales.
+                    <b>Nota de Grabación (Metrónomo / Pista Base):</b> Si reproduces audio de fondo mientras grabas sin auriculares, tu voz podría sonar robótica debido al filtro de cancelación de eco del teléfono. <b>Usa auriculares</b> o silencia la pista base con el botón 🔊 superior para obtener grabaciones profesionales.
                 </div>
             </div>
 
@@ -515,7 +522,7 @@
                 <p><i>Ex:</i> <code>[C4]Twin[C4]kle, [F4]little [C4]star (P:2s)</code></p>
 
                 <div class="alert-box">
-                    <b>Recording Note (Metronome / Base Track):</b> If playing background audio while recording without headphones, your voice might sound robotic due to the phone's built-in echo cancellation. <b>Use headphones</b> for professional recordings.
+                    <b>Recording Note (Metronome / Base Track):</b> If playing background audio while recording without headphones, your voice might sound robotic due to the phone's built-in echo cancellation. <b>Use headphones</b> or mute the base track with the top 🔊 button for professional recordings.
                 </div>
             </div>
         </div>
@@ -657,6 +664,14 @@
             attachedAudioName.style.color = 'var(--text-muted)'; btnClearAudio.style.display = 'none';
         });
 
+        // --- LÓGICA DE SILENCIADO DE PISTA BASE ---
+        const btnMuteRef = document.getElementById('btn-mute-ref');
+        const studioRefAudioElement = document.getElementById('studio-ref-audio');
+        btnMuteRef.addEventListener('click', () => {
+            studioRefAudioElement.muted = !studioRefAudioElement.muted;
+            btnMuteRef.innerText = studioRefAudioElement.muted ? '🔇' : '🔊';
+        });
+
         // --- PARSER MATEMÁTICO ---
         const extractTimeTags = (text) => {
             let pMatch = text.match(/\(P:([\d.]+)s\)/i); let vMatch = text.match(/\(V:([\d.]+)x\)/i);
@@ -770,8 +785,6 @@
             }, { root: document.getElementById(rootViewportId), rootMargin: '-48% 0px', threshold: 0 });
         };
 
-        const studioRefAudioElement = document.getElementById('studio-ref-audio');
-
         window.selectProject = (id) => {
             APP_STATE.activeProjectId = id; const p = APP_STATE.projects.find(x => x.id === id); if(!p) return; renderList();
             if(isPlayingStudio) togglePlayStudio(false); if(isRecording) stopAudioEngine();
@@ -800,8 +813,16 @@
             if(obsStudio) obsStudio.disconnect(); obsStudio = createIntersectionObserver(scrStudio, 'viewport-studio'); Array.from(scrStudio.querySelectorAll('.paragraph')).forEach(p => obsStudio.observe(p));
             if(obsPlayer) obsPlayer.disconnect(); obsPlayer = createIntersectionObserver(scrPlayer, 'viewport-player'); Array.from(scrPlayer.querySelectorAll('.paragraph')).forEach(p => obsPlayer.observe(p));
 
-            if (p.referenceAudioData) { const refBlob = new Blob([p.referenceAudioData], { type: p.referenceAudioMimeType }); studioRefAudioElement.src = URL.createObjectURL(refBlob); } 
-            else { studioRefAudioElement.removeAttribute('src'); }
+            if (p.referenceAudioData) { 
+                const refBlob = new Blob([p.referenceAudioData], { type: p.referenceAudioMimeType }); 
+                studioRefAudioElement.src = URL.createObjectURL(refBlob); 
+                btnMuteRef.style.display = 'block';
+                studioRefAudioElement.muted = false;
+                btnMuteRef.innerText = '🔊';
+            } else { 
+                studioRefAudioElement.removeAttribute('src'); 
+                btnMuteRef.style.display = 'none';
+            }
 
             const masterAudio = document.getElementById('master-audio'); const btnPlayAudio = document.getElementById('btn-play-audio'); const btnExport = document.getElementById('btn-export-audio');
             if (p.audioData) {
@@ -1010,7 +1031,6 @@
                     const mime = mediaRecorder.mimeType || 'audio/webm'; const audioBlob = new Blob(audioChunks, { type: mime }); 
                     if(audioBlob.size === 0) return alert("0 bytes captured.");
                     
-                    // QUICK REVIEW LOGIC (Atrapa el evento y no guarda directo)
                     window.tempAudioBlob = audioBlob;
                     window.tempAudioMime = mime;
                     window.tempScrollY = finalY;
