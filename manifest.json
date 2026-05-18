@@ -1,24 +1,26 @@
 {
+  "id": "/StudioPrompter-Zero/",
   "name": "StudioPrompter Zero",
   "short_name": "PrompterZero",
   "description": "Teleprompter Local-First de Alto Rendimiento",
-  "start_url": "/StudioPrompter-Zero/",
+  "start_url": "/StudioPrompter-Zero/index.html",
+  "scope": "/StudioPrompter-Zero/",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#121212",
-  "orientation": "any",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "/StudioPrompter-Zero/assets/images/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/StudioPrompter-Zero/assets/images/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     }
   ]
 }
