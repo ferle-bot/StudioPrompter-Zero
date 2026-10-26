@@ -1,18 +1,18 @@
-const CACHE_NAME = 'studioprompter-cache-v4.0'; // Cambio de versión para forzar actualización
+const CACHE_NAME = 'studioprompter-cache-v5.0';
 
 const ASSETS = [
-    '/StudioPrompter-Zero/index.html',
-    '/StudioPrompter-Zero/manifest.json',
-    '/StudioPrompter-Zero/assets/images/icon-192.png',
-    '/StudioPrompter-Zero/assets/images/icon-512.png'
+    './',
+    './index.html',
+    './manifest.json',
+    './assets/images/icon-192.png',
+    './assets/images/icon-512.png',
+    './assets/audio/shadowing_muestra.wav'
 ];
 
 self.addEventListener('install', (event) => {
     self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            console.log('[SW] Instalando caché estricta para PWABuilder...');
-            // Promise.allSettled evita que el SW muera si un solo archivo falla
             return Promise.allSettled(
                 ASSETS.map(asset => cache.add(asset))
             );
@@ -32,7 +32,6 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-// Network First con Fallback Estratégico (Lo que pide PWABuilder)
 self.addEventListener('fetch', (event) => {
     if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) return;
 
@@ -46,13 +45,10 @@ self.addEventListener('fetch', (event) => {
                 return response;
             })
             .catch(async () => {
-                // 1. Buscamos coincidencia exacta en caché
                 const cachedResponse = await caches.match(event.request);
                 if (cachedResponse) return cachedResponse;
-                
-                // 2. EL TRUCO PARA PWABUILDER: Si está offline y pide navegar, forzamos el index
                 if (event.request.mode === 'navigate') {
-                    return caches.match('/StudioPrompter-Zero/index.html');
+                    return (await caches.match('./index.html')) || (await caches.match('/StudioPrompter-Zero/index.html'));
                 }
             })
     );
