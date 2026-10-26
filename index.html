@@ -1,3 +1,2174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <link rel="manifest" href="/StudioPrompter-Zero/manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="/StudioPrompter-Zero/assets/images/icon-192.png">
+    <link rel="apple-touch-icon" href="/StudioPrompter-Zero/assets/images/icon-192.png">
+    
+    <meta name="theme-color" content="#121212">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>StudioPrompter Zero</title>
+    
+    <style>
+        :root {
+            /* Tema Oscuro MATE (Ergonomía Visual) */
+            --bg-color: #121212; 
+            --surface-color: #1A1A1A; 
+            --surface-light: #242424;
+            --surface-elevated: #2C2C2C;
+            --text-past: #555555; 
+            --text-present: #E0E0E0; 
+            --text-future: #888888;
+            --theme-accent: #4DD0E1; /* Cyan suave mate */
+            --theme-accent-glow: rgba(77, 208, 225, 0.25);
+            --danger-color: #E53935; 
+            --warning-color: #FDD835;
+            --success-color: #43A047;
+            --border-color: #333333;
+            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-size-p: 28px; 
+            --cam-opacity: 0.45;
+            --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-left: env(safe-area-inset-left, 0px); --safe-right: env(safe-area-inset-right, 0px);
+            --ui-height-top: calc(80px + var(--safe-top)); --ui-height-bottom: calc(110px + var(--safe-bottom)); 
+            --safe-area-bottom: calc(24px + var(--safe-bottom)); 
+        }
+
+        /* Tema Claro MATE */
+        body.light-theme {
+            --bg-color: #FAFAFA; 
+            --surface-color: #F0F0F0; 
+            --surface-light: #E0E0E0;
+            --surface-elevated: #D5D5D5;
+            --text-past: #999999; 
+            --text-present: #222222; 
+            --text-future: #666666;
+            --theme-accent: #00838F; /* Cyan profundo */
+            --theme-accent-glow: rgba(0, 131, 143, 0.2);
+            --border-color: #CCCCCC;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body, html { background-color: var(--bg-color); color: var(--text-present); font-family: var(--font-main); font-weight: bold; overflow: hidden; height: 100vh; width: 100vw; transition: background-color 0.3s, color 0.3s; }
+
+        .view-container { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; flex-direction: column; }
+        .view-container.active { display: flex; }
+
+        .top-bar { position: fixed; top: 0; left: 0; width: 100%; height: var(--ui-height-top); background-color: var(--surface-color); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: var(--safe-top) calc(12px + var(--safe-right)) 0 calc(12px + var(--safe-left)); z-index: 100; transition: background-color 0.3s, border-color 0.3s;}
+        
+        .top-bar-left { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; margin-right: 8px; }
+        .top-bar-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        
+        .menu-btn { background: none; border: none; color: var(--text-present); padding: 5px; cursor: pointer; flex-shrink: 0; border-radius: 6px;}
+        .menu-btn:hover { background: var(--surface-light); }
+        .brand { display: flex; flex-direction: column; overflow: hidden; }
+        .brand span { font-weight: 900; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; color: var(--theme-accent); }
+        .brand small { font-size: 10px; color: var(--text-future); font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        #timer-studio { font-family: monospace; font-size: 15px; color: var(--text-future); min-width: 44px; text-align: center;}
+        #timer-studio.recording { color: var(--danger-color); font-weight: bold; }
+        #timer-studio.paused { color: var(--warning-color); font-weight: bold; animation: pulse 1s infinite alternate; }
+
+        @keyframes pulse { 0% { opacity: 1; } 100% { opacity: 0.45; } }
+
+        /* HUD ELEMENTS */
+        .vu-meter { display: flex; gap: 2px; height: 16px; align-items: flex-end; opacity: 0.3; margin-right: 2px;}
+        .vu-meter.recording { opacity: 1; }
+        .vu-bar { width: 4px; background-color: var(--theme-accent); border-radius: 2px; height: 4px; transition: height 0.05s ease, background-color 0.1s; }
+
+        .metro-indicator { width: 10px; height: 10px; border-radius: 50%; background: var(--border-color); margin-right: 2px; opacity: 0.2; transition: 0.1s; flex-shrink: 0;}
+        .metro-indicator.beat1 { background: var(--theme-accent); opacity: 1; box-shadow: 0 0 8px var(--theme-accent); }
+        .metro-indicator.beat-other { background: var(--text-present); opacity: 0.8; }
+
+        .floating-tuner {
+            position: absolute; top: calc(var(--ui-height-top) + 14px); left: 50%; transform: translateX(-50%);
+            background: var(--surface-color); border: 2px solid var(--theme-accent); color: var(--theme-accent);
+            font-family: monospace; font-size: 28px; font-weight: bold; padding: 6px 24px; border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6); z-index: 60; display: none; text-align: center; min-width: 95px;
+            pointer-events: none; transition: opacity 0.2s ease;
+        }
+
+        .record-controls { display: flex; align-items: center; gap: 6px; }
+        .btn-pause-rec { background: rgba(253,216,53,0.1); border: 1px solid var(--warning-color); color: var(--warning-color); border-radius: 8px; width: 34px; height: 34px; display: none; justify-content: center; align-items: center; cursor: pointer; }
+        .btn-pause-rec.visible { display: flex; }
+        .btn-rec { background: transparent; border: 2px solid var(--danger-color); border-radius: 50%; width: 42px; height: 42px; position: relative; display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0;}
+        .btn-rec::after { content: ''; position: absolute; width: 16px; height: 16px; background: var(--danger-color); border-radius: 50%; transition: 0.3s; }
+        .btn-rec.recording { background: rgba(229,57,53,0.15); box-shadow: 0 0 12px rgba(229,57,53,0.4); }
+        .btn-rec.recording::after { border-radius: 4px; transform: scale(0.8); }
+        
+        .btn-edit-active, .btn-mute-ref, .btn-hud-tool { background: transparent; border: 1px solid var(--border-color); color: var(--text-present); border-radius: 8px; padding: 4px 7px; font-size: 12px; font-weight: bold; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; height: 30px; gap: 4px; transition: 0.2s;}
+        .btn-edit-active { border-color: var(--theme-accent); color: var(--theme-accent); }
+        .btn-mute-ref { border-color: var(--theme-accent); color: var(--theme-accent); }
+        .btn-hud-tool.active { border-color: var(--theme-accent); color: var(--theme-accent); background: var(--theme-accent-glow); }
+        .btn-mute-ref svg, .btn-hud-tool svg { width: 15px; height: 15px; fill: currentColor; }
+
+        /* MEDIA MODE PILL IN STUDIO */
+        .media-mode-switch { display: flex; background: var(--surface-light); border: 1px solid var(--border-color); border-radius: 8px; padding: 2px; gap: 2px; }
+        .media-mode-btn { background: transparent; border: none; color: var(--text-future); font-size: 11px; font-weight: 900; padding: 4px 7px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 3px; transition: 0.2s; }
+        .media-mode-btn.active { background: var(--theme-accent); color: var(--bg-color); }
+
+        /* SIDEBAR */
+        #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s; }
+        #sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+        #sidebar { position: fixed; top: 0; left: -300px; width: 300px; height: 100%; background: var(--surface-color); border-right: 1px solid var(--border-color); z-index: 1001; transition: 0.3s cubic-bezier(0.4,0,0.2,1); display: flex; flex-direction: column; overflow-y: auto;}
+        #sidebar.active { transform: translateX(300px); }
+        
+        .sidebar-header { padding: calc(20px + var(--safe-top)) 18px 18px; border-bottom: 1px solid var(--border-color); font-size: 18px; font-weight: 900; color: var(--text-present); display: flex; justify-content: space-between; align-items: center;}
+        
+        .header-controls { display: flex; gap: 8px; align-items: center; }
+        .btn-toggle-small { background: var(--surface-light); border: 1px solid var(--border-color); color: var(--text-present); border-radius: 12px; padding: 4px 8px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; min-width: 35px; height: 28px;}
+        .btn-toggle-small svg { width: 14px; height: 14px; fill: currentColor; }
+
+        .sidebar-item { padding: 16px 20px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 14px; color: var(--text-future); transition: 0.2s; cursor: pointer; text-decoration: none; font-size: 14px;}
+        .sidebar-item:hover { background: var(--surface-light); color: var(--text-present); }
+        .sidebar-item.active { background: var(--surface-light); color: var(--theme-accent); border-left: 4px solid var(--theme-accent); }
+
+        #btn-install { display: flex; background: var(--theme-accent); color: var(--bg-color); font-weight: 900; margin: 10px 14px; padding: 12px; border-radius: 8px; border: none; justify-content: center; }
+        #btn-install svg { fill: var(--bg-color); }
+
+        .sidebar-config-panel { padding: 12px 18px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 6px; }
+        .config-label { font-size: 11px; color: var(--text-future); text-transform: uppercase; font-weight: 900; letter-spacing: 0.8px; display: flex; justify-content: space-between; align-items: center;}
+        .settings-controls { display: flex; align-items: center; justify-content: space-between; background: var(--surface-light); border-radius: 8px; padding: 2px 5px; border: 1px solid var(--border-color); gap: 6px;}
+        .settings-controls .btn-cfg { background: transparent; color: var(--text-present); border: none; width: 32px; height: 32px; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        .settings-controls .btn-cfg:hover { background: var(--border-color); }
+        .settings-controls select { background: transparent; color: var(--theme-accent); font-weight: bold; border: none; outline: none; font-family: monospace; font-size: 13px; text-align: center; width: 100%; padding: 6px 4px; cursor: pointer;}
+        .settings-controls select option { background: var(--surface-color); color: var(--text-present); }
+        .settings-display { font-family: monospace; font-size: 13px; color: var(--theme-accent); }
+        .range-slider { width: 100%; accent-color: var(--theme-accent); cursor: pointer; margin: 4px 0; }
+
+        /* EDITOR SCRIPTS */
+        .workspace-area { position: absolute; top: var(--ui-height-top); bottom: 0; width: 100%; display: flex; flex-direction: column; background: var(--bg-color); overflow-y: auto; padding: 18px; gap: 16px; transition: background-color 0.3s; }
+        .editor-card { background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 12px; max-width: 900px; margin: 0 auto; width: 100%;}
+        .editor-input { width: 100%; background: var(--surface-light); border: 1px solid var(--border-color); color: var(--text-present); padding: 13px 15px; border-radius: 8px; font-size: 15px; font-family: var(--font-main); font-weight: bold; user-select: text; }
+        .editor-input:focus { outline: 1px solid var(--theme-accent); border-color: var(--theme-accent); }
+        textarea.editor-input { resize: vertical; min-height: 170px; line-height: 1.5; user-select: text; }
+        
+        .btn-action { background: var(--theme-accent); color: var(--bg-color); border: none; padding: 14px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; text-transform: uppercase; flex: 2; transition: 0.2s;}
+        .btn-action:hover { filter: brightness(1.08); }
+        .btn-action.update-mode { background: var(--text-present); color: var(--bg-color); }
+        .btn-action-alt { background: var(--surface-light); color: var(--text-present); border: 1px solid var(--border-color); padding: 10px 14px; border-radius: 8px; font-weight: 900; font-size: 13px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;}
+        .btn-action-alt:hover { border-color: var(--theme-accent); color: var(--theme-accent); }
+        .action-row { display: flex; gap: 10px; width: 100%; flex-wrap: wrap; }
+
+        .mode-selector { display: flex; flex-wrap: wrap; gap: 8px; font-size: 13px; background: var(--surface-light); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .mode-option { display: flex; align-items: center; gap: 5px; color: var(--text-present); cursor: pointer; padding: 5px 10px; border-radius: 4px; font-weight: bold;}
+        .mode-option input[type="radio"] { accent-color: var(--theme-accent); }
+        
+        #context-ribbon { font-size: 12px; color: var(--theme-accent); text-align: center; font-style: italic; background: var(--surface-light); padding: 8px; border-radius: 6px; border: 1px dashed var(--border-color); }
+
+        .musical-settings { display: none; gap: 10px; width: 100%; }
+        .musical-settings.active { display: flex; }
+        .musical-settings select { flex: 1; background: var(--surface-light); border: 1px solid var(--border-color); color: var(--text-present); padding: 10px; border-radius: 6px; font-size: 14px; font-weight: bold; }
+
+        /* PISTA DE REFERENCIA UI */
+        .reference-audio-box { background: var(--surface-light); border: 1px dashed var(--border-color); border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--text-future); flex-wrap: wrap; gap: 8px;}
+        .reference-audio-name { font-family: monospace; color: var(--theme-accent); max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold; display: inline-block; vertical-align: bottom;}
+        .btn-clear-ref { background: transparent; border: none; color: var(--danger-color); cursor: pointer; font-weight: 900; font-size: 14px; padding: 0 5px;}
+
+        .project-list-header { font-size: 13px; color: var(--text-future); text-transform: uppercase; font-weight: 900; max-width: 900px; margin: 6px auto 0; width: 100%; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center;}
+        #projects-container { max-width: 900px; margin: 0 auto; width: 100%; }
+        .project-card { background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; transition: 0.2s;}
+        .project-card.active-project { border-color: var(--theme-accent); background: var(--surface-light); box-shadow: 0 0 0 1px var(--theme-accent-glow); }
+        .project-info { display: flex; flex-direction: column; gap: 6px; flex-grow: 1; min-width: 180px;}
+        .project-title { font-weight: 900; font-size: 17px; color: var(--text-present); display: flex; align-items: center; gap: 6px; flex-wrap: wrap;}
+        .project-meta { font-size: 12px; color: var(--text-future); display: flex; align-items: center; gap: 8px; flex-wrap: wrap;}
+        .badge-mode { background: var(--bg-color); border: 1px solid var(--border-color); padding: 2px 7px; border-radius: 4px; font-size: 10px; color: var(--text-present); text-transform: uppercase; font-weight: bold;}
+        .badge-sub { background: rgba(77, 208, 225, 0.14); border: 1px solid var(--theme-accent); padding: 2px 7px; border-radius: 4px; font-size: 10px; color: var(--theme-accent); font-weight: 900;}
+        .badge-video { background: rgba(229, 57, 53, 0.15); border: 1px solid var(--danger-color); padding: 2px 7px; border-radius: 4px; font-size: 10px; color: #FF8A80; font-weight: 900;}
+        
+        .card-actions { display: flex; gap: 8px; align-items: center; }
+        .btn-select { background: var(--surface-light); color: var(--theme-accent); border: 1px solid var(--theme-accent); padding: 8px 14px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 12px;}
+        .btn-select:hover { background: var(--theme-accent); color: var(--bg-color); }
+        .btn-delete { background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 8px 10px; border-radius: 6px; font-weight: 900; cursor: pointer;}
+
+        /* VIEWPORT, CAMERA LAYER & SCROLLER */
+        .viewport { position: absolute; top: var(--ui-height-top); bottom: var(--ui-height-bottom); width: 100%; display: flex; justify-content: center; overflow: hidden; background-color: var(--bg-color); touch-action: none; transition: background-color 0.3s; }
+        
+        /* STUDIO CAMERA PREVIEW (BACKGROUND OR PIP) */
+        .studio-camera-layer { position: absolute; inset: 0; z-index: 1; pointer-events: none; display: none; overflow: hidden; justify-content: center; align-items: center; background: #000; }
+        .studio-camera-layer.active { display: flex; opacity: var(--cam-opacity); }
+        .studio-camera-layer.pip-mode {
+            inset: auto; top: 14px; right: 14px; width: 190px; height: 125px;
+            border-radius: 12px; border: 2px solid var(--theme-accent);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.7); opacity: 0.95; z-index: 45; pointer-events: auto;
+        }
+        #studio-cam-video, #studio-cam-canvas { width: 100%; height: 100%; object-fit: cover; }
+        .mirrored-cam { transform: scaleX(-1); }
+        .mirrored-text { transform: scaleX(-1); }
+
+        /* CAMERA FLOATING CONTROLS IN STUDIO */
+        .studio-cam-toolbar {
+            position: absolute; top: calc(var(--ui-height-top) + 10px); left: 14px; z-index: 55;
+            display: none; gap: 6px; flex-wrap: wrap; align-items: center;
+        }
+        .studio-cam-toolbar.active { display: flex; }
+
+        /* LIVE SUBTITLE MONITOR BAR IN STUDIO */
+        .studio-subtitle-banner {
+            position: absolute; bottom: calc(var(--ui-height-bottom) + 10px); left: 50%; transform: translateX(-50%);
+            z-index: 55; background: rgba(10, 10, 10, 0.85); border: 1px solid var(--theme-accent);
+            padding: 8px 16px; border-radius: 10px; max-width: 88%; width: max-content;
+            text-align: center; pointer-events: none; display: none; box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+        }
+        .studio-subtitle-banner.active { display: block; }
+        .studio-subtitle-banner .sub-tag { font-size: 10px; color: var(--theme-accent); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 2px; font-family: monospace;}
+        .studio-subtitle-banner .sub-line { font-size: 15px; color: #FFFFFF; font-weight: 900; line-height: 1.3; text-shadow: 0 1px 3px #000; }
+
+        .focus-container { position: absolute; top: 50%; left: 0; width: 100%; height: 64px; transform: translateY(-50%); border-top: 1px solid rgba(128,128,128,0.22); border-bottom: 1px solid rgba(128,128,128,0.22); background: rgba(77, 208, 225, 0.03); z-index: 10; pointer-events: none; }
+        .indicator-studio { position: absolute; left: calc(10px + var(--safe-left)); top: 50%; transform: translateY(-50%); width: 5px; height: 42px; background: var(--theme-accent); border-radius: 3px; transition: background 0.3s; }
+
+        .scroller { position: absolute; z-index: 5; width: 94%; max-width: 900px; padding-top: calc(50vh - (var(--ui-height-top) + var(--ui-height-bottom))/2); padding-bottom: 50vh; will-change: transform; cursor: grab; }
+        .scroller:active { cursor: grabbing; }
+
+        .paragraph { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: var(--font-size-p); font-weight: 900; line-height: 1.48; margin-bottom: 42px; text-align: center; color: var(--text-future); transform-origin: center center; transition: color 0.25s, transform 0.25s, opacity 0.25s; opacity: 0.5; padding: 4px 12px; border-radius: 8px;}
+        .formal-text { display: block; width: 100%; text-shadow: 0 2px 6px rgba(0,0,0,0.65); }
+        body.light-theme .formal-text { text-shadow: none; }
+        .phonetic-text { display: block; font-size: 0.75em; color: var(--theme-accent); opacity: 0.75; margin-top: 4px; line-height: 1.25;}
+        
+        .musical-line { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; width: 100%; }
+        .chord-word-block { display: inline-flex; flex-direction: column; align-items: flex-start; margin-bottom: 10px;}
+        .chord-text { color: var(--theme-accent); font-weight: 900; font-size: 0.55em; line-height: 1; margin-bottom: 2px; font-family: monospace; letter-spacing: 1px; }
+        .lyric-text { line-height: 1.2; }
+
+        .paragraph.past { color: var(--text-past); transform: scale(0.95); opacity: 0.32; }
+        .paragraph.present { color: var(--text-present); transform: scale(1.06); opacity: 1; text-shadow: 0 0 12px rgba(0,0,0,0.7); }
+        .paragraph.present .phonetic-text { opacity: 1; text-shadow: 0 0 8px var(--theme-accent); }
+        .paragraph.present .chord-text { opacity: 1; text-shadow: 0 0 8px var(--theme-accent); }
+
+        /* OVERLAYS Y BOTTOM BAR */
+        #countdown-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        #countdown-overlay.active { opacity: 1; pointer-events: auto; }
+        #countdown-number { font-size: 150px; font-weight: 900; color: var(--danger-color); text-shadow: 0 0 30px rgba(255,51,51,0.5); }
+
+        .bottom-bar-wrapper { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--surface-color); border-top: 1px solid var(--border-color); z-index: 100; padding-bottom: var(--safe-area-bottom); transition: background-color 0.3s, border-color 0.3s;}
+        .bottom-bar { height: calc(var(--ui-height-bottom) - var(--safe-area-bottom)); display: flex; justify-content: space-between; align-items: center; padding: 0 calc(12px + var(--safe-right)) 0 calc(12px + var(--safe-left)); max-width: 1200px; margin: 0 auto; gap: 8px;}
+        .btn { background: var(--surface-light); color: var(--text-present); border: 1px solid var(--border-color); border-radius: 8px; height: 50px; min-width: 50px; font-size: 14px; font-weight: 900; display: flex; justify-content: center; align-items: center; touch-action: manipulation; cursor: pointer; transition: 0.2s;}
+        .btn:hover:not(:disabled) { border-color: var(--theme-accent); }
+        .btn:active:not(:disabled) { background: var(--border-color); }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        svg { width: 22px; height: 22px; fill: currentColor; }
+
+        .speed-panel { background: var(--surface-light); border-radius: 25px; display: flex; align-items: center; padding: 3px; border: 1px solid var(--border-color); flex-shrink: 0;}
+        .speed-panel .btn { height: 42px; width: 42px; min-width: 42px; border-radius: 50%; background: transparent; border: none; font-size: 18px;}
+        #speed-display { font-family: monospace; font-size: 16px; width: 50px; text-align: center; color: var(--theme-accent); font-weight: bold;}
+        .btn-play-studio { background: transparent; color: var(--theme-accent); border: 1px solid var(--theme-accent); padding: 0 18px; flex-grow: 1; text-transform: uppercase; gap: 6px;}
+        .btn-play-studio.active { background: var(--surface-light); }
+
+        /* PLAYER VIDEO STAGE & SUBTITLE DRAWER */
+        .player-video-stage {
+            position: absolute; top: 12px; right: 16px; width: 320px; max-width: 44vw; aspect-ratio: 16/9;
+            background: #000; border: 2px solid var(--theme-accent); border-radius: 12px;
+            overflow: hidden; z-index: 35; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.75);
+        }
+        .player-video-stage.active { display: block; }
+        .player-video-stage.expanded {
+            inset: 12px; width: auto; max-width: none; height: calc(100% - 24px); aspect-ratio: auto;
+        }
+        #master-video { width: 100%; height: 100%; object-fit: contain; background: #000; }
+        .player-subtitle-overlay {
+            position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);
+            z-index: 40; background: rgba(0, 0, 0, 0.82); border: 1px solid rgba(77, 208, 225, 0.6);
+            color: #FFFFFF; padding: 8px 16px; border-radius: 8px; font-size: 16px; font-weight: 900;
+            text-align: center; max-width: 90%; pointer-events: none; display: none;
+            text-shadow: 0 1px 3px #000;
+        }
+        .player-subtitle-overlay.active { display: block; }
+        .player-subtitle-overlay .sub-phonetic { display: block; font-size: 0.8em; color: var(--theme-accent); margin-top: 3px; }
+
+        /* SUBTITLES DRAWER IN PLAYER */
+        .subtitles-drawer {
+            position: absolute; top: var(--ui-height-top); right: 0; bottom: var(--ui-height-bottom);
+            width: 380px; max-width: 100vw; background: var(--surface-color); border-left: 1px solid var(--border-color);
+            z-index: 70; transform: translateX(100%); transition: transform 0.28s ease;
+            display: flex; flex-direction: column;
+        }
+        .subtitles-drawer.active { transform: translateX(0); }
+        .subtitles-drawer-header {
+            padding: 12px 15px; border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center; background: var(--surface-light);
+        }
+        .subtitles-drawer-body { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+        .sub-cue-item {
+            background: var(--surface-light); border: 1px solid var(--border-color); border-radius: 8px;
+            padding: 10px; display: flex; flex-direction: column; gap: 6px; transition: 0.15s;
+        }
+        .sub-cue-item.active-cue { border-color: var(--theme-accent); box-shadow: 0 0 0 1px var(--theme-accent); }
+        .sub-cue-times { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-family: monospace; font-size: 11px; color: var(--theme-accent); }
+        .sub-time-input { width: 72px; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--theme-accent); padding: 3px 5px; border-radius: 4px; font-family: monospace; font-size: 11px; text-align: center; user-select: text;}
+        .sub-text-input { width: 100%; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-present); padding: 6px 8px; border-radius: 6px; font-size: 13px; font-weight: bold; font-family: var(--font-main); user-select: text;}
+
+        /* CUSTOM MODAL & TOAST (NO BLOCKED NATIVE DIALOGS) */
+        #app-modal-backdrop {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.82); z-index: 3000;
+            display: none; justify-content: center; align-items: center; padding: 20px;
+        }
+        #app-modal-backdrop.active { display: flex; }
+        .app-modal-card {
+            background: var(--surface-color); border: 1px solid var(--theme-accent); border-radius: 14px;
+            max-width: 430px; width: 100%; padding: 20px; box-shadow: 0 12px 40px rgba(0,0,0,0.75);
+            display: flex; flex-direction: column; gap: 14px;
+        }
+        .app-modal-title { font-size: 17px; font-weight: 900; color: var(--theme-accent); }
+        .app-modal-msg { font-size: 14px; color: var(--text-present); line-height: 1.5; white-space: pre-line; }
+        .app-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+        .btn-modal { padding: 9px 16px; border-radius: 8px; font-weight: 900; font-size: 13px; cursor: pointer; border: 1px solid var(--border-color); background: var(--surface-light); color: var(--text-present); }
+        .btn-modal.primary { background: var(--theme-accent); color: var(--bg-color); border-color: var(--theme-accent); }
+        .btn-modal.danger { background: var(--danger-color); color: #FFF; border-color: var(--danger-color); }
+
+        #app-toast {
+            position: fixed; top: calc(var(--ui-height-top) + 12px); right: 16px; z-index: 3100;
+            background: var(--surface-elevated); border-left: 4px solid var(--theme-accent); color: var(--text-present);
+            padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 900;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.6); transform: translateY(-20px); opacity: 0;
+            pointer-events: none; transition: 0.25s ease; max-width: 320px;
+        }
+        #app-toast.active { transform: translateY(0); opacity: 1; }
+
+        .help-card { background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; color: var(--text-future); font-size: 15px; line-height: 1.6; max-width: 900px; margin: 0 auto; width: 100%; margin-bottom: 20px; font-weight: bold;}
+        .help-card h3 { color: var(--text-present); margin-bottom: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .help-card h4 { color: var(--theme-accent); margin-top: 15px; margin-bottom: 5px;}
+        .help-card code { background: var(--bg-color); padding: 2px 6px; border-radius: 4px; color: var(--theme-accent); font-family: monospace;}
+        .alert-box { background: rgba(229,57,53,0.1); border-left: 4px solid var(--danger-color); padding: 10px; margin-top: 15px; font-size: 13px; color: var(--text-present); }
+
+        @media (min-width: 768px) { .bottom-bar { padding: 0 32px; } .top-bar { padding: var(--safe-top) 32px 0; } .paragraph { margin-bottom: 52px; } }
+    </style>
+</head>
+<body>
+
+    <div id="countdown-overlay"><div id="countdown-number">3</div></div>
+
+    <!-- MODAL Y TOAST IN-PAGE -->
+    <div id="app-modal-backdrop">
+        <div class="app-modal-card">
+            <div class="app-modal-title" id="app-modal-title">Aviso</div>
+            <div class="app-modal-msg" id="app-modal-msg"></div>
+            <div class="app-modal-actions">
+                <button class="btn-modal" id="app-modal-cancel">Cancelar</button>
+                <button class="btn-modal primary" id="app-modal-ok">Aceptar</button>
+            </div>
+        </div>
+    </div>
+    <div id="app-toast"></div>
+
+    <div id="sidebar-overlay"></div>
+    <div id="sidebar">
+        <div class="sidebar-header">
+            StudioPrompter
+            <div class="header-controls">
+                <button class="btn-toggle-small" id="btn-theme-toggle" title="Alternar Tema">
+                    <svg class="icon-sun" viewBox="0 0 24 24" style="display:none;"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0 .39-.39.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0 .39-.39.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41.39.39 1.03.39 1.41 0l1.06-1.06zM7.05 18.36c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41.39.39 1.03.39 1.41 0l1.06-1.06z"/></svg>
+                    <svg class="icon-moon" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4C12.92 3.04 12.46 3 12 3zm0 16c-3.86 0-7-3.14-7-7s3.14-7 7-7c.21 0 .42.02.62.05-1.58.98-2.62 2.73-2.62 4.75 0 3.04 2.46 5.5 5.5 5.5 2.02 0 3.77-1.04 4.75-2.62.03.2.05.41.05.62 0 3.86-3.14 7-7 7z"/></svg>
+                </button>
+                <button class="btn-toggle-small" id="btn-lang-toggle">🇪🇸</button>
+            </div>
+        </div>
+        
+        <div class="sidebar-config-panel">
+            <div class="config-label i18n" data-es="Modo de Grabación y Subtítulos" data-en="Recording & Subtitles">Modo de Grabación y Subtítulos</div>
+            <div class="settings-controls">
+                <select id="capture-mode-select">
+                    <option value="audio" class="i18n" data-es="🎙️ Solo Audio" data-en="🎙️ Audio Only">🎙️ Solo Audio</option>
+                    <option value="video" class="i18n" data-es="🎥 Video + Audio" data-en="🎥 Video + Audio">🎥 Video + Audio</option>
+                </select>
+            </div>
+            <div class="settings-controls">
+                <select id="sub-burn-mode">
+                    <option value="burn" class="i18n" data-es="💬 Subtítulos Quemados + SRT" data-en="💬 Burned-in Subs + SRT">💬 Subtítulos Quemados + SRT</option>
+                    <option value="soft" class="i18n" data-es="📄 Video Limpio + Solo SRT" data-en="📄 Clean Video + SRT Only">📄 Video Limpio + Solo SRT</option>
+                </select>
+            </div>
+            <div class="config-label" style="margin-top:4px;">
+                <span class="i18n" data-es="Opacidad Cámara" data-en="Camera Opacity">Opacidad Cámara</span>
+                <span id="cam-opacity-label" class="settings-display">45%</span>
+            </div>
+            <input type="range" id="cam-opacity-slider" class="range-slider" min="15" max="100" value="45">
+        </div>
+
+        <div class="sidebar-config-panel" style="border-top:none;">
+            <div class="config-label i18n" data-es="Tamaño de Texto" data-en="Text Size">Tamaño de Texto</div>
+            <div class="settings-controls">
+                <button class="btn-cfg" id="btn-font-minus">-</button>
+                <span class="settings-display" id="font-size-display">28px</span>
+                <button class="btn-cfg" id="btn-font-plus">+</button>
+            </div>
+        </div>
+
+        <div class="sidebar-config-panel" style="border-top:none; padding-top:0;">
+            <div class="config-label i18n" data-es="Cuenta Regresiva" data-en="Countdown (REC)">Cuenta Regresiva</div>
+            <div class="settings-controls">
+                <button class="btn-cfg" id="btn-cd-minus">-</button>
+                <span class="settings-display" id="cd-display">3s</span>
+                <button class="btn-cfg" id="btn-cd-plus">+</button>
+            </div>
+        </div>
+
+        <div class="sidebar-config-panel" style="border-top:none; padding-top:0;">
+            <div class="config-label i18n" data-es="Monitor de Afinación" data-en="Pitch Monitor (Tuner)">Monitor de Afinación</div>
+            <div class="settings-controls">
+                <select id="tuner-toggle">
+                    <option value="off" class="i18n" data-es="Apagado" data-en="Off">Apagado</option>
+                    <option value="on" class="i18n" data-es="Encendido" data-en="On">Encendido</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="sidebar-config-panel" style="border-top:none; padding-top:0;">
+            <div class="config-label i18n" data-es="Metrónomo" data-en="Metronome">Metrónomo</div>
+            <div class="settings-controls" style="margin-bottom: 5px;">
+                <button class="btn-cfg" id="btn-bpm-minus">-</button>
+                <span class="settings-display" id="bpm-display">120 BPM</span>
+                <button class="btn-cfg" id="btn-bpm-plus">+</button>
+            </div>
+            <div class="settings-controls">
+                <select id="metro-sig">
+                    <option value="4">4/4</option><option value="3">3/4</option><option value="2">2/4</option>
+                </select>
+                <select id="metro-mode">
+                    <option value="off" class="i18n" data-es="Apagado" data-en="Off">Apagado</option>
+                    <option value="visual" class="i18n" data-es="Solo Visual" data-en="Visual Only">Solo Visual</option>
+                    <option value="audio" class="i18n" data-es="Audio + Visual" data-en="Audio + Visual">Audio + Visual</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="sidebar-item" id="btn-install">
+            <svg viewBox="0 0 24 24" style="margin-right: 8px;"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg> <span class="i18n" data-es="Instalar App Nativa" data-en="Install Native App">Instalar App Nativa</span>
+        </div>
+
+        <div class="sidebar-item active" data-target="view-scripts">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> <span class="i18n" data-es="Gestor de Guiones" data-en="Script Manager">Gestor de Guiones</span>
+        </div>
+        <div class="sidebar-item" data-target="view-studio">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg> <span class="i18n" data-es="Estudio (Grabar)" data-en="Studio (Record)">Estudio (Grabar)</span>
+        </div>
+        <div class="sidebar-item" data-target="view-player">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg> <span class="i18n" data-es="Reproductor & Subtítulos" data-en="Player & Subtitles">Reproductor & Subtítulos</span>
+        </div>
+        <div class="sidebar-item" data-target="view-help">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg> <span class="i18n" data-es="Instrucciones / Help" data-en="Help & Syntax">Instrucciones / Help</span>
+        </div>
+    </div>
+
+    <!-- VISTA 1: GESTOR DE GUIONES -->
+    <div id="view-scripts" class="view-container active">
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <button class="menu-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+                <div class="brand">
+                    <span class="i18n" data-es="Gestor de Guiones" data-en="Script Manager">Gestor de Guiones</span>
+                    <small class="i18n" data-es="Teleprompter + Grabador Audio/Video + Subtitulador" data-en="Teleprompter + Audio/Video Recorder + Subtitler">Teleprompter + Grabador Audio/Video + Subtitulador</small>
+                </div>
+            </div>
+        </div>
+        <div class="workspace-area">
+            <div class="editor-card">
+                <input type="text" id="script-title" class="editor-input i18n-ph" data-es="Título del Proyecto (Ej: Análisis)" data-en="Project Title" placeholder="Título del Proyecto (Ej: Análisis)">
+                
+                <div class="mode-selector">
+                    <label class="mode-option"><input type="radio" name="script-mode" value="standard" checked> 🎙️ <span class="i18n" data-es="Estándar" data-en="Standard">Estándar</span></label>
+                    <label class="mode-option"><input type="radio" name="script-mode" value="shadowing"> 🗣️ Shadowing</label>
+                    <label class="mode-option"><input type="radio" name="script-mode" value="dubbing"> 🎬 <span class="i18n" data-es="Doblaje" data-en="Dubbing">Doblaje</span></label>
+                    <label class="mode-option"><input type="radio" name="script-mode" value="musical"> 🎵 <span class="i18n" data-es="Musical" data-en="Musical">Musical</span></label>
+                </div>
+                
+                <div id="context-ribbon">Sintaxis Normal. ⏱️ Pausa: (P:2s)  ⚡ Vel: (V:1.5x)</div>
+
+                <div class="musical-settings" id="musical-settings">
+                    <select id="music-key">
+                        <option value="C">C (Do)</option><option value="C#">C# (Do#)</option><option value="D">D (Re)</option><option value="Eb">Eb (Mib)</option>
+                        <option value="E">E (Mi)</option><option value="F">F (Fa)</option><option value="F#">F# (Fa#)</option><option value="G">G (Sol)</option>
+                        <option value="Ab">Ab (Lab)</option><option value="A">A (La)</option><option value="Bb">Bb (Sib)</option><option value="B">B (Si)</option>
+                    </select>
+                    <select id="music-clef">
+                        <option value="G" class="i18n" data-es="Clave de Sol" data-en="Treble Clef">Clave de Sol</option>
+                        <option value="F" class="i18n" data-es="Clave de Fa" data-en="Bass Clef">Clave de Fa</option>
+                    </select>
+                </div>
+
+                <textarea id="script-content" class="editor-input i18n-ph" data-es="Pega tu texto copiado o escribe tu guion aquí... Cada párrafo se sincronizará como subtítulo de referencia al grabar." data-en="Paste your copied text or write your script here... Each paragraph syncs as a reference subtitle while recording." placeholder="Pega tu texto copiado o escribe tu guion aquí..."></textarea>
+                
+                <div class="reference-audio-box">
+                    <div>
+                        <span class="i18n" data-es="Pista Base:" data-en="Base Track:">Pista Base:</span> 
+                        <span class="reference-audio-name" id="attached-audio-name">Ninguna / None</span>
+                        <button id="btn-clear-audio" class="btn-clear-ref" style="display:none;" title="Remover Audio">✖</button>
+                    </div>
+                    <input type="file" id="ref-audio-input" accept="audio/*" style="display:none">
+                    <button class="btn-action-alt i18n" id="btn-attach-audio" style="padding: 5px 10px; margin: 0;" data-es="🎵 Adjuntar" data-en="🎵 Attach">🎵 Adjuntar</button>
+                </div>
+
+                <div class="action-row">
+                    <button class="btn-action-alt i18n" id="btn-load-example" data-es="📄 Ejemplo" data-en="📄 Example">📄 Ejemplo</button>
+                    <button class="btn-action i18n" id="btn-save" data-es="💾 Guardar Proyecto" data-en="💾 Save Project">💾 Guardar Proyecto</button>
+                </div>
+            </div>
+            <div class="project-list-header">
+                <span class="i18n" data-es="Almacenamiento Interno" data-en="Local Storage">Almacenamiento Interno</span>
+                <span style="font-size:11px; color:var(--theme-accent);">IndexedDB Offline-First</span>
+            </div>
+            <div id="projects-container" style="display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px;"></div>
+        </div>
+    </div>
+
+    <!-- VISTA 2: ESTUDIO (GRABAR AUDIO / VIDEO + SUBTITULADO EN VIVO) -->
+    <div id="view-studio" class="view-container">
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <button class="menu-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+                <div class="brand">
+                    <span id="studio-active-title">Sin Guion</span>
+                    <small id="studio-sub-counter">💬 Subtítulos listos</small>
+                </div>
+            </div>
+            <div class="top-bar-right">
+                <div class="media-mode-switch" title="Elegir Grabación de Audio o Video">
+                    <button class="media-mode-btn active" id="btn-mode-audio" type="button">🎙️ Audio</button>
+                    <button class="media-mode-btn" id="btn-mode-video" type="button">🎥 Video</button>
+                </div>
+                <button id="btn-mute-ref" class="btn-mute-ref" style="display:none;" title="Silenciar Pista Base">
+                    <svg class="icon-vol-on" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                    <svg class="icon-vol-off" viewBox="0 0 24 24" style="display:none;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+                </button>
+                <button id="btn-edit-studio" class="btn-edit-active" title="Editar Guion Actual">✏️</button>
+                <div class="metro-indicator" id="metro-dot"></div>
+                <div class="vu-meter" id="vu-meter">
+                    <div class="vu-bar" id="vu-1"></div><div class="vu-bar" id="vu-2"></div><div class="vu-bar" id="vu-3"></div><div class="vu-bar" id="vu-4"></div><div class="vu-bar" id="vu-5"></div>
+                </div>
+                <div id="timer-studio">00:00</div>
+                <div class="record-controls">
+                    <button class="btn-pause-rec" id="btn-pause-rec" title="Pausar Grabación"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
+                    <button class="btn-rec" id="btn-rec" title="Grabar/Detener"></button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- BARRA FLOTANTE DE CONTROLES DE CÁMARA Y ESPEJO -->
+        <div class="studio-cam-toolbar" id="studio-cam-toolbar">
+            <button class="btn-hud-tool" id="btn-cam-layout" title="Alternar Cámara Fondo / Ventana PiP">🖼️ Fondo/PiP</button>
+            <button class="btn-hud-tool active" id="btn-cam-mirror" title="Espejar Cámara Selfie">🪞 Espejo Cam</button>
+            <button class="btn-hud-tool" id="btn-cam-flip" title="Cambiar Cámara Frontal/Trasera">🔄 Cam</button>
+            <button class="btn-hud-tool" id="btn-text-mirror" title="Espejar Texto para Cristal Teleprompter">🔤 Espejo Texto</button>
+        </div>
+
+        <div id="floating-tuner" class="floating-tuner">--</div>
+        <audio id="studio-ref-audio" style="display: none;"></audio>
+
+        <!-- MONITOR DE SUBTÍTULO DE REFERENCIA EN VIVO -->
+        <div class="studio-subtitle-banner" id="studio-live-sub">
+            <span class="sub-tag" id="studio-live-sub-time">SUB #1 • 00:00</span>
+            <div class="sub-line" id="studio-live-sub-text">...</div>
+        </div>
+
+        <div class="viewport" id="viewport-studio">
+            <div class="studio-camera-layer" id="studio-camera-layer">
+                <video id="studio-cam-video" class="mirrored-cam" autoplay playsinline muted></video>
+                <canvas id="studio-cam-canvas" width="1280" height="720" style="display:none;"></canvas>
+            </div>
+            <div class="focus-container"><div class="indicator-studio" id="studio-focus-indicator"></div></div>
+            <div class="scroller" id="scroller-studio"></div>
+        </div>
+        <div class="bottom-bar-wrapper">
+            <div class="bottom-bar">
+                <button class="btn" id="btn-restart-studio" style="width: 50px; border-radius: 50%; padding:0;" title="Reiniciar al Inicio">
+                    <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+                </button>
+                <div class="speed-panel">
+                    <button class="btn" id="btn-minus">-</button>
+                    <span id="speed-display">0.60</span>
+                    <button class="btn" id="btn-plus">+</button>
+                </div>
+                <button class="btn" id="btn-mark-sub" style="padding: 0 12px; font-size: 12px;" title="Avanzar y marcar el siguiente subtítulo manualmente">⏭️ <span class="i18n" data-es="Sub" data-en="Cue">Sub</span></button>
+                <button class="btn btn-play-studio" id="btn-play-studio">▶ <span class="i18n" data-es="ENSAYAR" data-en="REHEARSE">ENSAYAR</span></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VISTA 3: REPRODUCTOR MULTIMEDIA (AUDIO / VIDEO) Y SUBTÍTULOS -->
+    <div id="view-player" class="view-container">
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <button class="menu-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+                <div class="brand">
+                    <span id="player-active-title">Sin Guion</span>
+                    <small id="player-time-display">00:00 / 00:00</small>
+                </div>
+            </div>
+            <div class="top-bar-right">
+                <button id="btn-toggle-video-size" class="btn-hud-tool" style="display:none;" title="Ampliar / Reducir Video">📺 Video</button>
+                <button id="btn-toggle-subs" class="btn-hud-tool" title="Ver/Editar Subtítulos y Exportar SRT/VTT">💬 SRT / VTT</button>
+                <button id="btn-edit-player" class="btn-edit-active" title="Editar Guion Actual">✏️</button>
+            </div>
+        </div>
+        <div class="viewport" id="viewport-player">
+            <div class="focus-container"><div class="indicator-studio"></div></div>
+            <div class="scroller" id="scroller-player"></div>
+
+            <!-- VISOR DE VIDEO GRABADO -->
+            <div class="player-video-stage" id="player-video-stage">
+                <video id="master-video" playsinline></video>
+            </div>
+
+            <!-- CAJA DE SUBTÍTULOS SINCRONIZADOS EN EL REPRODUCTOR -->
+            <div class="player-subtitle-overlay" id="player-subtitle-overlay">
+                <span id="player-sub-main"></span>
+                <span class="sub-phonetic" id="player-sub-phonetic"></span>
+            </div>
+        </div>
+
+        <!-- PANEL LATERAL DE EDICIÓN Y EXPORTACIÓN DE SUBTÍTULOS -->
+        <div class="subtitles-drawer" id="subtitles-drawer">
+            <div class="subtitles-drawer-header">
+                <span style="font-size:13px; color:var(--theme-accent); font-weight:900;" class="i18n" data-es="💬 Subtítulos Sincronizados" data-en="💬 Synced Subtitles">💬 Subtítulos Sincronizados</span>
+                <div style="display:flex; gap:6px;">
+                    <button class="btn-hud-tool" id="btn-recalc-subs" title="Recalcular tiempos automáticamente según el peso del texto">⚡ Auto-Sync</button>
+                    <button class="btn-hud-tool" id="btn-close-subs">✖</button>
+                </div>
+            </div>
+            <div class="subtitles-drawer-body" id="subtitles-list-container"></div>
+            <div style="padding: 12px; border-top: 1px solid var(--border-color); display: flex; gap: 8px; background: var(--surface-light);">
+                <button class="btn-action-alt" id="btn-export-srt" style="flex:1;">📥 .SRT</button>
+                <button class="btn-action-alt" id="btn-export-vtt" style="flex:1;">📥 .VTT</button>
+            </div>
+        </div>
+        
+        <audio id="master-audio" style="display: none;"></audio>
+        <div class="bottom-bar-wrapper">
+            <div class="bottom-bar">
+                <button class="btn btn-play-audio i18n" id="btn-play-audio" disabled style="background: transparent; color: var(--theme-accent); border: 1px solid var(--theme-accent); padding: 0 14px; font-size:13px; min-width:120px;" data-es="SIN AUDIO" data-en="NO AUDIO">SIN AUDIO</button>
+                <div id="audio-progress-wrap" style="flex-grow: 1; height: 10px; background: var(--border-color); border-radius: 5px; margin: 0 8px; position: relative; overflow: hidden; cursor: pointer;" title="Haz clic para adelantar/retroceder">
+                    <div id="audio-progress" style="position: absolute; left: 0; top: 0; height: 100%; background: var(--theme-accent); width: 0%; transition: width 0.08s linear;"></div>
+                </div>
+                <button class="btn" id="btn-export-srt-quick" style="background: transparent; color: var(--theme-accent); border: 1px solid var(--theme-accent); padding: 0 12px; font-size: 12px;" title="Descargar Subtítulos .SRT">.SRT</button>
+                <button class="btn" id="btn-export-audio" disabled style="background: transparent; color: var(--text-present); border: 1px solid var(--border-color); padding: 0 14px;" title="Descargar Grabación (Audio o Video)">
+                    <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VISTA 4: INSTRUCCIONES -->
+    <div id="view-help" class="view-container">
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <button class="menu-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+                <div class="brand"><span class="i18n" data-es="Instrucciones" data-en="Syntax Guide">Instrucciones</span></div>
+            </div>
+        </div>
+        <div class="workspace-area">
+            <div class="help-card" id="help-es" style="display:block;">
+                <h3>🇪🇸 Guía de Sintaxis Temporal, Video y Subtitulado</h3>
+                <p>Añade estos comandos en cualquier parte de tu párrafo para alterar el flujo:</p>
+                <ul>
+                    <li><code>(P:2s)</code> <b>Pausa:</b> Congela el texto durante 2 segundos. Ideal para interludios.</li>
+                    <li><code>(V:1.5x)</code> <b>Velocidad:</b> Multiplica la velocidad del párrafo (1.5x es más rápido, 0.5x es lento).</li>
+                </ul>
+                <hr style="border:0; border-top:1px solid var(--border-color); margin:15px 0;">
+
+                <h4>🎥 Grabación de Audio o Video + Subtítulos de Referencia</h4>
+                <p>En el <b>Estudio</b> puedes alternar entre <b>🎙️ Audio</b> y <b>🎥 Video</b>. Mientras grabas, el motor registra el código de tiempo exacto en el que cada párrafo pasa por la línea de enfoque (o cuando pulsas <code>⏭️ Sub</code>). En modo Video puedes elegir <b>Subtítulos Quemados</b> (incrustados directamente en el video final) o descargar los archivos <code>.SRT</code> y <code>.VTT</code> desde el Reproductor.</p>
+                
+                <h4>🎙️ Modo Estándar y 🎬 Doblaje</h4>
+                <p>Texto fluido. El motor calcula el peso de cada palabra automáticamente. En <b>Doblaje</b>, asegúrate de adjuntar tu Pista Base.</p>
+                
+                <h4>🗣️ Mapeo Fonético (Shadowing)</h4>
+                <p>Usa la barra vertical <code>|</code> para separar la escritura formal de la reducción fonética.</p>
+                <p><i>Ej:</i> <code>¿Para dónde vas? | ¿Pa'nde vas?</code></p>
+                
+                <h4>🎵 Modo Musical</h4>
+                <p>Notación americana (*ChordPro*). Escribe la nota entre corchetes <code>[]</code> antes de la sílaba.</p>
+                <p><i>Ej:</i> <code>[C4]La don[C4]na è [F4]mobile (P:2s)</code></p>
+
+                <div class="alert-box">
+                    <b>Nota de Grabación:</b> Si reproduces audio de fondo mientras grabas sin auriculares, tu voz podría sonar robótica debido al filtro de cancelación de eco. <b>Usa auriculares</b> para evitar el retorno de audio.
+                </div>
+            </div>
+
+            <div class="help-card" id="help-en" style="display:none;">
+                <h3>🇺🇸 Temporal Syntax, Video & Subtitling Guide</h3>
+                <p>Add these tags anywhere in your paragraph to alter the flow:</p>
+                <ul>
+                    <li><code>(P:2s)</code> <b>Pause:</b> Freezes scrolling for 2 seconds. Great for interludes.</li>
+                    <li><code>(V:1.5x)</code> <b>Velocity:</b> Multiplies paragraph speed (1.5x is faster, 0.5x is slower).</li>
+                </ul>
+                <hr style="border:0; border-top:1px solid var(--border-color); margin:15px 0;">
+
+                <h4>🎥 Audio/Video Recording & Reference Subtitling</h4>
+                <p>In the <b>Studio</b>, switch between <b>🎙️ Audio</b> and <b>🎥 Video</b>. As you record, the engine logs the exact timestamp when each script block crosses the focus line (or when you tap <code>⏭️ Cue</code>). In Video mode, you can burn subtitles directly into the recorded video stream or export standard <code>.SRT</code> and <code>.VTT</code> files from the Player.</p>
+                
+                <h4>🎙️ Standard Mode & 🎬 Dubbing</h4>
+                <p>Fluid reading. The engine automatically calculates word density. In <b>Dubbing</b>, ensure you attach your Base Track.</p>
+                
+                <h4>🗣️ Phonetic Mapping (Shadowing)</h4>
+                <p>Use the vertical bar <code>|</code> to separate formal text from its slang/phonetic reduction.</p>
+                <p><i>Ex:</i> <code>Where are you going? | Where ya goin'?</code></p>
+                
+                <h4>🎵 Musical Mode</h4>
+                <p>Scientific ChordPro notation. Write the chord inside square brackets <code>[]</code> before the syllable.</p>
+                <p><i>Ex:</i> <code>[C4]Twin[C4]kle, [F4]little [C4]star (P:2s)</code></p>
+
+                <div class="alert-box">
+                    <b>Recording Note:</b> If playing background audio while recording without headphones, your voice might sound robotic due to echo cancellation. <b>Use headphones</b> to avoid audio feedback.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- UTILIDADES DE ALMACENAMIENTO SEGURO Y DIÁLOGOS IN-PAGE ---
+        const safeStorage = {
+            get: (k) => { try { return localStorage.getItem(k); } catch(e) { return null; } },
+            set: (k, v) => { try { localStorage.setItem(k, v); } catch(e) {} }
+        };
+
+        let toastTimer = null;
+        const showToast = (msg, borderColor = 'var(--theme-accent)') => {
+            const t = document.getElementById('app-toast');
+            t.innerText = msg;
+            t.style.borderLeftColor = borderColor;
+            t.classList.add('active');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => t.classList.remove('active'), 3200);
+        };
+
+        const showModal = ({ title, message, isConfirm = false, danger = false, onConfirm = null }) => {
+            const backdrop = document.getElementById('app-modal-backdrop');
+            document.getElementById('app-modal-title').innerText = title || (currentLang === 'es' ? 'StudioPrompter' : 'StudioPrompter');
+            document.getElementById('app-modal-msg').innerText = message || '';
+            const btnCancel = document.getElementById('app-modal-cancel');
+            const btnOk = document.getElementById('app-modal-ok');
+            btnCancel.style.display = isConfirm ? 'inline-block' : 'none';
+            btnCancel.innerText = currentLang === 'es' ? 'Cancelar' : 'Cancel';
+            btnOk.innerText = currentLang === 'es' ? 'Aceptar' : 'OK';
+            btnOk.className = `btn-modal ${danger ? 'danger' : 'primary'}`;
+            backdrop.classList.add('active');
+
+            const cleanup = () => {
+                backdrop.classList.remove('active');
+                btnOk.onclick = null;
+                btnCancel.onclick = null;
+            };
+            btnCancel.onclick = cleanup;
+            btnOk.onclick = () => {
+                cleanup();
+                if (typeof onConfirm === 'function') onConfirm();
+            };
+        };
+
+        // --- TEMA CLARO / OSCURO LÓGICA ---
+        const themeToggleBtn = document.getElementById('btn-theme-toggle');
+        const iconSun = themeToggleBtn.querySelector('.icon-sun');
+        const iconMoon = themeToggleBtn.querySelector('.icon-moon');
+
+        const applyTheme = (isLight) => {
+            if(isLight) {
+                document.body.classList.add('light-theme');
+                iconSun.style.display = 'none';
+                iconMoon.style.display = 'block';
+            } else {
+                document.body.classList.remove('light-theme');
+                iconSun.style.display = 'block';
+                iconMoon.style.display = 'none';
+            }
+        };
+
+        const savedTheme = safeStorage.get('spz_theme');
+        if (savedTheme) {
+            applyTheme(savedTheme === 'light');
+        } else {
+            const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            applyTheme(!systemPrefersDark); 
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            const isCurrentlyLight = document.body.classList.contains('light-theme');
+            const targetIsLight = !isCurrentlyLight;
+            applyTheme(targetIsLight);
+            safeStorage.set('spz_theme', targetIsLight ? 'light' : 'dark');
+        });
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if(!safeStorage.get('spz_theme')) { 
+                applyTheme(!event.matches);
+            }
+        });
+
+        // --- 0. INTERNACIONALIZACIÓN (I18n) ---
+        let currentLang = 'es';
+        const applyLang = (lang) => {
+            currentLang = lang;
+            document.getElementById('btn-lang-toggle').innerText = lang === 'es' ? '🇪🇸' : '🇺🇸';
+            
+            document.querySelectorAll('.i18n').forEach(el => { el.innerText = el.getAttribute(`data-${lang}`); });
+            document.querySelectorAll('.i18n-ph').forEach(el => { el.setAttribute('placeholder', el.getAttribute(`data-${lang}`)); });
+            
+            document.getElementById('help-es').style.display = lang === 'es' ? 'block' : 'none';
+            document.getElementById('help-en').style.display = lang === 'en' ? 'block' : 'none';
+            updateRibbon();
+            renderList();
+        };
+
+        const detectLang = () => {
+            const sysLang = navigator.language || navigator.userLanguage || 'es';
+            if(sysLang.toLowerCase().startsWith('en')) applyLang('en');
+            else applyLang('es');
+        };
+        
+        document.getElementById('btn-lang-toggle').addEventListener('click', () => { applyLang(currentLang === 'es' ? 'en' : 'es'); });
+
+        // --- 1. REGISTRO PWA ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/StudioPrompter-Zero/sw.js', { scope: '/StudioPrompter-Zero/' }).catch(()=>{});
+            });
+        }
+        let deferredPrompt = null; const btnInstall = document.getElementById('btn-install');
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
+        btnInstall.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') btnInstall.style.display = 'none';
+                deferredPrompt = null;
+            } else {
+                showModal({
+                    title: currentLang === 'es' ? 'Instalar PWA' : 'Install PWA',
+                    message: currentLang === 'es'
+                        ? "Para instalar StudioPrompter Zero en tu dispositivo:\n• En Chrome/Edge/Android: abre el menú del navegador (⋮) y selecciona 'Instalar aplicación'.\n• En iOS Safari: pulsa 'Compartir' y elige 'Agregar a pantalla de inicio'."
+                        : "To install StudioPrompter Zero on your device:\n• Chrome/Edge/Android: open the browser menu (⋮) and tap 'Install app'.\n• iOS Safari: tap 'Share' and choose 'Add to Home Screen'."
+                });
+            }
+        });
+
+        // --- 2. BASE DE DATOS LOCAL (INDEXEDDB CON FALLBACK EN MEMORIA) ---
+        const DB_NAME = 'StudioPrompterDB'; let db = null;
+        const initDB = () => new Promise((res) => {
+            try {
+                const req = indexedDB.open(DB_NAME, 3);
+                req.onerror = () => res();
+                req.onsuccess = (e) => { db = e.target.result; res(); };
+                req.onupgradeneeded = (e) => {
+                    db = e.target.result;
+                    if (!db.objectStoreNames.contains('scripts')) {
+                        db.createObjectStore('scripts', { keyPath: 'id' });
+                    }
+                };
+            } catch (e) { res(); }
+        });
+        
+        const dbOps = {
+            save: (proj) => new Promise((res) => {
+                if (!db) return res();
+                try {
+                    const req = db.transaction(['scripts'], 'readwrite').objectStore('scripts').put(proj);
+                    req.onsuccess = () => res();
+                    req.onerror = () => res();
+                } catch(e) { res(); }
+            }),
+            loadAll: () => new Promise((res) => {
+                if (!db) return res([]);
+                try {
+                    const req = db.transaction(['scripts'], 'readonly').objectStore('scripts').getAll();
+                    req.onsuccess = () => res(req.result || []);
+                    req.onerror = () => res([]);
+                } catch(e) { res([]); }
+            }),
+            delete: (id) => new Promise((res) => {
+                if (!db) return res();
+                try {
+                    const req = db.transaction(['scripts'], 'readwrite').objectStore('scripts').delete(id);
+                    req.onsuccess = () => res();
+                    req.onerror = () => res();
+                } catch(e) { res(); }
+            })
+        };
+
+        const APP_STATE = { projects: [], activeProjectId: null, editingId: null };
+
+        // --- GENERADOR DE WAV SINTÉTICO PARA DEMO OFFLINE ---
+        function buildSyntheticGuideWav(durationSec = 4.0, sampleRate = 22050) {
+            const numSamples = Math.floor(durationSec * sampleRate);
+            const buffer = new ArrayBuffer(44 + numSamples * 2);
+            const view = new DataView(buffer);
+            const writeStr = (offset, str) => { for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i)); };
+            writeStr(0, 'RIFF');
+            view.setUint32(4, 36 + numSamples * 2, true);
+            writeStr(8, 'WAVEfmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, 1, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true);
+            view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true);
+            writeStr(36, 'data');
+            view.setUint32(40, numSamples * 2, true);
+            for (let i = 0; i < numSamples; i++) {
+                const t = i / sampleRate;
+                const env = Math.exp(-((t % 0.8) * 5.0));
+                const sig = 0.22 * env * (Math.sin(2 * Math.PI * 220 * t) + 0.5 * Math.sin(2 * Math.PI * 330 * t));
+                const sample = Math.max(-1, Math.min(1, sig));
+                view.setInt16(44 + i * 2, sample * 32767, true);
+            }
+            return buffer;
+        }
+
+        // --- 3. PRECARGA DE EJEMPLOS ---
+        const PRELOAD_TEXTS = {
+            standard: `Mr. Chairman, ladies and gentlemen:\n\nI appreciate very much your generous invitation to be here tonight. (P:1.5s)\n\nYou bear heavy responsibilities these days and an article I read some time ago reminded me of how particularly heavily the burdens of present day events bear upon your profession. (V:1.2x)`,
+            shadowing: `A: Yo, y’all ever try datin’ in New York? It’s a whole sport, man! | A: Hey, have you all ever tried dating in New York? It’s a whole sport, man!\nSwipe right, swipe left, match, unmatch… I’m exhausted before I even leave my couch! | Swipe right, swipe left, match, unmatch… I’m exhausted before I even leave my couch!`,
+            dubbing: `[LOCUTOR]: Bienvenidos al futuro del desarrollo web. (P:1.5s)\n\n[LOCUTOR]: Cero dependencias. Cero distracciones. Solo tú y tu código. (V:0.9x)\n\n[VOZ EN OFF]: ¿Estás listo para empezar?`,
+            musical: `[C4]La don[C4]na è [F4]mo-[C4]bile, [G4]Qual piuma al [C4]vento,\n[C4]Mu-[F4]ta d’ac-[C4]cen-[G4]to [C4]E di [F4]pen-[C4]sier! (P:2s)\n[C4]La don[C4]na è [F4]mo-[C4]bile, [G4]Qual piuma al [C4]vento,\n[C4]Mu-[F4]ta d’ac-[C4]cen-[G4]to [C4]E di [F4]pen-[C4]sier! (P:2s)\n[C4]È sem-[F4]pre a-[C4]ma-[G4]bile, [C4]Pre-[F4]zios-[C4]a fi-[G4]gura, (V:0.8x)\n[C4]La don[C4]na è [F4]mo-[C4]bile, [G4]Qual piuma al [C4]vento! (P:3s)`
+        };
+
+        // --- GENERADOR DE SUBTÍTULOS DE REFERENCIA ---
+        function generateDefaultSubtitles(paragraphs, totalDuration = 0) {
+            if (!paragraphs || paragraphs.length === 0) return [];
+            const weights = paragraphs.map(p => {
+                const base = (p.weight || 40) / Math.max(0.3, p.speed || 1.0);
+                return Math.max(15, base + (p.pause || 0) * 18);
+            });
+            const sumWeights = weights.reduce((a, b) => a + b, 0) || 1;
+            const targetTotal = totalDuration > 1 ? totalDuration : Math.max(8, paragraphs.length * 4.0);
+            let cursor = 0;
+            return paragraphs.map((p, idx) => {
+                const dur = Math.max(1.2, (weights[idx] / sumWeights) * targetTotal);
+                const start = Number(cursor.toFixed(2));
+                const end = Number((cursor + dur).toFixed(2));
+                cursor += dur;
+                let cleanLine = p.text || '';
+                if (!cleanLine && p.segments) {
+                    cleanLine = p.segments.map(s => s.text).join('');
+                }
+                return {
+                    id: idx,
+                    start: start,
+                    end: end,
+                    text: cleanLine.trim(),
+                    phonetic: p.phonetic || ''
+                };
+            });
+        }
+
+        const seedInitialData = async () => {
+            const p1Paras = parseText(PRELOAD_TEXTS.standard, 'standard');
+            const p1 = {
+                id: 'seed1', title: 'John F. Kennedy (Apr 27, 1961)', mode: 'standard',
+                paragraphs: p1Paras, subtitles: generateDefaultSubtitles(p1Paras, 16), timestamp: Date.now()
+            };
+            const p3Paras = parseText(PRELOAD_TEXTS.musical, 'musical');
+            const p3 = {
+                id: 'seed3', title: 'La donna è mobile (Verdi)', mode: 'musical', musicKey: 'C', musicClef: 'G',
+                paragraphs: p3Paras, subtitles: generateDefaultSubtitles(p3Paras, 24), timestamp: Date.now() - 2000
+            };
+            
+            const sampleAudioData = buildSyntheticGuideWav(4.0, 22050);
+            const p2Paras = parseText(PRELOAD_TEXTS.shadowing, 'shadowing');
+            const p2 = { 
+                id: 'seed2', title: 'Shadowing Demo (NY Dating)', mode: 'shadowing', 
+                paragraphs: p2Paras, subtitles: generateDefaultSubtitles(p2Paras, 12),
+                referenceAudioData: sampleAudioData, referenceAudioMimeType: 'audio/wav', referenceAudioName: 'shadowing_muestra.wav',
+                timestamp: Date.now() - 1000 
+            };
+            
+            await dbOps.save(p1); await dbOps.save(p2); await dbOps.save(p3);
+            APP_STATE.projects = [p1, p2, p3];
+        };
+
+        // --- CINTA CONTEXTUAL Y SELECTORES ---
+        const modeRadios = document.querySelectorAll('input[name="script-mode"]');
+        const contextRibbon = document.getElementById('context-ribbon');
+        const musicalSettings = document.getElementById('musical-settings');
+        const contentArea = document.getElementById('script-content');
+        
+        const updateRibbon = () => {
+            const checked = document.querySelector('input[name="script-mode"]:checked');
+            const mode = checked ? checked.value : 'standard';
+            musicalSettings.classList.remove('active');
+            let tPause = currentLang === 'es' ? '⏱️ Pausa: (P:2s)   ⚡ Vel: (V:1.5x)' : '⏱️ Pause: (P:2s)   ⚡ Speed: (V:1.5x)';
+            
+            if(mode === 'shadowing') { contextRibbon.innerText = currentLang === 'es' ? `Sintaxis: Formal | Fonético.  ${tPause}` : `Syntax: Formal | Phonetic.  ${tPause}`; } 
+            else if(mode === 'dubbing') { contextRibbon.innerText = currentLang === 'es' ? `Sintaxis Normal. Activa tu Pista Base para sincronía.  ${tPause}` : `Normal Syntax. Use Base Track for sync.  ${tPause}`; }
+            else if(mode === 'musical') { contextRibbon.innerText = currentLang === 'es' ? `Sintaxis: [C4]Sílaba.  ${tPause}` : `Syntax: [C4]Syllable.  ${tPause}`; musicalSettings.classList.add('active'); } 
+            else { contextRibbon.innerText = currentLang === 'es' ? `Texto fluido + Subtitulado automático por párrafo.  ${tPause}` : `Fluid Text + Auto-Subtitling per paragraph.  ${tPause}`; }
+        };
+        
+        modeRadios.forEach(radio => radio.addEventListener('change', updateRibbon));
+        document.getElementById('btn-load-example').addEventListener('click', () => {
+            const mode = document.querySelector('input[name="script-mode"]:checked').value;
+            contentArea.value = PRELOAD_TEXTS[mode];
+            showToast(currentLang === 'es' ? '📄 Ejemplo cargado' : '📄 Example loaded');
+        });
+
+        // --- GESTIÓN DE AUDIO DE REFERENCIA ---
+        let currentReferenceAudio = null; 
+        const btnAttachAudio = document.getElementById('btn-attach-audio'); const refAudioInput = document.getElementById('ref-audio-input');
+        const attachedAudioName = document.getElementById('attached-audio-name'); const btnClearAudio = document.getElementById('btn-clear-audio');
+
+        btnAttachAudio.addEventListener('click', () => refAudioInput.click());
+        refAudioInput.addEventListener('change', (e) => {
+            const file = e.target.files[0]; if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                currentReferenceAudio = { data: ev.target.result, mime: file.type || 'audio/mpeg', name: file.name };
+                attachedAudioName.innerText = file.name; attachedAudioName.style.color = 'var(--theme-accent)'; btnClearAudio.style.display = 'inline';
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        btnClearAudio.addEventListener('click', () => {
+            currentReferenceAudio = null; refAudioInput.value = '';
+            attachedAudioName.innerText = currentLang === 'es' ? 'Ninguna / None' : 'None attached'; attachedAudioName.style.color = 'var(--text-future)';
+            btnClearAudio.style.display = 'none';
+        });
+
+        // --- PARSER MATEMÁTICO ---
+        const extractTimeTags = (text) => {
+            let pMatch = text.match(/\(P:([\d.]+)s\)/i); let vMatch = text.match(/\(V:([\d.]+)x\)/i);
+            let pause = pMatch ? parseFloat(pMatch[1]) : 0; let speed = vMatch ? parseFloat(vMatch[1]) : 1.0;
+            let clean = text.replace(/\(P:[\d.]+s\)/gi, '').replace(/\(V:[\d.]+x\)/gi, '').trim();
+            return { clean, pause, speed };
+        };
+
+        const parseText = (raw, mode) => {
+            return raw.split(/\n+/).map(p=>p.trim()).filter(p=>p.length>0).map((t, i) => {
+                let tags = extractTimeTags(t); let wBase = tags.clean.length;
+                if (mode === 'shadowing' && tags.clean.includes('|')) {
+                    const parts = tags.clean.split('|'); 
+                    return { id: i, text: parts[0].trim(), phonetic: parts[1].trim(), weight: parts[0].trim().length * 1.5, pause: tags.pause, speed: tags.speed };
+                }
+                if (mode === 'musical') {
+                    let segments = []; let parts = tags.clean.split('[');
+                    parts.forEach((part, index) => {
+                        if (index === 0 && part.length > 0) segments.push({ chord: '', text: part });
+                        else if (part.includes(']')) { let splitPart = part.split(']'); segments.push({ chord: splitPart[0].trim(), text: splitPart[1] }); }
+                    });
+                    const plainLyric = segments.map(s => s.text).join('').trim();
+                    return { id: i, text: plainLyric, segments: segments, weight: wBase * 1.2, pause: tags.pause, speed: tags.speed };
+                }
+                return { id: i, text: tags.clean, weight: wBase + (tags.clean.match(/,/g)||[]).length*15 + (tags.clean.match(/\./g)||[]).length*25, pause: tags.pause, speed: tags.speed };
+            });
+        };
+
+        // --- GUARDADO Y EDICIÓN ---
+        const btnSave = document.getElementById('btn-save'); const titleInput = document.getElementById('script-title');
+        
+        btnSave.addEventListener('click', async () => {
+            const t = titleInput.value.trim() || (currentLang === 'es' ? `Proyecto sin título` : `Untitled Project`);
+            const c = contentArea.value.trim();
+            if (!c) {
+                showToast(currentLang === 'es' ? '⚠️ Escribe o pega un guion primero' : '⚠️ Write or paste a script first', 'var(--warning-color)');
+                return;
+            }
+            const selectedMode = document.querySelector('input[name="script-mode"]:checked').value;
+            const parsedParagraphs = parseText(c, selectedMode);
+            const existingProj = APP_STATE.editingId ? APP_STATE.projects.find(p => p.id === APP_STATE.editingId) : null;
+
+            const proj = { 
+                id: APP_STATE.editingId || Date.now().toString(),
+                title: t,
+                mode: selectedMode,
+                musicKey: selectedMode === 'musical' ? document.getElementById('music-key').value : null,
+                musicClef: selectedMode === 'musical' ? document.getElementById('music-clef').value : null,
+                referenceAudioData: currentReferenceAudio ? currentReferenceAudio.data : null,
+                referenceAudioMimeType: currentReferenceAudio ? currentReferenceAudio.mime : null,
+                referenceAudioName: currentReferenceAudio ? currentReferenceAudio.name : null,
+                audioData: existingProj ? existingProj.audioData : null,
+                audioMimeType: existingProj ? existingProj.audioMimeType : null,
+                mediaType: existingProj ? existingProj.mediaType : null,
+                recordedDuration: existingProj ? existingProj.recordedDuration : 0,
+                recordedScrollY: existingProj ? existingProj.recordedScrollY : 0,
+                paragraphs: parsedParagraphs,
+                subtitles: generateDefaultSubtitles(parsedParagraphs, existingProj ? existingProj.recordedDuration : 0),
+                timestamp: Date.now() 
+            };
+            await dbOps.save(proj); 
+            if (APP_STATE.editingId) {
+                APP_STATE.projects = APP_STATE.projects.map(p => p.id === proj.id ? proj : p);
+                APP_STATE.editingId = null;
+                btnSave.classList.remove('update-mode');
+                btnSave.innerText = currentLang === 'es' ? "💾 Guardar Proyecto" : "💾 Save Project";
+            } else {
+                APP_STATE.projects.push(proj);
+            }
+            titleInput.value = ''; contentArea.value = ''; btnClearAudio.click();
+            selectProject(proj.id);
+            showToast(currentLang === 'es' ? '✅ Proyecto guardado y cargado' : '✅ Project saved & loaded');
+        });
+
+        const loadForEditing = (id) => {
+            const p = APP_STATE.projects.find(x => x.id === id); if(!p) return;
+            APP_STATE.editingId = id; titleInput.value = p.title;
+            let rawContent = p.paragraphs.map(para => {
+                let line = "";
+                if(p.mode === 'shadowing') line = `${para.text} | ${para.phonetic}`;
+                else if(p.mode === 'musical' && para.segments) line = para.segments.map(s => s.chord ? `[${s.chord}]${s.text}` : s.text).join('');
+                else line = para.text;
+                if(para.pause > 0) line += ` (P:${para.pause}s)`; if(para.speed !== 1.0) line += ` (V:${para.speed}x)`; 
+                return line;
+            }).join('\n\n');
+            
+            contentArea.value = rawContent;
+            const radio = document.querySelector(`input[name="script-mode"][value="${p.mode}"]`);
+            if (radio) radio.checked = true;
+            if(p.mode === 'musical'){ document.getElementById('music-key').value = p.musicKey || 'C'; document.getElementById('music-clef').value = p.musicClef || 'G'; }
+
+            if(p.referenceAudioData) {
+                currentReferenceAudio = { data: p.referenceAudioData, mime: p.referenceAudioMimeType, name: p.referenceAudioName };
+                attachedAudioName.innerText = p.referenceAudioName; attachedAudioName.style.color = 'var(--theme-accent)'; btnClearAudio.style.display = 'inline';
+            } else { btnClearAudio.click(); }
+            
+            updateRibbon(); btnSave.classList.add('update-mode'); btnSave.innerText = currentLang === 'es' ? "🔄 Actualizar Cambios" : "🔄 Update Changes";
+            switchView('view-scripts'); toggleMenu(true);
+        };
+
+        document.getElementById('btn-edit-studio').addEventListener('click', () => loadForEditing(APP_STATE.activeProjectId));
+        document.getElementById('btn-edit-player').addEventListener('click', () => loadForEditing(APP_STATE.activeProjectId));
+
+        window.deleteProject = (id) => {
+            showModal({
+                title: currentLang === 'es' ? 'Eliminar Proyecto' : 'Delete Project',
+                message: currentLang === 'es' ? '¿Borrar definitivamente este guion y sus grabaciones?' : 'Permanently delete this script and its recordings?',
+                isConfirm: true,
+                danger: true,
+                onConfirm: async () => {
+                    await dbOps.delete(id);
+                    APP_STATE.projects = APP_STATE.projects.filter(p => p.id !== id);
+                    if(APP_STATE.activeProjectId === id) { 
+                        APP_STATE.activeProjectId = null;
+                        document.getElementById('studio-active-title').innerText = "Sin Guion"; 
+                        document.getElementById('scroller-studio').innerHTML = "";
+                        document.getElementById('scroller-player').innerHTML = ""; 
+                        document.getElementById('studio-ref-audio').removeAttribute('src');
+                    }
+                    renderList();
+                    showToast(currentLang === 'es' ? '🗑️ Proyecto eliminado' : '🗑️ Project deleted');
+                }
+            });
+        };
+
+        const renderList = () => {
+            const container = document.getElementById('projects-container'); container.innerHTML = '';
+            if(APP_STATE.projects.length === 0) return container.innerHTML = '<div style="color:#888;font-size:14px;text-align:center;">Empty</div>';
+            
+            [...APP_STATE.projects].sort((a,b) => b.timestamp - a.timestamp).forEach(p => {
+                const isActive = p.id === APP_STATE.activeProjectId;
+                const card = document.createElement('div'); card.className = `project-card ${isActive ? 'active-project' : ''}`;
+                
+                let modeLabel = '🎙️ ESTÁNDAR'; 
+                if(p.mode === 'shadowing') modeLabel = '🗣️ SHADOWING'; 
+                else if(p.mode === 'dubbing') modeLabel = '🎬 DOBLAJE'; 
+                else if(p.mode === 'musical') modeLabel = `🎵 MUSICAL (${p.musicKey || 'C'})`;
+                
+                let btnLoadTxt = currentLang === 'es' ? (isActive ? 'CARGADO' : 'CARGAR') : (isActive ? 'LOADED' : 'LOAD');
+                let audioBaseIcon = p.referenceAudioData ? ' <span style="color:var(--theme-accent);" title="Pista Base">🎵</span>' : '';
+                let mediaBadge = 'No Audio';
+                if (p.audioData) {
+                    mediaBadge = p.mediaType === 'video' ? '<span class="badge-video">🎥 Video OK</span>' : '🎙️ Audio OK';
+                }
+                const subCount = (p.subtitles && p.subtitles.length) ? p.subtitles.length : p.paragraphs.length;
+                
+                card.innerHTML = `
+                    <div class="project-info">
+                        <div class="project-title">${p.title}${audioBaseIcon}</div>
+                        <div class="project-meta">
+                            <span class="badge-mode">${modeLabel}</span>
+                            <span class="badge-sub">💬 ${subCount} SUBS</span>
+                            <span>${p.paragraphs.length} blocks | ${mediaBadge}</span>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-delete" onclick="deleteProject('${p.id}')">
+                            <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                        </button>
+                        <button class="btn-select" onclick="selectProject('${p.id}')">${btnLoadTxt}</button>
+                    </div>`;
+                container.appendChild(card);
+            });
+        };
+
+        // --- SISTEMA ÓPTICO, SCROLL Y TRACKING DE SUBTÍTULOS EN VIVO ---
+        let obsStudio = null; let obsPlayer = null;
+        let isScrollPaused = false; let activePauseTimeout = null; let currentSpeedModifier = 1.0;
+        let activeParagraphIndex = 0;
+        let liveSubtitleLog = [];
+        let recordingStartPerf = 0;
+
+        function getActiveRecordingSeconds() {
+            if (!isRecording) return recordingSeconds;
+            return Math.max(0, (performance.now() - recordingStartPerf) / 1000);
+        }
+
+        function onActiveParagraphChanged(id, scrollerElement) {
+            activeParagraphIndex = id;
+            const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
+            if (!proj || !proj.paragraphs[id]) return;
+
+            const para = proj.paragraphs[id];
+            const cleanText = para.text || (para.segments ? para.segments.map(s => s.text).join('') : '');
+            const liveBanner = document.getElementById('studio-live-sub');
+            const liveTime = document.getElementById('studio-live-sub-time');
+            const liveText = document.getElementById('studio-live-sub-text');
+
+            if (scrollerElement.id === 'scroller-studio') {
+                liveBanner.classList.add('active');
+                const sec = getActiveRecordingSeconds();
+                liveTime.innerText = `SUB #${id + 1}/${proj.paragraphs.length} • ${formatMMSS(sec)}`;
+                liveText.innerText = cleanText + (para.phonetic ? ` (${para.phonetic})` : '');
+                document.getElementById('studio-sub-counter').innerText = `💬 Sub ${id + 1} / ${proj.paragraphs.length}`;
+
+                if (isRecording) {
+                    const nowSec = Number(sec.toFixed(2));
+                    if (liveSubtitleLog.length > 0) {
+                        const prev = liveSubtitleLog[liveSubtitleLog.length - 1];
+                        if (prev.end <= prev.start) prev.end = Math.max(prev.start + 0.5, nowSec);
+                    }
+                    if (!liveSubtitleLog.length || liveSubtitleLog[liveSubtitleLog.length - 1].id !== id) {
+                        liveSubtitleLog.push({
+                            id: id,
+                            start: nowSec,
+                            end: Number((nowSec + 3.0).toFixed(2)),
+                            text: cleanText.trim(),
+                            phonetic: para.phonetic || ''
+                        });
+                    }
+                }
+            }
+        }
+
+        const createIntersectionObserver = (scrollerElement, rootViewportId) => {
+            const pr = Array.from(scrollerElement.querySelectorAll('.paragraph'));
+            return new IntersectionObserver((entries) => {
+                entries.forEach(e => {
+                    if(e.isIntersecting) {
+                        const act = e.target; const id = parseInt(act.dataset.id);
+                        if (scrollerElement.id === 'scroller-studio') {
+                            dPacing = Math.max(0.4, Math.min(1.0 / (parseInt(act.dataset.chars) / (act.getBoundingClientRect().height || 1) || 1.0), 1.5));
+                            currentSpeedModifier = parseFloat(act.dataset.speed) || 1.0;
+                            const tPause = parseFloat(act.dataset.pause) || 0;
+                            if (tPause > 0 && isPlayingStudio && !isDragging) {
+                                isScrollPaused = true; clearTimeout(activePauseTimeout);
+                                activePauseTimeout = setTimeout(() => { isScrollPaused = false; lastTStudio = performance.now(); }, tPause * 1000);
+                            }
+                        }
+                        pr.forEach(p => { const pId = parseInt(p.dataset.id); p.className = `paragraph ${pId < id ? 'past' : (pId === id ? 'present' : 'future')}`; });
+                        onActiveParagraphChanged(id, scrollerElement);
+                    }
+                });
+            }, { root: document.getElementById(rootViewportId), rootMargin: '-48% 0px', threshold: 0 });
+        };
+
+        const studioRefAudioElement = document.getElementById('studio-ref-audio');
+        const btnMuteRef = document.getElementById('btn-mute-ref');
+        const iconVolOn = btnMuteRef.querySelector('.icon-vol-on'); const iconVolOff = btnMuteRef.querySelector('.icon-vol-off');
+
+        const updateMuteRefIcon = () => {
+            if(studioRefAudioElement.muted) { iconVolOn.style.display = 'none'; iconVolOff.style.display = 'block'; btnMuteRef.style.opacity = '0.5'; } 
+            else { iconVolOn.style.display = 'block'; iconVolOff.style.display = 'none'; btnMuteRef.style.opacity = '1'; }
+        };
+
+        btnMuteRef.addEventListener('click', () => { studioRefAudioElement.muted = !studioRefAudioElement.muted; updateMuteRefIcon(); });
+
+        window.selectProject = (id) => {
+            APP_STATE.activeProjectId = id; const p = APP_STATE.projects.find(x => x.id === id); if(!p) return;
+            if (!p.subtitles || p.subtitles.length === 0) {
+                p.subtitles = generateDefaultSubtitles(p.paragraphs, p.recordedDuration || 0);
+            }
+            renderList();
+            if(isPlayingStudio) togglePlayStudio(false); if(isRecording) stopAudioEngine();
+            
+            document.getElementById('studio-active-title').innerText = p.title;
+            document.getElementById('studio-active-title').style.color = '';
+            document.getElementById('player-active-title').innerText = p.title;
+            document.getElementById('studio-sub-counter').innerText = `💬 ${p.paragraphs.length} bloques de subtítulo`;
+
+            const scrStudio = document.getElementById('scroller-studio'); scrStudio.innerHTML = '';
+            const scrPlayer = document.getElementById('scroller-player'); scrPlayer.innerHTML = '';
+            
+            p.paragraphs.forEach((d, i) => {
+                const pTag = document.createElement('div'); pTag.className = `paragraph ${i === 0 ? 'present' : 'future'}`; 
+                pTag.dataset.id = d.id; pTag.dataset.chars = d.weight; pTag.dataset.pause = d.pause; pTag.dataset.speed = d.speed;
+                
+                if (p.mode === 'musical' && d.segments) {
+                    const mLine = document.createElement('div'); mLine.className = 'musical-line';
+                    d.segments.forEach(seg => {
+                        const wBlock = document.createElement('span'); wBlock.className = 'chord-word-block';
+                        if(seg.chord) { const cSpan = document.createElement('span'); cSpan.className = 'chord-text'; cSpan.innerText = seg.chord; wBlock.appendChild(cSpan); }
+                        const lSpan = document.createElement('span'); lSpan.className = 'lyric-text'; lSpan.innerText = seg.text; wBlock.appendChild(lSpan); 
+                        mLine.appendChild(wBlock);
+                    }); 
+                    pTag.appendChild(mLine);
+                } else {
+                    const fSpan = document.createElement('span'); fSpan.className = 'formal-text'; fSpan.innerText = d.text; pTag.appendChild(fSpan);
+                    if(d.phonetic) { const vSpan = document.createElement('span'); vSpan.className = 'phonetic-text'; vSpan.innerText = d.phonetic; pTag.appendChild(vSpan); }
+                }
+                scrStudio.appendChild(pTag);
+                const pTagPlayer = pTag.cloneNode(true);
+                pTagPlayer.addEventListener('click', () => seekPlayerToParagraph(i));
+                scrPlayer.appendChild(pTagPlayer);
+            });
+            
+            currentYStudio = 0; activeParagraphIndex = 0; isScrollPaused = false;
+            scrStudio.style.transform = `translateY(0px)`; scrPlayer.style.transform = `translateY(0px)`;
+            onActiveParagraphChanged(0, scrStudio);
+            
+            if(obsStudio) obsStudio.disconnect(); obsStudio = createIntersectionObserver(scrStudio, 'viewport-studio'); Array.from(scrStudio.querySelectorAll('.paragraph')).forEach(pEl => obsStudio.observe(pEl));
+            if(obsPlayer) obsPlayer.disconnect(); obsPlayer = createIntersectionObserver(scrPlayer, 'viewport-player'); Array.from(scrPlayer.querySelectorAll('.paragraph')).forEach(pEl => obsPlayer.observe(pEl));
+
+            if (p.referenceAudioData) {
+                const refBlob = new Blob([p.referenceAudioData], { type: p.referenceAudioMimeType || 'audio/wav' });
+                studioRefAudioElement.src = URL.createObjectURL(refBlob); btnMuteRef.style.display = 'flex'; studioRefAudioElement.muted = false; updateMuteRefIcon();
+            } else { studioRefAudioElement.removeAttribute('src'); btnMuteRef.style.display = 'none'; }
+
+            setupPlayerMedia(p);
+            renderSubtitlesEditor(p);
+        };
+
+        // --- CONFIGURACIÓN DEL REPRODUCTOR (AUDIO O VIDEO) Y SUBTÍTULOS ---
+        const masterAudio = document.getElementById('master-audio');
+        const masterVideo = document.getElementById('master-video');
+        const playerVideoStage = document.getElementById('player-video-stage');
+        const btnToggleVideoSize = document.getElementById('btn-toggle-video-size');
+        const btnPlayAudio = document.getElementById('btn-play-audio');
+        const btnExport = document.getElementById('btn-export-audio');
+        const playerSubOverlay = document.getElementById('player-subtitle-overlay');
+        const playerSubMain = document.getElementById('player-sub-main');
+        const playerSubPhonetic = document.getElementById('player-sub-phonetic');
+
+        function getActivePlayerElement() {
+            const p = APP_STATE.projects.find(x => x.id === APP_STATE.activeProjectId);
+            if (p && p.mediaType === 'video') return masterVideo;
+            return masterAudio;
+        }
+
+        function formatMMSS(sec) {
+            if (!isFinite(sec) || sec < 0) sec = 0;
+            const m = Math.floor(sec / 60).toString().padStart(2, '0');
+            const s = Math.floor(sec % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function setupPlayerMedia(p) {
+            masterAudio.pause(); masterVideo.pause();
+            if (p.audioData) {
+                const isVid = p.mediaType === 'video';
+                const mime = p.audioMimeType || (isVid ? 'video/webm' : 'audio/webm');
+                const blob = new Blob([p.audioData], { type: mime });
+                const url = URL.createObjectURL(blob);
+                if (isVid) {
+                    masterVideo.src = url;
+                    masterAudio.removeAttribute('src');
+                    playerVideoStage.classList.add('active');
+                    btnToggleVideoSize.style.display = 'flex';
+                } else {
+                    masterAudio.src = url;
+                    masterVideo.removeAttribute('src');
+                    playerVideoStage.classList.remove('active');
+                    btnToggleVideoSize.style.display = 'none';
+                }
+                btnPlayAudio.disabled = false;
+                btnPlayAudio.innerHTML = isVid ? '▶ VIDEO' : '▶ ESCUCHAR';
+                btnExport.disabled = false;
+                btnExport.onclick = () => {
+                    const a = document.createElement('a'); a.href = url;
+                    const safeTitle = p.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                    const ext = mime.includes('mp4') ? 'mp4' : 'webm';
+                    a.download = `${isVid ? 'Video' : 'Audio'}_${safeTitle}.${ext}`;
+                    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                };
+            } else {
+                masterAudio.removeAttribute('src');
+                masterVideo.removeAttribute('src');
+                playerVideoStage.classList.remove('active');
+                btnToggleVideoSize.style.display = 'none';
+                btnPlayAudio.disabled = true;
+                btnPlayAudio.innerHTML = currentLang === 'es' ? 'SIN AUDIO' : 'NO AUDIO';
+                btnExport.disabled = true;
+                btnExport.onclick = null;
+            }
+            document.getElementById('audio-progress').style.width = '0%';
+            document.getElementById('player-time-display').innerText = `00:00 / ${formatMMSS(p.recordedDuration || 0)}`;
+            playerSubOverlay.classList.remove('active');
+        }
+
+        btnToggleVideoSize.addEventListener('click', () => {
+            playerVideoStage.classList.toggle('expanded');
+        });
+
+        // --- CONTROLES MENÚ LATERAL ---
+        const rootStyles = document.documentElement.style; let cFont = 28;
+        document.getElementById('btn-font-plus').addEventListener('click', () => { cFont = Math.min(cFont+2, 48); document.getElementById('font-size-display').innerText = `${cFont}px`; rootStyles.setProperty('--font-size-p', `${cFont}px`); });
+        document.getElementById('btn-font-minus').addEventListener('click', () => { cFont = Math.max(cFont-2, 16); document.getElementById('font-size-display').innerText = `${cFont}px`; rootStyles.setProperty('--font-size-p', `${cFont}px`); });
+
+        const cdValues = [0, 3, 5, 10]; let cdIndex = 1;
+        document.getElementById('btn-cd-plus').addEventListener('click', () => { cdIndex = Math.min(cdIndex+1, cdValues.length-1); document.getElementById('cd-display').innerText = cdValues[cdIndex] + 's'; });
+        document.getElementById('btn-cd-minus').addEventListener('click', () => { cdIndex = Math.max(cdIndex-1, 0); document.getElementById('cd-display').innerText = cdValues[cdIndex] + 's'; });
+
+        const switchView = (target) => { document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active')); document.getElementById(target).classList.add('active'); };
+        const toggleMenu = (forceClose = false) => { const sb = document.getElementById('sidebar'); const ol = document.getElementById('sidebar-overlay'); if(forceClose) { sb.classList.remove('active'); ol.classList.remove('active'); } else { sb.classList.toggle('active'); ol.classList.toggle('active'); } };
+        document.querySelectorAll('.menu-btn, #sidebar-overlay').forEach(e => e.addEventListener('click', () => toggleMenu()));
+        
+        document.querySelectorAll('.sidebar-item[data-target]').forEach(item => { 
+            item.addEventListener('click', () => { 
+                const t = item.getAttribute('data-target'); 
+                if ((t === 'view-studio' || t === 'view-player') && !APP_STATE.activeProjectId) {
+                    if (APP_STATE.projects.length > 0) {
+                        selectProject(APP_STATE.projects[0].id);
+                    } else {
+                        showToast(currentLang==='es'?"Selecciona o crea un Guion primero.":"Select or create a script first.", 'var(--warning-color)');
+                        return;
+                    }
+                }
+                if(isPlayingStudio) togglePlayStudio(false); 
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active')); item.classList.add('active'); 
+                switchView(t); toggleMenu(true); 
+            }); 
+        });
+
+        // --- MODO DE CAPTURA (AUDIO vs VIDEO) Y CONTROLES DE CÁMARA ---
+        let captureMode = 'audio'; // 'audio' | 'video'
+        let cameraFacing = 'user';
+        let isCamMirrored = true;
+        let isTextMirrored = false;
+        let isVirtualCamera = false;
+        let virtualCamAnimId = null;
+
+        const captureModeSelect = document.getElementById('capture-mode-select');
+        const btnModeAudio = document.getElementById('btn-mode-audio');
+        const btnModeVideo = document.getElementById('btn-mode-video');
+        const studioCameraLayer = document.getElementById('studio-camera-layer');
+        const studioCamVideo = document.getElementById('studio-cam-video');
+        const studioCamCanvas = document.getElementById('studio-cam-canvas');
+        const studioCamToolbar = document.getElementById('studio-cam-toolbar');
+        const camOpacitySlider = document.getElementById('cam-opacity-slider');
+        const camOpacityLabel = document.getElementById('cam-opacity-label');
+
+        camOpacitySlider.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value, 10);
+            camOpacityLabel.innerText = `${val}%`;
+            rootStyles.setProperty('--cam-opacity', (val / 100).toFixed(2));
+        });
+
+        async function setCaptureMode(mode) {
+            if (isRecording) {
+                showToast(currentLang === 'es' ? 'Detén la grabación antes de cambiar el modo' : 'Stop recording before switching mode', 'var(--warning-color)');
+                return;
+            }
+            captureMode = mode;
+            captureModeSelect.value = mode;
+            btnModeAudio.classList.toggle('active', mode === 'audio');
+            btnModeVideo.classList.toggle('active', mode === 'video');
+
+            if (mode === 'video') {
+                studioCameraLayer.classList.add('active');
+                studioCamToolbar.classList.add('active');
+                await startCameraPreview();
+            } else {
+                studioCameraLayer.classList.remove('active');
+                studioCamToolbar.classList.remove('active');
+                stopCameraPreview();
+            }
+        }
+
+        captureModeSelect.addEventListener('change', (e) => setCaptureMode(e.target.value));
+        btnModeAudio.addEventListener('click', () => setCaptureMode('audio'));
+        btnModeVideo.addEventListener('click', () => setCaptureMode('video'));
+
+        document.getElementById('btn-cam-layout').addEventListener('click', (e) => {
+            studioCameraLayer.classList.toggle('pip-mode');
+            e.currentTarget.classList.toggle('active', studioCameraLayer.classList.contains('pip-mode'));
+        });
+
+        document.getElementById('btn-cam-mirror').addEventListener('click', (e) => {
+            isCamMirrored = !isCamMirrored;
+            studioCamVideo.classList.toggle('mirrored-cam', isCamMirrored);
+            e.currentTarget.classList.toggle('active', isCamMirrored);
+        });
+
+        document.getElementById('btn-text-mirror').addEventListener('click', (e) => {
+            isTextMirrored = !isTextMirrored;
+            document.getElementById('scroller-studio').classList.toggle('mirrored-text', isTextMirrored);
+            e.currentTarget.classList.toggle('active', isTextMirrored);
+        });
+
+        document.getElementById('btn-cam-flip').addEventListener('click', async () => {
+            cameraFacing = cameraFacing === 'user' ? 'environment' : 'user';
+            if (captureMode === 'video') {
+                stopCameraPreview();
+                await startCameraPreview();
+            }
+        });
+
+        // --- EL METRÓNOMO ---
+        let metroBpm = 120; let metroBeats = 4; let audioCtxMetro = null; let metroNextNoteTime = 0.0; let currentBeat = 0; let lookahead = 25.0; let scheduleAheadTime = 0.1; let metroTimerID;
+        const btnBpmPlus = document.getElementById('btn-bpm-plus'); const btnBpmMinus = document.getElementById('btn-bpm-minus'); const bpmDisplay = document.getElementById('bpm-display'); 
+        const metroDot = document.getElementById('metro-dot'); const metroModeSelect = document.getElementById('metro-mode'); const metroSigSelect = document.getElementById('metro-sig');
+        
+        btnBpmPlus.addEventListener('click', () => { metroBpm = Math.min(metroBpm+5, 240); bpmDisplay.innerText = `${metroBpm} BPM`; }); 
+        btnBpmMinus.addEventListener('click', () => { metroBpm = Math.max(metroBpm-5, 40); bpmDisplay.innerText = `${metroBpm} BPM`; }); 
+        metroSigSelect.addEventListener('change', (e) => { metroBeats = parseInt(e.target.value); });
+        
+        const scheduleNote = (beatNumber, time) => {
+            const isBeat1 = beatNumber === 0; const mode = metroModeSelect.value;
+            if(mode === 'audio' || mode === 'visual') { setTimeout(() => { metroDot.className = `metro-indicator ${isBeat1 ? 'beat1' : 'beat-other'}`; setTimeout(() => metroDot.className = 'metro-indicator', 150); }, Math.max(0, (time - audioCtxMetro.currentTime) * 1000)); }
+            if (mode === 'audio') { const osc = audioCtxMetro.createOscillator(); osc.connect(audioCtxMetro.destination); osc.frequency.value = isBeat1 ? 1000 : 800; osc.start(time); osc.stop(time + 0.05); }
+        };
+        const nextNote = () => { const secondsPerBeat = 60.0 / metroBpm; metroNextNoteTime += secondsPerBeat; currentBeat = (currentBeat + 1) % metroBeats; };
+        const scheduler = () => { while (metroNextNoteTime < audioCtxMetro.currentTime + scheduleAheadTime ) { scheduleNote(currentBeat, metroNextNoteTime); nextNote(); } metroTimerID = setTimeout(scheduler, lookahead); };
+        const startMetronome = () => { if (metroModeSelect.value === 'off') return; if(!audioCtxMetro) audioCtxMetro = new (window.AudioContext || window.webkitAudioContext)(); if(audioCtxMetro.state === 'suspended') audioCtxMetro.resume(); currentBeat = 0; metroNextNoteTime = audioCtxMetro.currentTime + 0.05; scheduler(); };
+        const stopMetronome = () => { clearTimeout(metroTimerID); metroDot.className = 'metro-indicator'; };
+
+        // --- SISTEMA DE MICRÓFONO, CÁMARA Y COMPOSICIÓN DE SUBTÍTULOS EN CANVAS ---
+        let globalStream = null;
+        let videoRawStream = null;
+        let audioContext = null;
+        let analyserVu = null;
+        let analyserTuner = null;
+        let dataArrayVu = null;
+        let tunerBuf = new Float32Array(2048);
+
+        async function getMicStream() {
+            if(!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            if(audioContext.state === 'suspended') await audioContext.resume();
+
+            if(!globalStream) {
+                try {
+                    globalStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: false });
+                } catch (err) {
+                    // Fallback sintético si el entorno no tiene micrófono físico
+                    const dest = audioContext.createMediaStreamDestination();
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    gain.gain.value = 0.001;
+                    osc.connect(gain); gain.connect(dest); osc.start();
+                    globalStream = dest.stream;
+                    showToast(currentLang === 'es' ? '🎙️ Usando canal de audio virtual de estudio' : '🎙️ Using virtual studio audio channel');
+                }
+            }
+            const source = audioContext.createMediaStreamSource(globalStream);
+            analyserVu = audioContext.createAnalyser(); analyserVu.fftSize = 256; dataArrayVu = new Uint8Array(analyserVu.frequencyBinCount); source.connect(analyserVu);
+            analyserTuner = audioContext.createAnalyser(); analyserTuner.fftSize = 2048; source.connect(analyserTuner);
+        }
+
+        async function startCameraPreview() {
+            try {
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    videoRawStream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: cameraFacing, width: { ideal: 1280 }, height: { ideal: 720 } },
+                        audio: false
+                    });
+                    isVirtualCamera = false;
+                    studioCamVideo.style.display = 'block';
+                    studioCamCanvas.style.display = 'none';
+                    studioCamVideo.srcObject = videoRawStream;
+                    await studioCamVideo.play().catch(()=>{});
+                    return;
+                }
+            } catch (e) {}
+            // Fallback: Cámara Virtual de Estudio en Canvas (para dispositivos sin webcam o sandbox)
+            isVirtualCamera = true;
+            studioCamVideo.style.display = 'none';
+            studioCamCanvas.style.display = 'block';
+            startCompositorLoop();
+            showToast(currentLang === 'es' ? '🎥 Cámara Virtual de Estudio activa (con subtítulos en vivo)' : '🎥 Virtual Studio Camera active (with live subtitles)');
+        }
+
+        function stopCameraPreview() {
+            if (videoRawStream) {
+                videoRawStream.getTracks().forEach(t => t.stop());
+                videoRawStream = null;
+            }
+            studioCamVideo.srcObject = null;
+            if (!isRecording) {
+                cancelAnimationFrame(virtualCamAnimId);
+                virtualCamAnimId = null;
+            }
+        }
+
+        function wrapCanvasLines(ctx, text, maxWidth) {
+            const words = (text || '').split(' ');
+            const lines = [];
+            let cur = '';
+            for (let w of words) {
+                const test = cur ? cur + ' ' + w : w;
+                if (ctx.measureText(test).width > maxWidth && cur) {
+                    lines.push(cur);
+                    cur = w;
+                } else {
+                    cur = test;
+                }
+            }
+            if (cur) lines.push(cur);
+            return lines.slice(0, 3);
+        }
+
+        function startCompositorLoop() {
+            cancelAnimationFrame(virtualCamAnimId);
+            const ctx = studioCamCanvas.getContext('2d');
+            const W = studioCamCanvas.width;
+            const H = studioCamCanvas.height;
+
+            const renderFrame = () => {
+                if (captureMode !== 'video' && !isRecording) return;
+                ctx.save();
+                if (!isVirtualCamera && studioCamVideo.readyState >= 2) {
+                    if (isCamMirrored) {
+                        ctx.translate(W, 0);
+                        ctx.scale(-1, 1);
+                    }
+                    ctx.drawImage(studioCamVideo, 0, 0, W, H);
+                } else {
+                    // Fondo de estudio virtual elegante
+                    const grad = ctx.createLinearGradient(0, 0, W, H);
+                    grad.addColorStop(0, '#0f171e');
+                    grad.addColorStop(1, '#182630');
+                    ctx.fillStyle = grad;
+                    ctx.fillRect(0, 0, W, H);
+
+                    // Retícula sutil y código de tiempo SMPTE
+                    ctx.strokeStyle = 'rgba(77, 208, 225, 0.12)';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(40, 40, W - 80, H - 80);
+
+                    ctx.fillStyle = '#4DD0E1';
+                    ctx.font = 'bold 22px monospace';
+                    const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
+                    ctx.fillText(`STUDIOPROMPTER ZERO • ${proj ? proj.title.toUpperCase() : 'STUDIO'}`, 65, 85);
+                    ctx.fillStyle = isRecording ? '#E53935' : '#888888';
+                    ctx.fillText(`${isRecording ? '● REC' : '○ STANDBY'}  ${document.getElementById('timer-studio').innerText}`, W - 260, 85);
+                }
+                ctx.restore();
+
+                // Quemado de subtítulos de referencia en tiempo real si está activado
+                const burnMode = document.getElementById('sub-burn-mode').value;
+                const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
+                if (burnMode === 'burn' && proj && proj.paragraphs[activeParagraphIndex]) {
+                    const para = proj.paragraphs[activeParagraphIndex];
+                    const rawSub = para.text || (para.segments ? para.segments.map(s => s.text).join('') : '');
+                    if (rawSub) {
+                        ctx.save();
+                        ctx.font = 'bold 34px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+                        const lines = wrapCanvasLines(ctx, rawSub, W - 180);
+                        const lineH = 44;
+                        const boxH = lines.length * lineH + (para.phonetic ? 44 : 24);
+                        const boxY = H - boxH - 48;
+
+                        ctx.fillStyle = 'rgba(10, 12, 16, 0.82)';
+                        ctx.beginPath();
+                        ctx.roundRect(80, boxY, W - 160, boxH, 14);
+                        ctx.fill();
+                        ctx.strokeStyle = 'rgba(77, 208, 225, 0.7)';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.textAlign = 'center';
+                        lines.forEach((ln, idx) => {
+                            ctx.fillText(ln, W / 2, boxY + 40 + idx * lineH);
+                        });
+                        if (para.phonetic) {
+                            ctx.fillStyle = '#4DD0E1';
+                            ctx.font = 'bold 25px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+                            ctx.fillText(para.phonetic, W / 2, boxY + 40 + lines.length * lineH);
+                        }
+                        ctx.restore();
+                    }
+                }
+                virtualCamAnimId = requestAnimationFrame(renderFrame);
+            };
+            renderFrame();
+        }
+
+        function releaseMicStream() {
+            if(globalStream && !isRecording && !isPlayingStudio) {
+                globalStream.getTracks().forEach(t => t.stop());
+                globalStream = null;
+            }
+        }
+
+        // --- EL AFINADOR ---
+        const noteStrings = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
+        const floatingTuner = document.getElementById('floating-tuner'); const tunerToggle = document.getElementById('tuner-toggle'); let reqFrameTuner = null;
+        function autoCorrelate(buf, sampleRate) {
+            let size = buf.length; let rms = 0; for (let i=0; i<size; i++) { rms += buf[i]*buf[i]; } if (rms < 0.01) return -1;
+            let r1 = 0, r2 = size - 1, thres = 0.2;
+            for(let i=0; i<size/2; i++) if (Math.abs(buf[i])<thres) { r1=i; break; }
+            for(let i=1; i<size/2; i++) if (Math.abs(buf[size-i])<thres) { r2=size-i; break; }
+            buf = buf.slice(r1, r2); size = buf.length; let c = new Array(size).fill(0);
+            for (let i=0; i<size; i++) { for (let j=0; j<size-i; j++) { c[i] = c[i] + buf[j]*buf[j+i]; } }
+            let d=0; while(c[d]>c[d+1]) d++; let maxval=-1, maxpos=-1; for (let i=d; i<size; i++) { if (c[i] > maxval) { maxval = c[i]; maxpos = i; } }
+            let t0 = maxpos; let x1=c[t0-1], x2=c[t0], x3=c[t0+1]; let a = (x1 + x3 - 2*x2)/2; let b = (x3 - x1)/2; if (a) t0 = t0 - b/(2*a);
+            return sampleRate/t0;
+        }
+        function updateTunerLoop() {
+            if(!isPlayingStudio && !isRecording) return; if(tunerToggle.value !== 'on') return;
+            analyserTuner.getFloatTimeDomainData(tunerBuf); let freq = autoCorrelate(tunerBuf, audioContext.sampleRate);
+            if (freq !== -1) { let note = Math.round(12 * (Math.log(freq / 440) / Math.log(2))) + 69; let octave = Math.floor(note / 12) - 1; let noteName = noteStrings[note % 12];
+                floatingTuner.innerText = noteName + octave; floatingTuner.style.opacity = 1;
+            } else { floatingTuner.innerText = "--"; floatingTuner.style.opacity = 0.6; }
+            reqFrameTuner = requestAnimationFrame(updateTunerLoop);
+        }
+
+        // --- MOTOR DE ESTUDIO Y SCROLL (TOUCH + MOUSE + WHEEL + CUE MANUAL) ---
+        let isPlayingStudio = false; let gSpeed = 0.60; let dPacing = 1.0; let currentYStudio = 0; let reqFrameStudio = null; let lastTStudio = 0; 
+        const scrollerStudio = document.getElementById('scroller-studio'); const btnPlayStudio = document.getElementById('btn-play-studio');
+        let isDragging = false; let startDragY = 0; let startCurrentY = 0; const viewportStudio = document.getElementById('viewport-studio');
+        
+        viewportStudio.addEventListener('touchstart', (e) => { if(!APP_STATE.activeProjectId) return; isDragging = true; startDragY = e.touches[0].clientY; startCurrentY = currentYStudio; if(isPlayingStudio) togglePlayStudio(false); });
+        viewportStudio.addEventListener('touchmove', (e) => { if(!isDragging) return; currentYStudio = Math.max(0, startCurrentY - (e.touches[0].clientY - startDragY)); scrollerStudio.style.transform = `translateY(-${currentYStudio}px)`; });
+        viewportStudio.addEventListener('touchend', () => { isDragging = false; });
+
+        viewportStudio.addEventListener('mousedown', (e) => { if(!APP_STATE.activeProjectId) return; isDragging = true; startDragY = e.clientY; startCurrentY = currentYStudio; });
+        window.addEventListener('mousemove', (e) => { if(!isDragging) return; currentYStudio = Math.max(0, startCurrentY - (e.clientY - startDragY)); scrollerStudio.style.transform = `translateY(-${currentYStudio}px)`; });
+        window.addEventListener('mouseup', () => { isDragging = false; });
+        viewportStudio.addEventListener('wheel', (e) => {
+            if(!APP_STATE.activeProjectId) return;
+            currentYStudio = Math.max(0, currentYStudio + e.deltaY * 0.65);
+            scrollerStudio.style.transform = `translateY(-${currentYStudio}px)`;
+        }, { passive: true });
+
+        // Botón para saltar al siguiente párrafo/subtítulo y marcar su tiempo en vivo
+        document.getElementById('btn-mark-sub').addEventListener('click', () => {
+            const paragraphs = Array.from(scrollerStudio.querySelectorAll('.paragraph'));
+            const nextIdx = Math.min(paragraphs.length - 1, activeParagraphIndex + 1);
+            const targetEl = paragraphs[nextIdx];
+            if (targetEl) {
+                currentYStudio = Math.max(0, targetEl.offsetTop - viewportStudio.clientHeight * 0.42);
+                scrollerStudio.style.transform = `translateY(-${currentYStudio}px)`;
+                paragraphs.forEach((p, idx) => p.className = `paragraph ${idx < nextIdx ? 'past' : (idx === nextIdx ? 'present' : 'future')}`);
+                onActiveParagraphChanged(nextIdx, scrollerStudio);
+            }
+        });
+
+        const togglePlayStudio = async (forceState = null) => {
+            let nextState = forceState !== null ? forceState : !isPlayingStudio;
+            if (nextState) { 
+                if (tunerToggle.value === 'on' && !isRecording) {
+                    try { await getMicStream(); floatingTuner.style.display = 'block'; floatingTuner.innerText = '--'; }
+                    catch(e) { showToast(currentLang==='es'?"El afinador requiere micrófono.":"Mic required for Tuner."); tunerToggle.value = 'off'; }
+                }
+                isPlayingStudio = true; btnPlayStudio.innerHTML = '⏸ PAUSA'; btnPlayStudio.classList.add('active'); 
+                lastTStudio = performance.now(); loopStudio(lastTStudio); startMetronome();
+                if(tunerToggle.value === 'on') { cancelAnimationFrame(reqFrameTuner); updateTunerLoop(); }
+                if(studioRefAudioElement.src) { studioRefAudioElement.play().catch(()=>{}); }
+            } 
+            else { 
+                isPlayingStudio = false; btnPlayStudio.innerHTML = currentLang==='es'?'▶ ENSAYAR':'▶ REHEARSE'; btnPlayStudio.classList.remove('active'); 
+                cancelAnimationFrame(reqFrameStudio); cancelAnimationFrame(reqFrameTuner); stopMetronome(); floatingTuner.style.display = 'none';
+                if(isScrollPaused) { clearTimeout(activePauseTimeout); isScrollPaused = false; }
+                if(studioRefAudioElement.src) { studioRefAudioElement.pause(); } releaseMicStream();
+            }
+        };
+
+        btnPlayStudio.addEventListener('click', () => { if(APP_STATE.activeProjectId && !isRecording) togglePlayStudio(); });
+        document.getElementById('btn-restart-studio').addEventListener('click', () => {
+            if(isPlayingStudio) togglePlayStudio(false); if(isRecording) stopAudioEngine();
+            currentYStudio = 0; activeParagraphIndex = 0; dPacing = 1.0; currentSpeedModifier = 1.0; isScrollPaused = false; clearTimeout(activePauseTimeout);
+            scrollerStudio.style.transform = `translateY(0px)`; Array.from(scrollerStudio.querySelectorAll('.paragraph')).forEach((p, i) => { p.className = `paragraph ${i===0?'present':'future'}`; });
+            onActiveParagraphChanged(0, scrollerStudio);
+            if(studioRefAudioElement.src) { studioRefAudioElement.currentTime = 0; }
+        });
+
+        function loopStudio(time) {
+            if (!isPlayingStudio || isDragging) return;
+            if (!isScrollPaused) currentYStudio += 0.05 * (time - lastTStudio) * gSpeed * dPacing * currentSpeedModifier; 
+            lastTStudio = time; scrollerStudio.style.transform = `translateY(-${currentYStudio}px)`; reqFrameStudio = requestAnimationFrame(loopStudio);
+        }
+
+        document.getElementById('btn-plus').addEventListener('click', () => { gSpeed+=0.05; document.getElementById('speed-display').innerText = gSpeed.toFixed(2); });
+        document.getElementById('btn-minus').addEventListener('click', () => { gSpeed=Math.max(0,gSpeed-0.05); document.getElementById('speed-display').innerText = gSpeed.toFixed(2); });
+
+        // --- MOTOR DE GRABACIÓN (AUDIO O VIDEO CON SUBTÍTULOS SINCRONIZADOS) ---
+        let isRecording = false; let isRecordingPaused = false; let mediaRecorder = null; let audioChunks = []; let reqFrameVu = null; let recordingSeconds = 0; let timerInterval = null; 
+        const btnRec = document.getElementById('btn-rec'); const btnPauseRec = document.getElementById('btn-pause-rec'); const vuMeter = document.getElementById('vu-meter'); 
+        const timerStudio = document.getElementById('timer-studio'); const focusIndicator = document.getElementById('studio-focus-indicator'); 
+        const overlay = document.getElementById('countdown-overlay'); const overlayNum = document.getElementById('countdown-number'); 
+        const vus = [document.getElementById('vu-1'), document.getElementById('vu-2'), document.getElementById('vu-3'), document.getElementById('vu-4'), document.getElementById('vu-5')];
+
+        const triggerRecordFlow = async () => {
+            try {
+                await getMicStream();
+                if (captureMode === 'video' && !videoRawStream && !isVirtualCamera) {
+                    await startCameraPreview();
+                }
+                let timeLeft = cdValues[cdIndex];
+                if (timeLeft > 0) {
+                    overlay.classList.add('active'); overlayNum.innerText = timeLeft;
+                    const cdInterval = setInterval(() => {
+                        timeLeft--;
+                        if(timeLeft > 0) overlayNum.innerText = timeLeft;
+                        else { clearInterval(cdInterval); overlay.classList.remove('active'); startAudioEngineAndScroll(); }
+                    }, 1000);
+                } else { startAudioEngineAndScroll(); }
+            } catch (err) {
+                showToast(currentLang==='es'?"Error al iniciar dispositivo de captura.":"Capture device error.", 'var(--danger-color)');
+            }
+        };
+
+        btnRec.addEventListener('click', async () => {
+            if (!APP_STATE.activeProjectId) {
+                showToast(currentLang==='es'?"Selecciona un guion para grabar.":"Select a script to record.", 'var(--warning-color)');
+                return;
+            }
+            if (isRecording) { stopAudioEngine(); togglePlayStudio(false); return; }
+
+            const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
+            if (proj && proj.audioData) {
+                showModal({
+                    title: currentLang === 'es' ? 'Sobrescribir Grabación' : 'Overwrite Recording',
+                    message: currentLang === 'es'
+                        ? "⚠️ Ya existe una toma grabada en este proyecto.\n¿Deseas sobrescribirla con una nueva grabación y nuevos subtítulos?"
+                        : "⚠️ A recording already exists in this project.\nDo you want to overwrite it with a new take and subtitles?",
+                    isConfirm: true,
+                    danger: true,
+                    onConfirm: triggerRecordFlow
+                });
+                return;
+            }
+            triggerRecordFlow();
+        });
+
+        btnPauseRec.addEventListener('click', () => {
+            if(!isRecording || !mediaRecorder) return;
+            if(isRecordingPaused) { 
+                mediaRecorder.resume(); isRecordingPaused = false; timerStudio.classList.remove('paused'); 
+                btnPauseRec.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>'; togglePlayStudio(true); 
+            } else { 
+                mediaRecorder.pause(); isRecordingPaused = true; timerStudio.classList.add('paused'); 
+                btnPauseRec.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;"><path d="M8 5v14l11-7z"/></svg>'; togglePlayStudio(false); 
+            }
+        });
+
+        const startAudioEngineAndScroll = () => {
+            audioChunks = [];
+            liveSubtitleLog = [];
+            recordingStartPerf = performance.now();
+
+            const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
+            if (proj && proj.paragraphs[activeParagraphIndex]) {
+                const p0 = proj.paragraphs[activeParagraphIndex];
+                const clean0 = p0.text || (p0.segments ? p0.segments.map(s => s.text).join('') : '');
+                liveSubtitleLog.push({
+                    id: activeParagraphIndex,
+                    start: 0.0,
+                    end: 3.0,
+                    text: clean0.trim(),
+                    phonetic: p0.phonetic || ''
+                });
+            }
+
+            let targetStream = globalStream;
+            let options = {};
+
+            if (captureMode === 'video') {
+                startCompositorLoop();
+                const burnMode = document.getElementById('sub-burn-mode').value;
+                let videoTrackSource = null;
+                if (burnMode === 'burn' || isVirtualCamera || !videoRawStream) {
+                    videoTrackSource = studioCamCanvas.captureStream(30);
+                } else {
+                    videoTrackSource = videoRawStream;
+                }
+                const combinedTracks = [
+                    ...videoTrackSource.getVideoTracks(),
+                    ...(globalStream ? globalStream.getAudioTracks() : [])
+                ];
+                targetStream = new MediaStream(combinedTracks);
+                if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')) options = { mimeType: 'video/webm;codecs=vp9,opus' };
+                else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) options = { mimeType: 'video/webm;codecs=vp8,opus' };
+                else if (MediaRecorder.isTypeSupported('video/webm')) options = { mimeType: 'video/webm' };
+                else if (MediaRecorder.isTypeSupported('video/mp4')) options = { mimeType: 'video/mp4' };
+            } else {
+                if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) options = { mimeType: 'audio/webm;codecs=opus' }; 
+                else if (MediaRecorder.isTypeSupported('audio/mp4')) options = { mimeType: 'audio/mp4' }; 
+            }
+
+            mediaRecorder = new MediaRecorder(targetStream, options); 
+            mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) audioChunks.push(e.data); };
+            mediaRecorder.onstop = async () => {
+                const finalY = currentYStudio;
+                const totalDur = Math.max(1, recordingSeconds || ((performance.now() - recordingStartPerf) / 1000));
+                setTimeout(async () => {
+                    const fallbackMime = captureMode === 'video' ? 'video/webm' : 'audio/webm';
+                    const mime = mediaRecorder.mimeType || fallbackMime;
+                    const mediaBlob = new Blob(audioChunks, { type: mime }); 
+                    if(mediaBlob.size === 0) {
+                        showToast(currentLang === 'es' ? "⚠️ 0 bytes capturados" : "⚠️ 0 bytes captured", 'var(--danger-color)');
+                        return;
+                    }
+                    const activeProj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
+                    if(activeProj) { 
+                        try { 
+                            activeProj.audioData = await mediaBlob.arrayBuffer();
+                            activeProj.audioMimeType = mime;
+                            activeProj.mediaType = captureMode;
+                            activeProj.recordedScrollY = finalY;
+                            activeProj.recordedDuration = Number(totalDur.toFixed(2));
+
+                            // Finalizar tiempos de subtítulos registrados en vivo o distribuir los restantes
+                            if (liveSubtitleLog.length > 0) {
+                                liveSubtitleLog[liveSubtitleLog.length - 1].end = Number(totalDur.toFixed(2));
+                                if (liveSubtitleLog.length < activeProj.paragraphs.length) {
+                                    const autoSubs = generateDefaultSubtitles(activeProj.paragraphs, totalDur);
+                                    const mapLogged = new Map(liveSubtitleLog.map(s => [s.id, s]));
+                                    activeProj.subtitles = autoSubs.map(s => mapLogged.get(s.id) || s);
+                                } else {
+                                    activeProj.subtitles = liveSubtitleLog;
+                                }
+                            } else {
+                                activeProj.subtitles = generateDefaultSubtitles(activeProj.paragraphs, totalDur);
+                            }
+
+                            await dbOps.save(activeProj); 
+                            document.getElementById('studio-active-title').innerText = captureMode === 'video' ? "VIDEO + SUBS SAVED!" : "AUDIO + SUBS SAVED!";
+                            document.getElementById('studio-active-title').style.color = "#FFDD00"; 
+                            showToast(currentLang === 'es' ? '✅ Grabación y subtítulos guardados en el Reproductor' : '✅ Recording & subtitles saved to Player');
+                            setTimeout(() => selectProject(activeProj.id), 1600); 
+                        } catch (e) {
+                            showToast("Error: " + e.message, 'var(--danger-color)');
+                        } 
+                    }
+                }, 100);
+            };
+
+            mediaRecorder.start(400); isRecording = true; isRecordingPaused = false;
+            btnRec.classList.add('recording'); btnPauseRec.classList.add('visible'); btnPauseRec.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+            vuMeter.classList.add('recording'); timerStudio.classList.add('recording'); timerStudio.classList.remove('paused'); focusIndicator.style.background = 'var(--danger-color)';
+            if(tunerToggle.value === 'on') { floatingTuner.style.display = 'block'; }
+            if(studioRefAudioElement.src) { studioRefAudioElement.currentTime = 0; }
+            
+            recordingSeconds = 0; timerStudio.innerText = "00:00";
+            timerInterval = setInterval(() => {
+                if(isRecordingPaused) return; recordingSeconds++;
+                const m = Math.floor((recordingSeconds % 3600) / 60).toString().padStart(2, '0'); const s = (recordingSeconds % 60).toString().padStart(2, '0');
+                timerStudio.innerText = `${m}:${s}`;
+            }, 1000);
+            
+            drawVUMeterLoop(); togglePlayStudio(true); 
+        };
+
+        const stopAudioEngine = () => {
+            if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
+            isRecording = false; isRecordingPaused = false; btnRec.classList.remove('recording'); btnPauseRec.classList.remove('visible');
+            vuMeter.classList.remove('recording'); timerStudio.classList.remove('recording', 'paused'); focusIndicator.style.background = 'var(--theme-accent)';
+            clearInterval(timerInterval); cancelAnimationFrame(reqFrameVu); vus.forEach(v => { v.style.height = '4px'; v.style.backgroundColor = 'var(--theme-accent)'; });
+            releaseMicStream();
+        };
+
+        const drawVUMeterLoop = () => {
+            if (!isRecording || isRecordingPaused) return;
+            analyserVu.getByteFrequencyData(dataArrayVu); let sum = 0; for(let i=0; i<dataArrayVu.length; i++) sum += dataArrayVu[i];
+            let level = ((sum / dataArrayVu.length) / 128) * 5; 
+            vus.forEach((bar, index) => {
+                if (index < level) { bar.style.height = '100%'; if(index === 3) bar.style.backgroundColor = '#FFDD00'; else if(index === 4) bar.style.backgroundColor = 'var(--danger-color)'; else bar.style.backgroundColor = 'var(--theme-accent)'; } 
+                else { bar.style.height = '4px'; bar.style.backgroundColor = 'var(--theme-accent)'; }
+            }); 
+            reqFrameVu = requestAnimationFrame(drawVUMeterLoop);
+        };
+
+        // --- REPRODUCTOR MULTIMEDIA Y MOTOR DE SUBTÍTULOS (.SRT / .VTT) ---
+        const audioProgress = document.getElementById('audio-progress');
+        const audioProgressWrap = document.getElementById('audio-progress-wrap');
+        const scrollerPlayer = document.getElementById('scroller-player');
+        let reqFramePlayer = null;
+        
+        function updatePlayerSubtitleAtTime(curTime, proj) {
+            if (!proj || !proj.subtitles || proj.subtitles.length === 0) {
+                playerSubOverlay.classList.remove('active');
+                return;
+            }
+            const activeCue = proj.subtitles.find(s => curTime >= s.start && curTime <= s.end) || proj.subtitles[0];
+            if (activeCue) {
+                playerSubOverlay.classList.add('active');
+                playerSubMain.innerText = activeCue.text;
+                playerSubPhonetic.innerText = activeCue.phonetic || '';
+                playerSubPhonetic.style.display = activeCue.phonetic ? 'block' : 'none';
+
+                document.querySelectorAll('.sub-cue-item').forEach(el => {
+                    el.classList.toggle('active-cue', parseInt(el.dataset.cueId, 10) === activeCue.id);
+                });
+            }
+        }
+
+        function loopPlayer() { 
+            const mediaEl = getActivePlayerElement();
+            const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
+            if (mediaEl && !mediaEl.paused) {
+                const dur = (isFinite(mediaEl.duration) && mediaEl.duration > 0) ? mediaEl.duration : (proj?.recordedDuration || 10);
+                const cur = mediaEl.currentTime || 0;
+                const percent = Math.min(1, cur / dur);
+                audioProgress.style.width = `${percent * 100}%`;
+                document.getElementById('player-time-display').innerText = `${formatMMSS(cur)} / ${formatMMSS(dur)}`;
+
+                if(proj && proj.recordedScrollY) {
+                    scrollerPlayer.style.transform = `translateY(-${percent * proj.recordedScrollY}px)`;
+                }
+                updatePlayerSubtitleAtTime(cur, proj);
+                reqFramePlayer = requestAnimationFrame(loopPlayer); 
+            } 
+        }
+
+        function seekPlayerToParagraph(paraIdx) {
+            const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
+            if (!proj || !proj.subtitles || !proj.subtitles[paraIdx]) return;
+            const mediaEl = getActivePlayerElement();
+            if (mediaEl && mediaEl.src) {
+                mediaEl.currentTime = proj.subtitles[paraIdx].start;
+                updatePlayerSubtitleAtTime(mediaEl.currentTime, proj);
+            }
+        }
+
+        audioProgressWrap.addEventListener('click', (e) => {
+            const mediaEl = getActivePlayerElement();
+            const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
+            if (!mediaEl || !mediaEl.src) return;
+            const rect = audioProgressWrap.getBoundingClientRect();
+            const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            const dur = (isFinite(mediaEl.duration) && mediaEl.duration > 0) ? mediaEl.duration : (proj?.recordedDuration || 10);
+            mediaEl.currentTime = ratio * dur;
+            audioProgress.style.width = `${ratio * 100}%`;
+            updatePlayerSubtitleAtTime(mediaEl.currentTime, proj);
+        });
+        
+        if (btnPlayAudio) {
+            btnPlayAudio.addEventListener('click', () => { 
+                const mediaEl = getActivePlayerElement();
+                if (!mediaEl || !mediaEl.src) return;
+                if (mediaEl.paused) {
+                    mediaEl.play();
+                    btnPlayAudio.innerHTML = '⏸ PAUSA';
+                    btnPlayAudio.classList.add('active');
+                    reqFramePlayer = requestAnimationFrame(loopPlayer);
+                } else {
+                    mediaEl.pause();
+                    btnPlayAudio.innerHTML = mediaEl === masterVideo ? '▶ VIDEO' : '▶ ESCUCHAR';
+                    btnPlayAudio.classList.remove('active');
+                    cancelAnimationFrame(reqFramePlayer);
+                } 
+            });
+            [masterAudio, masterVideo].forEach(el => {
+                el.addEventListener('ended', () => {
+                    btnPlayAudio.innerHTML = el === masterVideo ? '▶ VIDEO' : '▶ ESCUCHAR';
+                    btnPlayAudio.classList.remove('active');
+                    cancelAnimationFrame(reqFramePlayer);
+                });
+            });
+        }
+
+        // --- EDITOR Y EXPORTADOR DE SUBTÍTULOS (.SRT / .VTT) ---
+        const subtitlesDrawer = document.getElementById('subtitles-drawer');
+        const subtitlesListContainer = document.getElementById('subtitles-list-container');
+
+        document.getElementById('btn-toggle-subs').addEventListener('click', () => {
+            subtitlesDrawer.classList.toggle('active');
+        });
+        document.getElementById('btn-close-subs').addEventListener('click', () => {
+            subtitlesDrawer.classList.remove('active');
+        });
+
+        document.getElementById('btn-recalc-subs').addEventListener('click', async () => {
+            const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
+            if (!proj) return;
+            const mediaEl = getActivePlayerElement();
+            const dur = (mediaEl && isFinite(mediaEl.duration) && mediaEl.duration > 0) ? mediaEl.duration : (proj.recordedDuration || 0);
+            proj.subtitles = generateDefaultSubtitles(proj.paragraphs, dur);
+            await dbOps.save(proj);
+            renderSubtitlesEditor(proj);
+            showToast(currentLang === 'es' ? '⚡ Subtítulos recalibrados con el guion' : '⚡ Subtitles recalibrated to script');
+        });
+
+        function renderSubtitlesEditor(proj) {
+            subtitlesListContainer.innerHTML = '';
+            if (!proj || !proj.subtitles) return;
+            proj.subtitles.forEach((cue, idx) => {
+                const row = document.createElement('div');
+                row.className = 'sub-cue-item';
+                row.dataset.cueId = cue.id;
+                row.innerHTML = `
+                    <div class="sub-cue-times">
+                        <span>#${idx + 1}</span>
+                        <div>
+                            <input type="number" step="0.1" min="0" class="sub-time-input sub-start" value="${cue.start.toFixed(1)}">s
+                            →
+                            <input type="number" step="0.1" min="0" class="sub-time-input sub-end" value="${cue.end.toFixed(1)}">s
+                        </div>
+                    </div>
+                    <input type="text" class="sub-text-input" value="${cue.text.replace(/"/g, '&quot;')}">
+                `;
+                const startInput = row.querySelector('.sub-start');
+                const endInput = row.querySelector('.sub-end');
+                const textInput = row.querySelector('.sub-text-input');
+
+                const saveChange = async () => {
+                    cue.start = Math.max(0, parseFloat(startInput.value) || 0);
+                    cue.end = Math.max(cue.start + 0.3, parseFloat(endInput.value) || (cue.start + 2));
+                    cue.text = textInput.value;
+                    await dbOps.save(proj);
+                };
+                startInput.addEventListener('change', saveChange);
+                endInput.addEventListener('change', saveChange);
+                textInput.addEventListener('input', saveChange);
+                subtitlesListContainer.appendChild(row);
+            });
+        }
+
+        function formatTimestampSRT(seconds, separator = ',') {
+            const ms = Math.floor((seconds % 1) * 1000).toString().padStart(3, '0');
+            const totalSec = Math.floor(seconds);
+            const s = (totalSec % 60).toString().padStart(2, '0');
+            const m = (Math.floor(totalSec / 60) % 60).toString().padStart(2, '0');
+            const h = Math.floor(totalSec / 3600).toString().padStart(2, '0');
+            return `${h}:${m}:${s}${separator}${ms}`;
+        }
+
+        function exportSubtitlesFile(format = 'srt') {
+            const proj = APP_STATE.projects.find(p => p.id === APP_STATE.activeProjectId);
+            if (!proj) {
+                showToast(currentLang === 'es' ? 'Selecciona un proyecto primero' : 'Select a project first', 'var(--warning-color)');
+                return;
+            }
+            const subs = (proj.subtitles && proj.subtitles.length) ? proj.subtitles : generateDefaultSubtitles(proj.paragraphs, proj.recordedDuration || 0);
+            let output = format === 'vtt' ? 'WEBVTT\n\n' : '';
+            const sep = format === 'vtt' ? '.' : ',';
+
+            subs.forEach((cue, i) => {
+                const startStr = formatTimestampSRT(cue.start, sep);
+                const endStr = formatTimestampSRT(Math.max(cue.start + 0.5, cue.end), sep);
+                const body = cue.phonetic ? `${cue.text}\n${cue.phonetic}` : cue.text;
+                output += `${i + 1}\n${startStr} --> ${endStr}\n${body}\n\n`;
+            });
+
+            const blob = new Blob([output], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const safeTitle = proj.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            a.download = `Subtitulos_${safeTitle}.${format}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast(currentLang === 'es' ? `📥 Archivo .${format.toUpperCase()} descargado` : `📥 .${format.toUpperCase()} file downloaded`);
+        }
+
+        document.getElementById('btn-export-srt').addEventListener('click', () => exportSubtitlesFile('srt'));
+        document.getElementById('btn-export-srt-quick').addEventListener('click', () => exportSubtitlesFile('srt'));
+        document.getElementById('btn-export-vtt').addEventListener('click', () => exportSubtitlesFile('vtt'));
+
+        // --- ATAJOS DE TECLADO PARA ESTUDIO ---
+        window.addEventListener('keydown', (e) => {
+            if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+            const studioActive = document.getElementById('view-studio').classList.contains('active');
+            if (!studioActive) return;
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (APP_STATE.activeProjectId && !isRecording) togglePlayStudio();
+            } else if (e.code === 'ArrowUp') {
+                e.preventDefault();
+                document.getElementById('btn-plus').click();
+            } else if (e.code === 'ArrowDown') {
                 e.preventDefault();
                 document.getElementById('btn-minus').click();
             } else if (e.code === 'ArrowRight') {
