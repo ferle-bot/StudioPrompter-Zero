@@ -2,22 +2,22 @@
   "id": "/StudioPrompter-Zero/",
   "name": "StudioPrompter Zero",
   "short_name": "PrompterZero",
-  "description": "Teleprompter Local-First de Alto Rendimiento",
-  "start_url": "/StudioPrompter-Zero/index.html",
-  "scope": "/StudioPrompter-Zero/",
+  "description": "Teleprompter PWA Local-First con Grabación de Audio/Video y Subtitulado Automático con Texto de Referencia",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#000000",
+  "background_color": "#121212",
   "theme_color": "#121212",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "icons": [
     {
-      "src": "/StudioPrompter-Zero/assets/images/icon-192.png",
+      "src": "./assets/images/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/StudioPrompter-Zero/assets/images/icon-512.png",
+      "src": "./assets/images/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
